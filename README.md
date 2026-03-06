@@ -13,7 +13,7 @@ Das System muss:
     • Ergebnisse speichern (1–0, ½–½, 0–1, +--,- - +, - - -, 0 - 0)
     • Tabelle/Stand berechnen und anzeigen können
 
-3. Welche Daten müssen gespeichert werden? (nicht final)
+4. Welche Daten müssen gespeichert werden? (nicht final)
 3.1 Turnierdaten (die Grundinfos)
 Für jedes Turnier sollen gespeichert werden:
     • Name des Turniers
