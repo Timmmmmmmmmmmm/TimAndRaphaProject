@@ -1,12 +1,17 @@
+package BoardGui;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
-public class BoardGui extends JPanel {
+public class BoardPanel extends JPanel {
 
+    Game game;
     JPanel boardPanel;
     JButton[][] board = new JButton[8][8];
 
-    public BoardGui() {
+    public BoardPanel(Game game) {
+        this.game = game;
 
         setLayout(new BorderLayout());
 
@@ -33,9 +38,27 @@ public class BoardGui extends JPanel {
                 board[row][column] = button;
                 boardPanel.add(button);
             }
+        refresh();
     }
 
     public void click(int row, int column) {
+        System.out.println("ROW: " + row + " COLUMN: " + column);
+    }
 
+    void refresh() {
+
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++) {
+
+                Piece p = game.board[r][c];
+
+                if (p == null) {
+                    board[r][c].setIcon(null);
+                } else {
+                    String file = p.white ? "pieces/white/" : "pieces/black/";
+                    file = file + p.getSymbol() + ".png";
+                    board[r][c].setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(file))));
+                }
+            }
     }
 }
