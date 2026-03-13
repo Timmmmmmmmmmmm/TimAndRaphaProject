@@ -1,8 +1,12 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
 DROP TABLE IF EXISTS games_moves;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS rounds;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE tournaments
 (
@@ -15,9 +19,6 @@ CREATE TABLE tournaments
     status             VARCHAR(50),
     PRIMARY KEY (id)
 );
-
-INSERT INTO tournaments(id, name, date, city, base_consider_time, move_consider_time, status)
-VALUES (1, 'Adrians Turnier', CURRENT_DATE, 'Münster', 1800, 30, 'planned');
 
 CREATE TABLE players
 (
@@ -32,12 +33,6 @@ CREATE TABLE players
     PRIMARY KEY (id)
 );
 
-INSERT INTO players(id, firstname, lastname, fide_rating, fide_title, gender, birthdate, status)
-VALUES (1, 'Magnus', 'Carlsen', 2840, 'gm', 'm', '1990-11-30', 'disqualified'),
-       (2, 'Hikaru', 'Nakamura', 2810, 'gm', 'm', '1987-12-09', 'disqualified'),
-       (3, 'Tim', 'Kaiser', 1423, 'none', 'm', '2003-05-13', 'winner');
-
-
 CREATE TABLE rounds
 (
     id           INT NOT NULL,
@@ -47,10 +42,6 @@ CREATE TABLE rounds
     PRIMARY KEY (id)
 
 );
-
-INSERT INTO rounds(id, round_number, status, begin)
-VALUES (1, 1, 'pending', '2026-05-13 14:00');
-
 
 CREATE TABLE games
 (
@@ -74,9 +65,6 @@ CREATE TABLE games
     PRIMARY KEY (id)
 
 );
-
-INSERT INTO games (id, result, start,board_number, round_id, player_white, player_black)
-VALUES (1, 1, '2026-05-13 14:00', 67, 1, 3, 1);
 
 CREATE TABLE games_moves
 (
