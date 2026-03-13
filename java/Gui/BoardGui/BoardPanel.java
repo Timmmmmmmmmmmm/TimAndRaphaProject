@@ -68,7 +68,7 @@ public class BoardPanel extends JPanel {
                     if (result == Game.ChessResult.CHECK) {
                         inCheck = true;
                     } else {
-                        ResultDialog.showResult(result, !game.whiteTurn);
+                        ResultDialog.showResult(game, result, !game.whiteTurn);
                     }
                 } else {
                     inCheck = false;
