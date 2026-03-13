@@ -1,8 +1,12 @@
 package BoardGui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Game {
     public Piece[][] board = new Piece[8][8];
 
+    public List<Move> history = new ArrayList<>();
     public boolean whiteTurn = true;
     public String result = "*";
 
