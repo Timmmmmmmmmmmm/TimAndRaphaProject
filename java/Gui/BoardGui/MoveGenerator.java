@@ -219,7 +219,7 @@ public class MoveGenerator {
     static List<Move> slide(Game game, int row, int column, int[][] directions) {
         List<Move> moves = new ArrayList<>();
         Piece piece = game.board[row][column];
-        
+
         for (int[] direction : directions) {
             int newRow = row + direction[0];
             int newColumn = column + direction[1];

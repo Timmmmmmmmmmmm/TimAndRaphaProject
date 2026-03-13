@@ -1,4 +1,5 @@
-SET FOREIGN_KEY_CHECKS = 0;
+SET
+FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS games_moves;
 DROP TABLE IF EXISTS games;
@@ -6,7 +7,8 @@ DROP TABLE IF EXISTS rounds;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
 
-SET FOREIGN_KEY_CHECKS = 1;
+SET
+FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE tournaments
 (
@@ -22,46 +24,61 @@ CREATE TABLE tournaments
 
 CREATE TABLE players
 (
-    id          INT NOT NULL,
-    firstname   VARCHAR(255),
-    lastname    VARCHAR(255),
-    fide_rating INT,
-    fide_title  VARCHAR(55),
-    gender      CHAR,
-    birthdate   DATE,
-    status      VARCHAR(55),
+    id            INT NOT NULL,
+    firstname     VARCHAR(255),
+    lastname      VARCHAR(255),
+    score         DEC(3, 1) DEFAULT 0.0,
+    fide_rating   INT,
+    fide_title    VARCHAR(55),
+    gender        CHAR,
+    birthdate     DATE,
+    status        VARCHAR(55),
+    tournament_id INT,
+    CONSTRAINT fk_tournament_player
+        FOREIGN KEY (tournament_id)
+            REFERENCES tournaments (id)
+            ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE rounds
 (
-    id           INT NOT NULL,
-    round_number INT,
-    status       VARCHAR(55),
-    begin        DATETIME,
-    PRIMARY KEY (id)
-
+    id            INT NOT NULL,
+    tournament_id INT NOT NULL,
+    round_number  INT,
+    status        VARCHAR(55),
+    begin         DATETIME,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_tournament_round
+        FOREIGN KEY (tournament_id)
+            REFERENCES tournaments (id)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE games
 (
-    id           INT NOT NULL,
-    result       INT,
-    start        DATETIME,
-    board_number INT,
-    round_id     INT,
-    CONSTRAINT fk_round
+    id            INT NOT NULL,
+    result        INT,
+    start         DATETIME,
+    board_number  INT,
+    round_id      INT,
+    CONSTRAINT fk_game_round
         FOREIGN KEY (round_id)
             REFERENCES rounds (id)
             ON DELETE CASCADE,
-    player_white INT,
-    CONSTRAINT fk_player_white
+    player_white  INT,
+    CONSTRAINT fk_player_white_game
         FOREIGN KEY (player_white)
             REFERENCES players (id),
-    player_black INT,
-    CONSTRAINT fk_player_black
+    player_black  INT,
+    CONSTRAINT fk_player_black_game
         FOREIGN KEY (player_black)
             REFERENCES players (id),
+    tournament_id INT,
+    CONSTRAINT fk_tournament_game
+        FOREIGN KEY (tournament_id)
+            REFERENCES tournaments (id)
+            ON DELETE CASCADE,
     PRIMARY KEY (id)
 
 );
@@ -71,7 +88,7 @@ CREATE TABLE games_moves
     move_number INT,
     move        VARCHAR(55),
     games_id    INT,
-    CONSTRAINT fk_games
+    CONSTRAINT fk_games_games_moves
         FOREIGN KEY (games_id)
             REFERENCES games (id)
             ON DELETE CASCADE
