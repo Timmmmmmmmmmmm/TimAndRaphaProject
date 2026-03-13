@@ -1,5 +1,7 @@
-import BoardGui.BoardPanel;
-import BoardGui.Game;
+package Gui;
+
+import Gui.BoardGui.BoardPanel;
+import Gui.BoardGui.Game;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,14 +9,15 @@ import java.util.Objects;
 
 public class BaseWindow extends JFrame {
 
-    public BaseWindow() {
+    private static BaseWindow instance;
 
-        Game game = new Game();
+    public BaseWindow() {
+        instance = this;
 
         setTitle("Schach-Turnierverwaltung");
         setSize(800, 600);
         setLocationRelativeTo(null);
-        setContentPane(new BoardPanel(game));
+        setContentPane(new BoardPanel(new Game()));
         setMinimumSize(new Dimension(400, 400));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
@@ -23,6 +26,16 @@ public class BaseWindow extends JFrame {
         setIconImage(icon.getImage());
 
         setVisible(true);
+    }
+
+    public static BaseWindow getInstance() {
+        return instance;
+    }
+
+    public void setPanel(JPanel panel) {
+        setContentPane(panel);
+        revalidate();
+        repaint();
     }
 
     static void main() {

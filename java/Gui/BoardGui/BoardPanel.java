@@ -1,4 +1,4 @@
-package BoardGui;
+package Gui.BoardGui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +9,10 @@ public class BoardPanel extends JPanel {
 
     Game game;
     JPanel boardPanel;
+    JPanel northPanel;
+    JLabel turn;
     JButton[][] board = new JButton[8][8];
+    boolean inCheck = false;
 
     int selectedRow= -1, selectedColumn = -1;
     List<Move> legalMoves = new ArrayList<>();
@@ -20,6 +23,12 @@ public class BoardPanel extends JPanel {
         this.game = game;
 
         setLayout(new BorderLayout());
+
+        northPanel = new JPanel();
+        turn = new JLabel();
+        turn.setText(game.whiteTurn ? "WHITE" : "BLACK");
+        northPanel.add(turn);
+        add(northPanel, BorderLayout.NORTH);
 
         boardPanel = new JPanel();
         boardPanel.setLayout(new GridLayout(8, 8));
@@ -49,23 +58,39 @@ public class BoardPanel extends JPanel {
 
     public void click(int row, int column) {
         for (Move move : legalMoves) {
-            if (move.fromRow == row && move.fromColumn == column) {
-                System.out.println("Move");
+            if (move.toRow == row && move.toColumn == column) {
+                //Move
                 selectedRow = -1;
                 selectedColumn = -1;
+                Game.ChessResult result = game.makeMove(move, false);
+                //From here whiteTurn is flipped
+                if (result != null && result != Game.ChessResult.NONE) {
+                    if (result == Game.ChessResult.CHECK) {
+                        inCheck = true;
+                    } else {
+                        ResultDialog.showResult(result, !game.whiteTurn);
+                    }
+                } else {
+                    inCheck = false;
+                }
+                turn.setText(game.whiteTurn ? "WHITE" : "BLACK");
+                legalMoves.clear();
+
                 refresh();
                 return;
             }
         }
 
-        if (game.board[row][column] != null) {
+        if (game.board[row][column] != null && game.board[row][column].white == game.whiteTurn) {
+            //Select
             selectedRow = row;
             selectedColumn = column;
-            System.out.println("Select");
+            legalMoves = MoveGenerator.generateLegal(game, row, column);
         } else {
+            //Deselect
             selectedRow = -1;
             selectedColumn = -1;
-            System.out.println("deselect");
+            legalMoves.clear();
         }
         refresh();
     }
@@ -75,8 +100,9 @@ public class BoardPanel extends JPanel {
         int x = (getWidth() - size) / 2;
         int y = (getHeight() - size) / 2;
 
-        boardPanel.setBounds(x, y, size, size);
+        boardPanel.setBounds(x + (northPanel.getHeight() / 2), y + northPanel.getHeight(), size - northPanel.getHeight(), size - northPanel.getHeight());
         boardPanel.doLayout();
+        northPanel.doLayout();
 
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
@@ -92,6 +118,10 @@ public class BoardPanel extends JPanel {
                 }
 
                 Piece piece = game.board[row][column];
+                if (piece != null && inCheck && piece.white == game.whiteTurn && piece.type == Piece.Type.KING) {
+                    board[row][column].setBackground(new Color(239, 81, 81));
+                }
+
                 if (piece == null) {
                     board[row][column].setIcon(null);
                 } else {
@@ -108,6 +138,13 @@ public class BoardPanel extends JPanel {
                     }
                 }
             }
+        }
+        highlight();
+    }
+
+    public void highlight() {
+        for (Move move : legalMoves) {
+            board[move.toRow][move.toColumn].setBackground(Color.GREEN);
         }
     }
 

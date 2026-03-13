@@ -1,4 +1,4 @@
-package BoardGui;
+package Gui.BoardGui;
 
 public class Move {
 
@@ -8,8 +8,6 @@ public class Move {
     boolean castle = false;
     boolean enPassant = false;
     boolean promotion = false;
-
-    Piece.Type promotionType;
 
     public Move(int fromRow, int fromColumn, int toRow, int toColumn){
 

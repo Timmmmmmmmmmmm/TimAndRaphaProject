@@ -1,4 +1,4 @@
-package BoardGui;
+package Gui.BoardGui;
 
 public class Piece {
 
