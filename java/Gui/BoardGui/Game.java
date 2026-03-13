@@ -1,5 +1,9 @@
 package Gui.BoardGui;
 
+import Gui.Dto.Player;
+import Gui.Dto.Round;
+import Gui.Dto.Tournament;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +14,17 @@ public class Game {
     public boolean whiteTurn = true;
     public String result = "*";
 
-    public Game() {
+    Tournament tournament;
+    Round round;
+    Player whitePlayer;
+    Player blackPlayer;
+
+    public Game(Tournament tournament, Round round, Player whitePlayer, Player blackPlayer) {
         setup();
+        this.tournament = tournament;
+        this.round = round;
+        this.whitePlayer = whitePlayer;
+        this.blackPlayer = blackPlayer;
     }
 
     public enum ChessResult {
@@ -51,7 +64,7 @@ public class Game {
     }
 
     public Game copy(){
-        Game game = new Game();
+        Game game = new Game(null, null, null, null);
 
         game.whiteTurn = whiteTurn;
         game.result = result;

@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class ResultDialog {
 
-    public static void showResult(Game.ChessResult result, boolean white) {
+    public static void showResult(Game game, Game.ChessResult result, boolean white) {
         String[] options = {
                 "PGN herunterladen",
                 "Schließen",
@@ -21,13 +21,16 @@ public class ResultDialog {
                 JOptionPane.PLAIN_MESSAGE,
                 new ImageIcon(Objects.requireNonNull(PromotionDialog.class.getResource("images/pieces/" + (white ? "white" : "black") + "/pawn.png"))),
                 options,
-                options[0]
+                null
         );
         switch (res) {
+            case 0:
+                PGNWriter.export(game);
+                break;
             case 1:
+                break;
             case 2:
-            default:
-                BaseWindow.getInstance().setPanel(new BoardPanel(new Game()));
+                BaseWindow.getInstance().setPanel(new BoardPanel(new Game(null, null, null, null)));
                 break;
         }
     }
