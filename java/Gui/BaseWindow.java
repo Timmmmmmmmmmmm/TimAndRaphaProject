@@ -27,7 +27,7 @@ public class BaseWindow extends JFrame {
         setContentPane(new BoardPanel(new Game(new Tournament(1, "Münsterland-Tunier", LocalDate.now(), "Münster", 90, 30, Tournament.TournamentStatus.RUNNING),
                 new Round(1, 1, Round.RoundStatus.RUNNING, LocalDateTime.now()),
                 new Player(1, "Raphael", "Berkenheide", 15, Player.FideTitle.NONE, 'm', LocalDate.of(2008, Month.MAY, 31), Player.PlayerStatus.PLAYING),
-                new Player(1, "Tim", "Kaiser", 1500, Player.FideTitle.GRANDMASTER, 'm', LocalDate.of(2003, Month.MAY, 13), Player.PlayerStatus.PLAYING))));
+                new Player(2, "Tim", "Kaiser", 1500, Player.FideTitle.GRANDMASTER, 'm', LocalDate.of(2003, Month.MAY, 13), Player.PlayerStatus.PLAYING))));
         setMinimumSize(new Dimension(400, 400));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);

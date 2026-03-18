@@ -2,7 +2,7 @@ package Gui.BoardGui;
 
 public class Piece {
 
-    public enum Type{
+    public enum Type {
         PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
     }
 
@@ -16,13 +16,15 @@ public class Piece {
     }
 
     public String getSymbol() {
-        return switch (type) {
-            case KING -> "king";
-            case QUEEN -> "queen";
-            case ROOK -> "rook";
-            case BISHOP -> "bishop";
-            case KNIGHT -> "knight";
-            case PAWN -> "pawn";
+        Character color = this.white ? 'w' : 'b';
+        String piece = switch (type) {
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case ROOK -> "R";
+            case BISHOP -> "B";
+            case KNIGHT -> "N";
+            case PAWN -> "P";
         };
+        return color + piece;
     }
 }

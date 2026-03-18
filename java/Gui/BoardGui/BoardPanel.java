@@ -125,7 +125,7 @@ public class BoardPanel extends JPanel {
                 if (piece == null) {
                     board[row][column].setIcon(null);
                 } else {
-                    String file = piece.white ? "images/pieces/white/" : "images/pieces/black/";
+                    String file = "images/pieces/";
                     file = file + piece.getSymbol() + ".png";
                     Image img = getPieceImage(file);
 
@@ -144,7 +144,7 @@ public class BoardPanel extends JPanel {
 
     public void highlight() {
         for (Move move : legalMoves) {
-            board[move.toRow][move.toColumn].setBackground(Color.GREEN);
+            board[move.toRow][move.toColumn].setBackground(new Color(98,153, 36));
         }
     }
 
