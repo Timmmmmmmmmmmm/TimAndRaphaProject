@@ -2,7 +2,6 @@ package Gui;
 
 import Gui.BoardGui.BoardPanel;
 import Gui.BoardGui.Game;
-import Gui.BoardGui.PGNWriter;
 import Gui.Dto.Player;
 import Gui.Dto.Round;
 import Gui.Dto.Tournament;
@@ -28,7 +27,8 @@ public class BaseWindow extends JFrame {
                 new Round(1, 1, Round.RoundStatus.RUNNING, LocalDateTime.now()),
                 new Player(1, "Raphael", "Berkenheide", 15, Player.FideTitle.NONE, 'm', LocalDate.of(2008, Month.MAY, 31), Player.PlayerStatus.PLAYING),
                 new Player(2, "Tim", "Kaiser", 1500, Player.FideTitle.GRANDMASTER, 'm', LocalDate.of(2003, Month.MAY, 13), Player.PlayerStatus.PLAYING))));
-        setMinimumSize(new Dimension(400, 400));
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setMinimumSize(new Dimension(screenSize.width / 4, screenSize.height / 4));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
 

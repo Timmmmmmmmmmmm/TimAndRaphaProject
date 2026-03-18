@@ -1,6 +1,7 @@
 package Gui.BoardGui;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -11,8 +12,18 @@ public class BoardPanel extends JPanel {
     JPanel boardPanel;
     JPanel northPanel;
     JLabel turn;
+    JButton draw;
+    int whiteTime;
+    JLabel whiteLabel;
+    JButton whiteResign;
+    int blackTime;
+    JLabel blackLabel;
+    JButton blackResign;
+
     JButton[][] board = new JButton[8][8];
     boolean inCheck = false;
+
+    Timer timer;
 
     int selectedRow= -1, selectedColumn = -1;
     List<Move> legalMoves = new ArrayList<>();
@@ -21,14 +32,30 @@ public class BoardPanel extends JPanel {
 
     public BoardPanel(Game game) {
         this.game = game;
+        whiteTime = game.tournament.base_consider_time;
+        blackTime = game.tournament.base_consider_time;
 
         setLayout(new BorderLayout());
 
         northPanel = new JPanel();
+        add(northPanel, BorderLayout.NORTH);
+
         turn = new JLabel();
         turn.setText(game.whiteTurn ? "WHITE" : "BLACK");
         northPanel.add(turn);
-        add(northPanel, BorderLayout.NORTH);
+
+        draw = new JButton();
+        draw.setText("DRAW");
+        draw.addActionListener(e -> endGame(GameResult.DRAW, true));
+        northPanel.add(draw);
+
+        whiteLabel = new JLabel();
+        whiteLabel.setText("WHITE: " + formatTime(whiteTime));
+        northPanel.add(whiteLabel);
+
+        blackLabel = new JLabel();
+        blackLabel.setText("BLACK: " + formatTime(blackTime));
+        northPanel.add(blackLabel);
 
         boardPanel = new JPanel();
         boardPanel.setLayout(new GridLayout(8, 8));
@@ -54,6 +81,30 @@ public class BoardPanel extends JPanel {
                 boardPanel.add(button);
             }
         refresh();
+
+        timer = new Timer(1000, e -> {
+            if (game.whiteTurn) {
+                whiteTime--;
+            } else {
+                blackTime--;
+            }
+            if (whiteTime <= 0) {
+                ((Timer) e.getSource()).stop();
+            }
+            if (blackTime <= 0) {
+                ((Timer) e.getSource()).stop();
+            }
+            whiteLabel.setText("WHITE: " + formatTime(whiteTime));
+            blackLabel.setText("BLACK: " + formatTime(blackTime));
+        });
+
+        timer.start();
+    }
+
+    private String formatTime(int seconds) {
+        int minutes = (seconds - (seconds % 60)) / 60;
+        seconds -= (seconds - (seconds % 60));
+        return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
     }
 
     public void click(int row, int column) {
@@ -62,18 +113,27 @@ public class BoardPanel extends JPanel {
                 //Move
                 selectedRow = -1;
                 selectedColumn = -1;
-                Game.ChessResult result = game.makeMove(move, false);
+                ChessResult result = game.makeMove(move, false);
                 //From here whiteTurn is flipped
-                if (result != null && result != Game.ChessResult.NONE) {
-                    if (result == Game.ChessResult.CHECK) {
+                if (result != null && result != ChessResult.NONE) {
+                    if (result == ChessResult.CHECK) {
                         inCheck = true;
                     } else {
-                        ResultDialog.showResult(game, result, !game.whiteTurn);
+                        if (result == ChessResult.CHECKMATE) {
+                            endGame(GameResult.CHECKMATE, !game.whiteTurn);
+                        } else {
+                            endGame(GameResult.STALEMATE, !game.whiteTurn);
+                        }
                     }
                 } else {
                     inCheck = false;
                 }
                 turn.setText(game.whiteTurn ? "WHITE" : "BLACK");
+                if (game.whiteTurn) {
+                    blackTime += game.tournament.move_consider_time;
+                } else {
+                    whiteTime += game.tournament.move_consider_time;
+                }
                 legalMoves.clear();
 
                 refresh();
@@ -100,6 +160,8 @@ public class BoardPanel extends JPanel {
         int x = (getWidth() - size) / 2;
         int y = (getHeight() - size) / 2;
 
+        //northPanel.setSize(northPanel.getWidth(), getHeight() / 5);
+        northPanel.setSize(northPanel.getWidth(), getHeight() / 7);
         boardPanel.setBounds(x + (northPanel.getHeight() / 2), y + northPanel.getHeight(), size - northPanel.getHeight(), size - northPanel.getHeight());
         boardPanel.doLayout();
         northPanel.doLayout();
@@ -108,7 +170,7 @@ public class BoardPanel extends JPanel {
             for (int column = 0; column < 8; column++) {
 
                 if (row == selectedRow && column == selectedColumn) {
-                    board[row][column].setBackground(new Color(255, 162, 24));
+                    board[row][column].setBackground(new Color(234, 182, 103));
                 } else {
                     if ((row + column) % 2 == 0) {
                         board[row][column].setBackground(new Color(240, 217, 181));
@@ -160,5 +222,10 @@ public class BoardPanel extends JPanel {
             pieceImages.put(piece, icon.getImage());
         }
         return pieceImages.get(piece);
+    }
+
+    public void endGame(GameResult result, boolean white) {
+        timer.stop();
+        ResultDialog.showResult(game, result, white);
     }
 }

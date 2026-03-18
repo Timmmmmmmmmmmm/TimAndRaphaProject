@@ -10,7 +10,7 @@ import java.util.List;
 public class Game {
     public Piece[][] board = new Piece[8][8];
 
-    public List<Move> history = new ArrayList<>();
+    public List<HistoryMove> history = new ArrayList<>();
     public boolean whiteTurn = true;
     public String result = "*";
 
@@ -25,10 +25,6 @@ public class Game {
         this.round = round;
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
-    }
-
-    public enum ChessResult {
-        NONE, CHECK, STALEMATE, CHECKMATE;
     }
 
     private void setup(){
@@ -90,6 +86,13 @@ public class Game {
 
     public ChessResult makeMove(Move move, boolean copy) {
         Piece piece = board[move.fromRow][move.fromColumn];
+
+        HistoryMove historyMove = new HistoryMove(move);
+        historyMove.piece = piece.type;
+        historyMove.capture = board[move.toRow][move.toColumn] != null || move.enPassant;
+        historyMove.castleKingSide = move.castle && move.toColumn == 6;
+        historyMove.castleQueenSide = move.castle && move.toColumn == 2;
+
         board[move.toRow][move.toColumn] = piece;
         board[move.fromRow][move.fromColumn] = null;
 
@@ -118,10 +121,11 @@ public class Game {
         if(move.promotion){
             Piece.Type type = PromotionDialog.choosePromotion(piece.white);
             board[move.toRow][move.toColumn] = new Piece(type,piece.white);
+
+            historyMove.promotionType = type;
         }
 
         piece.moved = true;
-        history.add(move);
         whiteTurn = !whiteTurn;
 
         if (!copy) {
@@ -136,14 +140,20 @@ public class Game {
 
             if (movesOther.isEmpty()) {
                 if (MoveGenerator.inCheck(this, whiteTurn)) {
+                    historyMove.checkmate = true;
+                    history.add(historyMove);
                     return ChessResult.CHECKMATE;
                 } else {
+                    history.add(historyMove);
                     return ChessResult.STALEMATE;
                 }
             } else {
                 if (MoveGenerator.inCheck(this, whiteTurn)) {
+                    historyMove.check = true;
+                    history.add(historyMove);
                     return ChessResult.CHECK;
                 } else {
+                    history.add(historyMove);
                     return ChessResult.NONE;
                 }
             }
