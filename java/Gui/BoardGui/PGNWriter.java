@@ -66,38 +66,47 @@ public class PGNWriter {
         writer.write(game.result);
     }
 
-    private static String toSAN(HistoryMove h) {
+    private static String toSAN(HistoryMove historyMove) {
 
-        if (h.castleKingSide) return "O-O";
-        if (h.castleQueenSide) return "O-O-O";
+        if (historyMove.castleKingSide) return "O-O";
+        if (historyMove.castleQueenSide) return "O-O-O";
 
-        StringBuilder s = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
-        if (h.piece != Piece.Type.PAWN) {
-            s.append(letter(h.piece));
-        }
+        if (historyMove.piece != Piece.Type.PAWN) {
+            builder.append(letter(historyMove.piece));
 
-        if (h.capture) {
-            if (h.piece == Piece.Type.PAWN) {
-                s.append((char) ('a' + h.fromColumn));
+            if (historyMove.addRowIndex && historyMove.addColumnIndex) {
+                builder.append((char) ('a' + historyMove.fromColumn));
+                builder.append(8 - historyMove.fromRow);
+            } else if (historyMove.addRowIndex) {
+                builder.append(8 - historyMove.fromRow);
+            } else if (historyMove.addColumnIndex) {
+                builder.append((char) ('a' + historyMove.fromColumn));
             }
-            s.append("x");
         }
 
-        s.append((char) ('a' + h.toColumn));
-        s.append(8 - h.toRow);
-
-        if (h.promotionType != null) {
-            s.append("=").append(letter(h.promotionType));
+        if (historyMove.capture) {
+            if (historyMove.piece == Piece.Type.PAWN) {
+                builder.append((char) ('a' + historyMove.fromColumn));
+            }
+            builder.append("x");
         }
 
-        if (h.checkmate) {
-            s.append("#");
-        } else if (h.check) {
-            s.append("+");
+        builder.append((char) ('a' + historyMove.toColumn));
+        builder.append(8 - historyMove.toRow);
+
+        if (historyMove.promotionType != null) {
+            builder.append("=").append(letter(historyMove.promotionType));
         }
 
-        return s.toString();
+        if (historyMove.checkmate) {
+            builder.append("#");
+        } else if (historyMove.check) {
+            builder.append("+");
+        }
+
+        return builder.toString();
     }
 
     private static String letter(Piece.Type t) {

@@ -18,7 +18,7 @@ public class PromotionDialog {
                 "Pawn Promotion",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
-                new ImageIcon(Objects.requireNonNull(PromotionDialog.class.getResource("images/pieces/" + (white ? "white" : "black") + "/pawn.png"))),
+                new ImageIcon(Objects.requireNonNull(PromotionDialog.class.getResource("images/pieces/" + (white ? "w" : "b") + "P.png"))),
                 options,
                 options[0]
         );

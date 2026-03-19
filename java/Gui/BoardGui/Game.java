@@ -88,10 +88,13 @@ public class Game {
         Piece piece = board[move.fromRow][move.fromColumn];
 
         HistoryMove historyMove = new HistoryMove(move);
-        historyMove.piece = piece.type;
-        historyMove.capture = board[move.toRow][move.toColumn] != null || move.enPassant;
-        historyMove.castleKingSide = move.castle && move.toColumn == 6;
-        historyMove.castleQueenSide = move.castle && move.toColumn == 2;
+        if (!copy) {
+            historyMove.piece = piece.type;
+            historyMove.capture = board[move.toRow][move.toColumn] != null || move.enPassant;
+            historyMove.castleKingSide = move.castle && move.toColumn == 6;
+            historyMove.castleQueenSide = move.castle && move.toColumn == 2;
+            applyDisambiguation(historyMove);
+        }
 
         board[move.toRow][move.toColumn] = piece;
         board[move.fromRow][move.fromColumn] = null;
@@ -119,10 +122,14 @@ public class Game {
         }
 
         if(move.promotion){
-            Piece.Type type = PromotionDialog.choosePromotion(piece.white);
-            board[move.toRow][move.toColumn] = new Piece(type,piece.white);
 
-            historyMove.promotionType = type;
+            if (!copy) {
+                Piece.Type type = PromotionDialog.choosePromotion(piece.white);
+                board[move.toRow][move.toColumn] = new Piece(type,piece.white);
+                historyMove.promotionType = type;
+            } else {
+                board[move.toRow][move.toColumn] = new Piece(Piece.Type.QUEEN,piece.white);
+            }
         }
 
         piece.moved = true;
@@ -142,9 +149,15 @@ public class Game {
                 if (MoveGenerator.inCheck(this, whiteTurn)) {
                     historyMove.checkmate = true;
                     history.add(historyMove);
+                    if(whiteTurn) {
+                        result = "1-0";
+                    } else {
+                        result = "0-1";
+                    }
                     return ChessResult.CHECKMATE;
                 } else {
                     history.add(historyMove);
+                    result = "1/2-1/2";
                     return ChessResult.STALEMATE;
                 }
             } else {
@@ -159,6 +172,34 @@ public class Game {
             }
         }
         return null;
+    }
+
+    private void applyDisambiguation(HistoryMove historyMove) {
+
+        for (int row = 0; row < 8; row++) {
+            for (int column = 0; column < 8; column++) {
+
+                Piece piece = board[row][column];
+                if (piece == null) continue;
+                if (piece.white != whiteTurn) continue;
+                if (piece.type != historyMove.piece) continue;
+
+                List<Move> moves = MoveGenerator.generateLegal(this, row, column);
+                for (Move other : moves) {
+
+                    if (other.toRow == historyMove.toRow && other.toColumn == historyMove.toColumn) {
+
+                        if (row == historyMove.fromRow && column == historyMove.fromColumn) continue;
+                        
+                        if (column != historyMove.fromColumn) {
+                            historyMove.addColumnIndex = true;
+                        } else {
+                            historyMove.addRowIndex = true;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void resign(boolean whiteResigns){

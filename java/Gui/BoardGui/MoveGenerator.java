@@ -79,7 +79,7 @@ public class MoveGenerator {
         }
 
         if (piece.white && row == 3) {
-            if (column - 1 >= 0) {
+            if (column > 0) {
                 Piece right = game.board[row][column - 1];
                 if (right != null && right.type == Piece.Type.PAWN && !right.white) {
                     Move move = new Move(row, column, row + direction, column - 1);
@@ -91,7 +91,7 @@ public class MoveGenerator {
                 }
             }
 
-            if (column + 1 < 8) {
+            if (column < 8) {
                 Piece left = game.board[row][column + 1];
                 if (left != null && left.type == Piece.Type.PAWN && !left.white) {
                     Move move = new Move(row, column, row + direction, column + 1);
@@ -105,20 +105,24 @@ public class MoveGenerator {
         }
 
         if (!piece.white && row == 4) {
-            Piece right = game.board[row][column - 1];
-            if (right != null && right.type == Piece.Type.PAWN && right.white) {
-                Move move = new Move(row, column, row + direction, column - 1);
-                move.enPassant = true;
-                if (enPassantColumn == column - 1) {
-                    moves.add(move);
+            if (column > 0) {
+                Piece right = game.board[row][column - 1];
+                if (right != null && right.type == Piece.Type.PAWN && right.white) {
+                    Move move = new Move(row, column, row + direction, column - 1);
+                    move.enPassant = true;
+                    if (enPassantColumn == column - 1) {
+                        moves.add(move);
+                    }
                 }
             }
-            Piece left = game.board[row][column + 1];
-            if (left != null && left.type == Piece.Type.PAWN && left.white) {
-                Move move = new Move(row, column, row + direction, column + 1);
-                move.enPassant = true;
-                if (enPassantColumn == column + 1) {
-                    moves.add(move);
+            if (column < 7) {
+                Piece left = game.board[row][column + 1];
+                if (left != null && left.type == Piece.Type.PAWN && left.white) {
+                    Move move = new Move(row, column, row + direction, column + 1);
+                    move.enPassant = true;
+                    if (enPassantColumn == column + 1) {
+                        moves.add(move);
+                    }
                 }
             }
         }

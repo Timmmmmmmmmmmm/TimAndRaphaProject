@@ -19,7 +19,7 @@ public class ResultDialog {
                 "The game ended as a " + result.name(),
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.DEFAULT_OPTION,
-                new ImageIcon(Objects.requireNonNull(PromotionDialog.class.getResource("images/pieces/" + (white ? "white" : "black") + "/pawn.png")
+                new ImageIcon(Objects.requireNonNull(PromotionDialog.class.getResource("images/pieces/" + (white ? "w" : "b") + "P.png")
                 )),
                 options,
                 options[0]

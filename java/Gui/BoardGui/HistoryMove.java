@@ -13,6 +13,9 @@ public class HistoryMove extends Move {
     public boolean check;
     public boolean checkmate;
 
+    public boolean addRowIndex;
+    public boolean addColumnIndex;
+
     public HistoryMove(Move m) {
         super(m.fromRow, m.fromColumn, m.toRow, m.toColumn);
 
