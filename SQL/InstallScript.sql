@@ -7,9 +7,9 @@ DROP TABLE IF EXISTS tournaments;
 -- VIEWS
 DROP VIEW IF EXISTS leaderboard;
 DROP VIEW IF EXISTS round_overview;
-DROP TRIGGER IF EXISTS update_player_points_after_round;
 -- TRIGGER
 DROP TRIGGER IF EXISTS new_round;
+DROP TRIGGER IF EXISTS update_player_points_after_round;
 
 CREATE TABLE tournaments
 (
@@ -101,24 +101,48 @@ FROM players
 ORDER BY score, fide_rating DESC;
 
 CREATE VIEW round_overview AS
-SELECT g.id, concat(pw.lastname, ", ", pw.firstname) AS player_white, concat(pb.lastname, ", ", pb.firstname) AS player_black
+SELECT g.id,
+       concat(pw.lastname, ", ", pw.firstname) AS player_white,
+       concat(pb.lastname, ", ", pb.firstname) AS player_black
 FROM games g
          INNER JOIN players pw ON g.player_white = pw.id
          INNER JOIN players pb ON g.player_black = pb.id
 WHERE g.round_id = 1;
 
-
 CREATE TRIGGER update_player_points_after_round
-    AFTER UPDATE
-    ON rounds
+    AFTER UPDATE ON rounds
     FOR EACH ROW
-    WHEN (NEW.status = 'completed' AND OLD.status <> 'completed')
 BEGIN
-    UPDATE players
-    SET score = score + (SELECT g.result FROM games g WHERE g.player_white = players.id AND g.round_id = 1)
-    WHERE id IN (SELECT player_white FROM games WHERE round_id = 1);
+    -- Nur beim Wechsel auf "completed"
+    IF NEW.status = 'completed' AND OLD.status <> 'completed' THEN
 
-    UPDATE players
-    SET score = score + (SELECT -g.result FROM games g WHERE g.player_black = players.id AND g.round_id = 1)
-    WHERE id IN (SELECT player_black FROM games WHERE round_id = 1);
+        -- Punkte für Weiß
+        UPDATE players p
+        SET p.score = p.score + (
+            SELECT g.result
+            FROM games g
+            WHERE g.player_white = p.id
+              AND g.round_id = NEW.id
+        )
+        WHERE p.id IN (
+            SELECT g.player_white
+            FROM games g
+            WHERE g.round_id = NEW.id
+        );
+
+        -- Punkte für Schwarz (invertiert)
+        UPDATE players p
+        SET p.score = p.score - (
+            SELECT g.result
+            FROM games g
+            WHERE g.player_black = p.id
+              AND g.round_id = NEW.id
+        )
+        WHERE p.id IN (
+            SELECT g.player_black
+            FROM games g
+            WHERE g.round_id = NEW.id
+        );
+
+    END IF;
 END;
