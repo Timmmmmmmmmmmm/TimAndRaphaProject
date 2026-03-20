@@ -1,15 +1,19 @@
+-- TABLES
 DROP TABLE IF EXISTS games_moves;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS rounds;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
+-- VIEWS
 DROP VIEW IF EXISTS leaderboard;
 DROP VIEW IF EXISTS round_overview;
+DROP TRIGGER IF EXISTS update_player_points_after_round;
+-- TRIGGER
 DROP TRIGGER IF EXISTS new_round;
 
 CREATE TABLE tournaments
 (
-    id                 INT NOT NULL,
+    id                 INT NOT NULL AUTO_INCREMENT,
     name               VARCHAR(255),
     date               DATE,
     city               VARCHAR(255),
@@ -21,7 +25,7 @@ CREATE TABLE tournaments
 
 CREATE TABLE players
 (
-    id            INT NOT NULL,
+    id            INT NOT NULL AUTO_INCREMENT,
     firstname     VARCHAR(255),
     lastname      VARCHAR(255),
     score         DEC(4, 1) DEFAULT 0.0,
@@ -40,7 +44,7 @@ CREATE TABLE players
 
 CREATE TABLE rounds
 (
-    id            INT NOT NULL,
+    id            INT NOT NULL AUTO_INCREMENT,
     tournament_id INT NOT NULL,
     round_number  INT,
     status        VARCHAR(55),
@@ -54,7 +58,7 @@ CREATE TABLE rounds
 
 CREATE TABLE games
 (
-    id            INT NOT NULL,
+    id            INT NOT NULL AUTO_INCREMENT,
     result        INT,
     start         DATETIME,
     board_number  INT,
@@ -93,16 +97,16 @@ CREATE TABLE games_moves
 
 CREATE VIEW leaderboard AS
 SELECT firstname, lastname, fide_rating, score
+FROM players
 ORDER BY score, fide_rating DESC;
 
 CREATE VIEW round_overview AS
-SELECT g.id, pw.firstname, pw.lastname, pb.firstname, pb.lastname
+SELECT g.id, concat(pw.lastname, ", ", pw.firstname) AS player_white, concat(pb.lastname, ", ", pb.firstname) AS player_black
 FROM games g
          INNER JOIN players pw ON g.player_white = pw.id
          INNER JOIN players pb ON g.player_black = pb.id
 WHERE g.round_id = 1;
 
-DROP TRIGGER IF EXISTS update_player_points_after_round;
 
 CREATE TRIGGER update_player_points_after_round
     AFTER UPDATE
