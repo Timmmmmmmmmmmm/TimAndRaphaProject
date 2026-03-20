@@ -3,6 +3,9 @@ DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS rounds;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
+DROP VIEW IF EXISTS leaderboard;
+DROP VIEW IF EXISTS round_overview;
+DROP TRIGGER IF EXISTS new_round;
 
 CREATE TABLE tournaments
 (
@@ -89,11 +92,12 @@ CREATE TABLE games_moves
 );
 
 CREATE VIEW leaderboard AS
-SELECT firstname, lastname, fide_rating, score ORDER BY score, fide_rating DESC;
+SELECT firstname, lastname, fide_rating, score
+ORDER BY score, fide_rating DESC;
 
 CREATE VIEW round_overview AS
 SELECT g.id, pw.firstname, pw.lastname, pb.firstname, pb.lastname
 FROM games g
-INNER JOIN players pw ON g.player_white = pw.id
-INNER JOIN players pb ON g.player_black = pb.id
-WHERE g.round_id = 1
+         INNER JOIN players pw ON g.player_white = pw.id
+         INNER JOIN players pb ON g.player_black = pb.id
+WHERE g.round_id = 1;
