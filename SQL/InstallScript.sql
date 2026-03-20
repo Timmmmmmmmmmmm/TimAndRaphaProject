@@ -1,14 +1,8 @@
-SET
-FOREIGN_KEY_CHECKS = 0;
-
 DROP TABLE IF EXISTS games_moves;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS rounds;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
-
-SET
-FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE tournaments
 (
@@ -27,7 +21,7 @@ CREATE TABLE players
     id            INT NOT NULL,
     firstname     VARCHAR(255),
     lastname      VARCHAR(255),
-    score         DEC(3, 1) DEFAULT 0.0,
+    score         DEC(4, 1) DEFAULT 0.0,
     fide_rating   INT,
     fide_title    VARCHAR(55),
     gender        CHAR,
@@ -62,19 +56,19 @@ CREATE TABLE games
     start         DATETIME,
     board_number  INT,
     round_id      INT,
+    player_white  INT,
+    player_black  INT,
+    tournament_id INT,
     CONSTRAINT fk_game_round
         FOREIGN KEY (round_id)
             REFERENCES rounds (id)
             ON DELETE CASCADE,
-    player_white  INT,
     CONSTRAINT fk_player_white_game
         FOREIGN KEY (player_white)
             REFERENCES players (id),
-    player_black  INT,
     CONSTRAINT fk_player_black_game
         FOREIGN KEY (player_black)
             REFERENCES players (id),
-    tournament_id INT,
     CONSTRAINT fk_tournament_game
         FOREIGN KEY (tournament_id)
             REFERENCES tournaments (id)
@@ -93,3 +87,13 @@ CREATE TABLE games_moves
             REFERENCES games (id)
             ON DELETE CASCADE
 );
+
+CREATE VIEW leaderboard AS
+SELECT firstname, lastname, fide_rating, score ORDER BY score, fide_rating DESC;
+
+CREATE VIEW round_overview AS
+SELECT g.id, pw.firstname, pw.lastname, pb.firstname, pb.lastname
+FROM games g
+INNER JOIN players pw ON g.player_white = pw.id
+INNER JOIN players pb ON g.player_black = pb.id
+WHERE g.round_id = 1

@@ -23,12 +23,12 @@ VALUES (1, 'Magnus', 'Carlsen', 2831, 'GM', 'M', '1990-11-30', 'active'),
        (10, 'Lei', 'Tingjie', 2530, 'IM', 'F', '1997-01-12', 'active');
 
 -- ROUNDS (gehören zu Turnier 1 – Münster Open 2025)
-INSERT INTO rounds (id, round_number, status, begin)
-VALUES (1, 1, 'completed', '2025-03-15 10:00:00'),
-       (2, 2, 'completed', '2025-03-15 15:00:00'),
-       (3, 3, 'completed', '2025-03-16 10:00:00'),
-       (4, 4, 'completed', '2025-03-16 15:00:00'),
-       (5, 5, 'completed', '2025-03-17 10:00:00');
+INSERT INTO rounds (id, tournament_id, round_number, status, begin)
+VALUES (1, 1, 1, 'completed', '2025-03-15 10:00:00'),
+       (2, 1, 2, 'completed', '2025-03-15 15:00:00'),
+       (3, 1, 3, 'completed', '2025-03-16 10:00:00'),
+       (4, 1, 4, 'completed', '2025-03-16 15:00:00'),
+       (5, 1, 5, 'completed', '2025-03-17 10:00:00');
 
 -- GAMES
 -- result: 1 = Weiß gewinnt, 2 = Schwarz gewinnt, 3 = Remis, 0 = laufend/kein Ergebnis
