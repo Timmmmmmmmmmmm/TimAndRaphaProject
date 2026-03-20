@@ -98,6 +98,22 @@ ORDER BY score, fide_rating DESC;
 CREATE VIEW round_overview AS
 SELECT g.id, pw.firstname, pw.lastname, pb.firstname, pb.lastname
 FROM games g
-         INNER JOIN players pw ON g.player_white = pw.id
-         INNER JOIN players pb ON g.player_black = pb.id
+INNER JOIN players pw ON g.player_white = pw.id
+INNER JOIN players pb ON g.player_black = pb.id
 WHERE g.round_id = 1;
+
+DROP TRIGGER IF EXISTS update_player_points_after_round;
+
+CREATE TRIGGER update_player_points_after_round
+AFTER UPDATE ON rounds
+FOR EACH ROW
+WHEN (NEW.status = 'completed' AND OLD.status <> 'completed')
+BEGIN
+    UPDATE players
+    SET score = score + (SELECT g.result FROM games g WHERE g.player_white = players.id AND g.round_id = 1)
+    WHERE id IN (SELECT player_white FROM games WHERE round_id = 1);
+
+    UPDATE players
+    SET score = score + (SELECT -g.result FROM games g WHERE g.player_black = players.id AND g.round_id = 1)
+    WHERE id IN (SELECT player_black FROM games WHERE round_id = 1);
+END;
