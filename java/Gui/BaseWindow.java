@@ -31,7 +31,6 @@ public class BaseWindow extends JFrame {
         setMinimumSize(new Dimension(screenSize.width / 4, screenSize.height / 4));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
-        setBackground(new Color(80, 80, 80));
 
         ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("icon.png")));
         setIconImage(icon.getImage());

@@ -1,8 +1,11 @@
 package Gui.BoardGui;
 
+import Gui.BaseWindow;
+
 import javax.swing.*;
 import javax.swing.Timer;
-import javax.swing.border.Border;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -11,18 +14,11 @@ public class BoardPanel extends JPanel {
 
     Game game;
     JPanel boardPanel;
-    JPanel northPanel;
-    JPanel southPanel;
 
-    JButton draw;
     int whiteTime;
-    JLabel whiteLabel;
-    JButton whiteResign;
+    PlayerDisplay whitePlayerDisplay;
     int blackTime;
-    JLabel blackLabel;
-    JButton blackResign;
-
-    Border boardPanelBorder;
+    PlayerDisplay blackPlayerDisplay;
 
     JButton[][] board = new JButton[8][8];
     boolean inCheck = false;
@@ -40,42 +36,21 @@ public class BoardPanel extends JPanel {
         blackTime = game.tournament.base_consider_time;
 
         setLayout(new BorderLayout());
-        setBackground(new Color(80, 80, 80));
 
-        // North Panel
-        northPanel = new JPanel();
-        northPanel.setBackground(new Color(80, 80, 80));
-        add(northPanel, BorderLayout.NORTH);
+        createMenuBar();
 
-        draw = new JButton();
-        draw.setText("DRAW");
-        draw.addActionListener(_ -> endGame(GameResult.DRAW, true));
-        northPanel.add(draw);
+        blackPlayerDisplay = new PlayerDisplay(game.blackPlayer, blackTime);
+        blackPlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
+        add(blackPlayerDisplay, BorderLayout.NORTH);
 
-        blackLabel = new JLabel("BLACK: " + formatTime(blackTime));
-        northPanel.add(blackLabel);
-
-        blackResign = new JButton("BLACK RESIGN");
-        blackResign.addActionListener(_ -> endGame(GameResult.RESIGN, true));
-        northPanel.add(blackResign);
-
-        // South Panel
-        southPanel = new JPanel();
-        southPanel.setBackground(new Color(80, 80, 80));
-        add(southPanel, BorderLayout.SOUTH);
-
-        whiteLabel = new JLabel("WHITE: " + formatTime(whiteTime));
-        southPanel.add(whiteLabel);
-
-        whiteResign = new JButton("WHITE RESIGN");
-        whiteResign.addActionListener(_ -> endGame(GameResult.RESIGN, false));
-        southPanel.add(whiteResign);
+        whitePlayerDisplay = new PlayerDisplay(game.whitePlayer, whiteTime);
+        whitePlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
+        add(whitePlayerDisplay, BorderLayout.SOUTH);
 
         // Center Panel (Board)
         boardPanel = new JPanel();
+        boardPanel.setBorder(BorderFactory.createLineBorder(Color.black));
         boardPanel.setLayout(new GridLayout(8, 8));
-        boardPanelBorder = BorderFactory.createLineBorder(game.whiteTurn ? Color.white : Color.black, 3);
-        boardPanel.setBorder(boardPanelBorder);
         add(boardPanel, BorderLayout.CENTER);
 
         for (int row = 0; row < 8; row++)
@@ -100,21 +75,20 @@ public class BoardPanel extends JPanel {
             }
             if (whiteTime <= 0) {
                 ((Timer) e.getSource()).stop();
+                game.win(true);
+                endGame(GameResult.TIME, false);
             }
             if (blackTime <= 0) {
                 ((Timer) e.getSource()).stop();
+                game.win(false);
+                endGame(GameResult.TIME, true);
             }
-            whiteLabel.setText("WHITE: " + formatTime(whiteTime));
-            blackLabel.setText("BLACK: " + formatTime(blackTime));
+
+            blackPlayerDisplay.updateTime(blackTime);
+            whitePlayerDisplay.updateTime(whiteTime);
         });
 
         timer.start();
-    }
-
-    private String formatTime(int seconds) {
-        int minutes = (seconds - (seconds % 60)) / 60;
-        seconds -= (seconds - (seconds % 60));
-        return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
     }
 
     public void click(int row, int column) {
@@ -130,17 +104,16 @@ public class BoardPanel extends JPanel {
                         inCheck = true;
                     } else {
                         if (result == ChessResult.CHECKMATE) {
+                            refresh();
                             endGame(GameResult.CHECKMATE, !game.whiteTurn);
                         } else {
+                            refresh();
                             endGame(GameResult.STALEMATE, !game.whiteTurn);
                         }
                     }
                 } else {
                     inCheck = false;
                 }
-
-                boardPanelBorder = BorderFactory.createLineBorder(game.whiteTurn ? Color.white : Color.black, 3);
-                boardPanel.setBorder(boardPanelBorder);
 
                 if (game.whiteTurn) {
                     blackTime += game.tournament.move_consider_time;
@@ -169,15 +142,20 @@ public class BoardPanel extends JPanel {
     }
 
     void refresh() {
-        int size = Math.min(getWidth(), getHeight());
-        int x = (getWidth() - size) / 2;
-        int y = (getHeight() - size) / 2;
+        int minWindowSize = Math.min(getWidth(), getHeight());
+        int northSouthHeight = getHeight() / 8;
+        int centerSize = Math.min(minWindowSize, getHeight() - northSouthHeight * 2);
 
-        //northPanel.setSize(northPanel.getWidth(), getHeight() / 5);
-        northPanel.setSize(northPanel.getWidth(), getHeight() / 7);
-        boardPanel.setBounds(x + (northPanel.getHeight() / 2), y + northPanel.getHeight(), size - northPanel.getHeight(), size - northPanel.getHeight());
+        boardPanel.setBounds((getWidth() - centerSize) / 2, (getHeight() - centerSize) / 2, centerSize, centerSize);
+        blackPlayerDisplay.setBounds((getWidth() - centerSize) / 2, 0, centerSize, northSouthHeight);
+        whitePlayerDisplay.setBounds((getWidth() - centerSize) / 2, getHeight() - northSouthHeight, centerSize, northSouthHeight);
+
         boardPanel.doLayout();
-        northPanel.doLayout();
+        blackPlayerDisplay.doLayout();
+        whitePlayerDisplay.doLayout();
+
+        blackPlayerDisplay.update(blackTime);
+        whitePlayerDisplay.update(whiteTime);
 
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
@@ -187,8 +165,10 @@ public class BoardPanel extends JPanel {
                 } else {
                     if ((row + column) % 2 == 0) {
                         board[row][column].setBackground(new Color(222, 227, 230));
+                        board[row][column].setBorder(new BevelBorder(BevelBorder.LOWERED));
                     } else {
                         board[row][column].setBackground(new Color(140, 162, 173));
+                        board[row][column].setBorder(new BevelBorder(BevelBorder.RAISED));
                     }
                 }
 
@@ -217,6 +197,40 @@ public class BoardPanel extends JPanel {
         highlight();
     }
 
+    public void createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setBorderPainted(true);
+
+        JMenu gameMenu = new JMenu("Game");
+        JMenuItem drawItem = new JMenuItem("Draw");
+        drawItem.addActionListener(_ -> {
+            game.draw();
+            endGame(GameResult.DRAW, true);
+        });
+        gameMenu.add(drawItem);
+        menuBar.add(gameMenu);
+
+        JMenu whiteMenu = new JMenu("White");
+        JMenuItem whiteResignItem = new JMenuItem("Resign");
+        whiteResignItem.addActionListener(_ -> {
+            game.win(true);
+            endGame(GameResult.RESIGN, false);
+        });
+        whiteMenu.add(whiteResignItem);
+        menuBar.add(whiteMenu);
+
+        JMenu blackMenu = new JMenu("Black");
+        JMenuItem blackResignItem = new JMenuItem("Resign");
+        blackResignItem.addActionListener(_ -> {
+            game.win(false);
+            endGame(GameResult.RESIGN, true);
+        });
+        blackMenu.add(blackResignItem);
+        menuBar.add(blackMenu);
+
+        BaseWindow.getInstance().setJMenuBar(menuBar);
+    }
+
     public void highlight() {
         for (Move move : legalMoves) {
             board[move.toRow][move.toColumn].setBackground(new Color(155, 199, 0));
@@ -237,9 +251,8 @@ public class BoardPanel extends JPanel {
         return pieceImages.get(piece);
     }
 
-    public void endGame(GameResult result, boolean white) {
-        System.out.println(white ? "White wins" : "Black wins");
+    public void endGame(GameResult result, boolean whiteWins) {
         timer.stop();
-        ResultDialog.showResult(game, result, white);
+        ResultDialog.showResult(game, result, whiteWins);
     }
 }

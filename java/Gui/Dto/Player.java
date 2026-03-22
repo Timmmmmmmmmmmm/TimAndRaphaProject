@@ -24,7 +24,17 @@ public class Player {
     }
 
     public enum FideTitle {
-        GRANDMASTER, INTERNATIONAL_MASTER, FIDE_MASTER, FIDE_CANDIDATE_MASTER, WOMAN_GRANDMASTER, WOMAN_INTERNATIONAL_MASTER, WOMAN_FIDE_MASTER, WOMAN_CANDIDATE_MASTER, NONE;
+        GRANDMASTER("gm"), INTERNATIONAL_MASTER("im"), FIDE_MASTER("fm"), FIDE_CANDIDATE_MASTER("cm"), WOMAN_GRANDMASTER("wgm"), WOMAN_INTERNATIONAL_MASTER("wim"), WOMAN_FIDE_MASTER("wfm"), WOMAN_CANDIDATE_MASTER("wcm"), NONE("none");
+
+        final String key;
+
+        FideTitle(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return key;
+        }
     }
 
     public enum PlayerStatus {

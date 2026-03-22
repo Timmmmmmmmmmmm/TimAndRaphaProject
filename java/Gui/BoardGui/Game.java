@@ -202,11 +202,11 @@ public class Game {
         }
     }
 
-    public void resign(boolean whiteResigns){
-        if(whiteResigns) {
-            result = "0-1";
-        } else {
+    public void win(boolean whiteWins){
+        if(whiteWins) {
             result = "1-0";
+        } else {
+            result = "0-1";
         }
     }
 

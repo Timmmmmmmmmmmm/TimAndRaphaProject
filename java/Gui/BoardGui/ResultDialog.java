@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class ResultDialog {
 
-    public static void showResult(Game game, GameResult result, boolean white) {
+    public static void showResult(Game game, GameResult result, boolean whiteWins) {
 
         String[] options = {
                 "PGN herunterladen",
@@ -19,7 +19,7 @@ public class ResultDialog {
                 "The game ended as a " + result.name(),
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.DEFAULT_OPTION,
-                new ImageIcon(Objects.requireNonNull(PromotionDialog.class.getResource("images/pieces/" + (white ? "w" : "b") + "P.png")
+                new ImageIcon(Objects.requireNonNull(PromotionDialog.class.getResource("images/pieces/" + (whiteWins ? "w" : "b") + "P.png")
                 )),
                 options,
                 options[0]
@@ -44,7 +44,7 @@ public class ResultDialog {
         switch (res) {
             case 0:
                 PGNWriter.export(game);
-                showResult(game, result, white);
+                showResult(game, result, whiteWins);
                 break;
             case 1:
                 break;
