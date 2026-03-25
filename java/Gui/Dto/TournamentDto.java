@@ -22,6 +22,16 @@ public class TournamentDto {
     }
 
     public enum TournamentStatus {
-        PLANNED, ACTIVE, COMPLETED;
+        PLANNED(0), ACTIVE(1), COMPLETED(2);
+
+        final int key;
+
+        TournamentStatus(int key) {
+            this.key = key;
+        }
+
+        public int getKey() {
+            return key;
+        }
     }
 }

@@ -19,27 +19,36 @@ CREATE TABLE tournaments
     city               VARCHAR(255),
     base_consider_time INT,
     move_consider_time INT,
-    status             VARCHAR(50),
+    status             ENUM (0, 1, 2) DEFAULT 0,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE players
 (
+    id          INT NOT NULL AUTO_INCREMENT,
+    firstname   VARCHAR(255),
+    lastname    VARCHAR(255),
+    score       DEC(4, 1) DEFAULT 0.0,
+    fide_rating INT,
+    fide_title  ENUM('GM', 'IM','fm', 'CM', 'WGM', 'WIM', 'WFM', 'WCM', 'NONE') DEFAULT 'NONE',
+    gender      CHAR,
+    birthdate   DATE,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE registrations
+(
     id            INT NOT NULL AUTO_INCREMENT,
-    firstname     VARCHAR(255),
-    lastname      VARCHAR(255),
-    score         DEC(4, 1) DEFAULT 0.0,
-    fide_rating   INT,
-    fide_title    VARCHAR(55),
-    gender        CHAR,
-    birthdate     DATE,
-    status        VARCHAR(55),
-    tournament_id INT,
-    CONSTRAINT fk_tournament_player
+    tournament_id INT NOT NULL,
+    tournament_status      ENUM(0, 1, 2, 3) DEFAULT 0,
+    player_id     INT NOT NULL,
+    CONSTRAINT fk_tournament_registration
         FOREIGN KEY (tournament_id)
             REFERENCES tournaments (id)
             ON DELETE CASCADE,
-    PRIMARY KEY (id)
+    CONSTRAINT fk_player_registration
+        FOREIGN KEY (player_id)
+            REFERENCES players (id)
 );
 
 CREATE TABLE rounds
@@ -47,7 +56,7 @@ CREATE TABLE rounds
     id            INT NOT NULL AUTO_INCREMENT,
     tournament_id INT NOT NULL,
     round_number  INT,
-    status        VARCHAR(55),
+    status        ENUM (0, 1, 2) DEFAULT 0,
     begin         DATETIME,
     PRIMARY KEY (id),
     CONSTRAINT fk_tournament_round
@@ -109,8 +118,21 @@ FROM games g
          INNER JOIN players pb ON g.player_black = pb.id
 WHERE g.round_id = 1;
 
+
+CREATE TRIGGER create_fist_round
+    AFTER UPDATE
+    ON tournaments
+    FOR EACH ROW
+BEGIN
+    IF NEW.status = 'ACTIVE' THEN
+        INSERT INTO rounds (tournament_id, round_number, status)
+        VALUES (NEW.id, 1, 'active');
+    END IF;
+END;
+
 CREATE TRIGGER update_player_points_after_round
-    AFTER UPDATE ON rounds
+    AFTER UPDATE
+    ON rounds
     FOR EACH ROW
 BEGIN
     -- Nur beim Wechsel auf "completed"
@@ -118,31 +140,23 @@ BEGIN
 
         -- Punkte für Weiß
         UPDATE players p
-        SET p.score = p.score + (
-            SELECT g.result
-            FROM games g
-            WHERE g.player_white = p.id
-              AND g.round_id = NEW.id
-        )
-        WHERE p.id IN (
-            SELECT g.player_white
-            FROM games g
-            WHERE g.round_id = NEW.id
-        );
+        SET p.score = p.score + (SELECT g.result
+                                 FROM games g
+                                 WHERE g.player_white = p.id
+                                   AND g.round_id = NEW.id)
+        WHERE p.id IN (SELECT g.player_white
+                       FROM games g
+                       WHERE g.round_id = NEW.id);
 
         -- Punkte für Schwarz (invertiert)
         UPDATE players p
-        SET p.score = p.score - (
-            SELECT g.result
-            FROM games g
-            WHERE g.player_black = p.id
-              AND g.round_id = NEW.id
-        )
-        WHERE p.id IN (
-            SELECT g.player_black
-            FROM games g
-            WHERE g.round_id = NEW.id
-        );
+        SET p.score = p.score - (SELECT g.result
+                                 FROM games g
+                                 WHERE g.player_black = p.id
+                                   AND g.round_id = NEW.id)
+        WHERE p.id IN (SELECT g.player_black
+                       FROM games g
+                       WHERE g.round_id = NEW.id);
 
     END IF;
 END;

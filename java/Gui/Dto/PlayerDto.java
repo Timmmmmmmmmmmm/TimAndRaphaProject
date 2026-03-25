@@ -10,9 +10,8 @@ public class PlayerDto {
     public FideTitle fide_title;
     public char gender;
     public LocalDate birthdate;
-    public PlayerStatus status;
 
-    public PlayerDto(int id, String firstname, String lastname, int fide_rating, FideTitle fide_title, char gender, LocalDate birthdate, PlayerStatus status) {
+    public PlayerDto(int id, String firstname, String lastname, int fide_rating, FideTitle fide_title, char gender, LocalDate birthdate) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -20,11 +19,10 @@ public class PlayerDto {
         this.fide_title = fide_title;
         this.gender = gender;
         this.birthdate = birthdate;
-        this.status = status;
     }
 
     public enum FideTitle {
-        GRANDMASTER("gm"), INTERNATIONAL_MASTER("im"), FIDE_MASTER("fm"), FIDE_CANDIDATE_MASTER("cm"), WOMAN_GRANDMASTER("wgm"), WOMAN_INTERNATIONAL_MASTER("wim"), WOMAN_FIDE_MASTER("wfm"), WOMAN_CANDIDATE_MASTER("wcm"), NONE("none");
+        GRANDMASTER("GM"), INTERNATIONAL_MASTER("IM"), FIDE_MASTER("FM"), FIDE_CANDIDATE_MASTER("FM"), WOMAN_GRANDMASTER("WGM"), WOMAN_INTERNATIONAL_MASTER("WIM"), WOMAN_FIDE_MASTER("WFM"), WOMAN_CANDIDATE_MASTER("WCM"), NONE("NONE");
 
         final String key;
 
@@ -45,10 +43,14 @@ public class PlayerDto {
         }
         return null;
     }
-
-    public enum PlayerStatus {
-        DISQUALIFIED, FINISHED_GAMES, PLAYING, APPLIED;
-    }
+// @todo Bei Anmeldungen DTO hinzufügen
+//    public enum PlayerStatus {
+//        DISQUALIFIED(0), FINISHED_GAMES(1), PLAYING(2), APPLIED(3);
+//        final int key;
+//        PlayerStatus(int key) {
+//            this.key = key;
+//        }
+//    }
 
     @Override
     public String toString() {

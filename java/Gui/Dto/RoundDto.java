@@ -16,6 +16,10 @@ public class RoundDto {
     }
 
     public enum RoundStatus {
-        PLANNED, RUNNING, COMPLETED;
+        PLANNED(0), RUNNING(1), COMPLETED(2);
+        final int key;
+        RoundStatus(int key) {
+            this.key = key;
+        }
     }
 }
