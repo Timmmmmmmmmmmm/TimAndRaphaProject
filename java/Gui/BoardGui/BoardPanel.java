@@ -32,18 +32,18 @@ public class BoardPanel extends JPanel {
 
     public BoardPanel(Game game) {
         this.game = game;
-        whiteTime = game.tournament.base_consider_time;
-        blackTime = game.tournament.base_consider_time;
+        whiteTime = game.tournamentDto.base_consider_time;
+        blackTime = game.tournamentDto.base_consider_time;
 
         setLayout(new BorderLayout());
 
         createMenuBar();
 
-        blackPlayerDisplay = new PlayerDisplay(game.blackPlayer, blackTime);
+        blackPlayerDisplay = new PlayerDisplay(game.blackPlayerDto, blackTime);
         blackPlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
         add(blackPlayerDisplay, BorderLayout.NORTH);
 
-        whitePlayerDisplay = new PlayerDisplay(game.whitePlayer, whiteTime);
+        whitePlayerDisplay = new PlayerDisplay(game.whitePlayerDto, whiteTime);
         whitePlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
         add(whitePlayerDisplay, BorderLayout.SOUTH);
 
@@ -116,9 +116,9 @@ public class BoardPanel extends JPanel {
                 }
 
                 if (game.whiteTurn) {
-                    blackTime += game.tournament.move_consider_time;
+                    blackTime += game.tournamentDto.move_consider_time;
                 } else {
-                    whiteTime += game.tournament.move_consider_time;
+                    whiteTime += game.tournamentDto.move_consider_time;
                 }
                 legalMoves.clear();
 

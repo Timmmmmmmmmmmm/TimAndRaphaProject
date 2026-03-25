@@ -1,8 +1,8 @@
 package Gui.BoardGui;
 
-import Gui.Dto.Player;
-import Gui.Dto.Round;
-import Gui.Dto.Tournament;
+import Gui.Dto.PlayerDto;
+import Gui.Dto.RoundDto;
+import Gui.Dto.TournamentDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +14,17 @@ public class Game {
     public boolean whiteTurn = true;
     public String result = "*";
 
-    Tournament tournament;
-    Round round;
-    Player whitePlayer;
-    Player blackPlayer;
+    TournamentDto tournamentDto;
+    RoundDto roundDto;
+    PlayerDto whitePlayerDto;
+    PlayerDto blackPlayerDto;
 
-    public Game(Tournament tournament, Round round, Player whitePlayer, Player blackPlayer) {
+    public Game(TournamentDto tournamentDto, RoundDto roundDto, PlayerDto whitePlayerDto, PlayerDto blackPlayerDto) {
         setup();
-        this.tournament = tournament;
-        this.round = round;
-        this.whitePlayer = whitePlayer;
-        this.blackPlayer = blackPlayer;
+        this.tournamentDto = tournamentDto;
+        this.roundDto = roundDto;
+        this.whitePlayerDto = whitePlayerDto;
+        this.blackPlayerDto = blackPlayerDto;
     }
 
     private void setup(){

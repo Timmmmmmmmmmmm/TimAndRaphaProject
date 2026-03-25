@@ -2,25 +2,25 @@ package Gui.Dto;
 
 import java.time.LocalDate;
 
-public class Player {
+public class PlayerDto {
     public int id;
     public String firstname;
     public String lastname;
-    public int fideRating;
-    public FideTitle fideTitle;
+    public int fide_rating;
+    public FideTitle fide_title;
     public char gender;
     public LocalDate birthdate;
-    public PlayerStatus playerStatus;
+    public PlayerStatus status;
 
-    public Player(int id, String firstname, String lastname, int fideRating, FideTitle fideTitle, char gender, LocalDate birthdate, PlayerStatus playerStatus) {
+    public PlayerDto(int id, String firstname, String lastname, int fide_rating, FideTitle fide_title, char gender, LocalDate birthdate, PlayerStatus status) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.fideRating = fideRating;
-        this.fideTitle = fideTitle;
+        this.fide_rating = fide_rating;
+        this.fide_title = fide_title;
         this.gender = gender;
         this.birthdate = birthdate;
-        this.playerStatus = playerStatus;
+        this.status = status;
     }
 
     public enum FideTitle {
@@ -37,8 +37,21 @@ public class Player {
         }
     }
 
+    public static FideTitle fromKeyOrName(String value) {
+        for (FideTitle fideTitle : FideTitle.values()) {
+            if (value.toLowerCase().equals(fideTitle.getKey()) || value.toUpperCase().equals(fideTitle.name())) {
+                return fideTitle;
+            }
+        }
+        return null;
+    }
+
     public enum PlayerStatus {
         DISQUALIFIED, FINISHED_GAMES, PLAYING, APPLIED;
     }
 
+    @Override
+    public String toString() {
+        return lastname + ", " + firstname;
+    }
 }

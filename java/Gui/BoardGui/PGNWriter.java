@@ -30,17 +30,17 @@ public class PGNWriter {
     }
 
     private static void writeHeader(FileWriter writer, Game game) throws IOException {
-        writer.write("[Event \"" + game.tournament.name + "\"]\n");
-        writer.write("[Site \"" + game.tournament.city + "\"]\n");
-        writer.write("[Date \"" + game.tournament.date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\"]\n");
-        writer.write("[Round \"" + game.round.roundNumber + "\"]\n");
-        writer.write("[White \"" + game.whitePlayer.lastname + ", " + game.whitePlayer.firstname + "\"]\n");
-        writer.write("[Black \"" + game.blackPlayer.lastname + ", " + game.blackPlayer.firstname + "\"]\n");
-        writer.write("[WhiteElo \"" + game.whitePlayer.fideRating + "\"]\n");
-        writer.write("[BlackElo \"" + game.blackPlayer.fideRating + "\"]\n");
-        writer.write("[WhiteTitle \"" + game.whitePlayer.fideTitle + "\"]\n");
-        writer.write("[BlackTitle \"" + game.blackPlayer.fideTitle + "\"]\n");
-        writer.write("[TimeControl \"" + game.tournament.base_consider_time + "+" + game.tournament.move_consider_time + "\"]\n");
+        writer.write("[Event \"" + game.tournamentDto.name + "\"]\n");
+        writer.write("[Site \"" + game.tournamentDto.city + "\"]\n");
+        writer.write("[Date \"" + game.tournamentDto.date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\"]\n");
+        writer.write("[Round \"" + game.roundDto.round_number + "\"]\n");
+        writer.write("[White \"" + game.whitePlayerDto.lastname + ", " + game.whitePlayerDto.firstname + "\"]\n");
+        writer.write("[Black \"" + game.blackPlayerDto.lastname + ", " + game.blackPlayerDto.firstname + "\"]\n");
+        writer.write("[WhiteElo \"" + game.whitePlayerDto.fide_rating + "\"]\n");
+        writer.write("[BlackElo \"" + game.blackPlayerDto.fide_rating + "\"]\n");
+        writer.write("[WhiteTitle \"" + game.whitePlayerDto.fide_title + "\"]\n");
+        writer.write("[BlackTitle \"" + game.blackPlayerDto.fide_title + "\"]\n");
+        writer.write("[TimeControl \"" + game.tournamentDto.base_consider_time + "+" + game.tournamentDto.move_consider_time + "\"]\n");
         writer.write("[Result \"" + game.result + "\"]\n\n");
     }
 

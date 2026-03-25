@@ -1,6 +1,6 @@
 package Gui.BoardGui;
 
-import Gui.Dto.Player;
+import Gui.Dto.PlayerDto;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ public class PlayerDisplay extends JPanel {
     JLabel nameLabel;
     JLabel ratingLabel;
 
-    public PlayerDisplay(Player player, int time) {
+    public PlayerDisplay(PlayerDto playerDto, int time) {
 
         setLayout(new BorderLayout(10, 10));
 
@@ -21,18 +21,18 @@ public class PlayerDisplay extends JPanel {
 
         timeLabel = new JLabel();
         timeLabel.setAlignmentX(LEFT_ALIGNMENT);
-        timeLabel.setText(player.fideTitle.getKey().toUpperCase());
+        timeLabel.setText(playerDto.fide_title.getKey().toUpperCase());
         add(timeLabel, BorderLayout.WEST);
 
         nameLabel = new JLabel();
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        nameLabel.setText(player.lastname + ", " + player.firstname);
+        nameLabel.setText(playerDto.lastname + ", " + playerDto.firstname);
         textPanel.add(nameLabel);
 
         ratingLabel = new JLabel();
         ratingLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         ratingLabel.setForeground(new Color(76, 153, 234));
-        ratingLabel.setText(player.fideTitle.getKey().toUpperCase() +  " (" + player.fideRating + ")");
+        ratingLabel.setText(playerDto.fide_title.getKey().toUpperCase() +  " (" + playerDto.fide_rating + ")");
         textPanel.add(ratingLabel);
 
         add(textPanel, BorderLayout.CENTER);

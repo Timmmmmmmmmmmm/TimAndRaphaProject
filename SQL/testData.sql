@@ -4,31 +4,31 @@
 
 -- TOURNAMENTS
 INSERT INTO tournaments (id, name, date, city, base_consider_time, move_consider_time, status)
-VALUES (1, 'Münster Open 2025', '2025-03-15', 'Münster', 5400, 30, 'completed'),
-       (2, 'Westfalen Blitz Cup', '2025-06-01', 'Dortmund', 1800, 10, 'completed'),
-       (3, 'Herbst-Turnier Köln', '2025-09-20', 'Köln', 5400, 30, 'active'),
-       (4, 'Weihnachts-Simultanturnier', '2025-12-20', 'Düsseldorf', 900, 0, 'planned');
+VALUES (1, 'Münster Open 2025', '2025-03-15', 'Münster', 5400, 30, 'COMPLETED'),
+       (2, 'Westfalen Blitz Cup', '2025-06-01', 'Dortmund', 1800, 10, 'COMPLETED'),
+       (3, 'Herbst-Turnier Köln', '2025-09-20', 'Köln', 5400, 30, 'ACTIVE'),
+       (4, 'Weihnachts-Simultanturnier', '2025-12-20', 'Düsseldorf', 900, 0, 'PLANNED');
 
 -- PLAYERS
 INSERT INTO players (id, firstname, lastname, fide_rating, fide_title, gender, birthdate, status)
-VALUES (1, 'Magnus', 'Carlsen', 2831, 'GM', 'M', '1990-11-30', 'active'),
-       (2, 'Judit', 'Polgar', 2675, 'GM', 'F', '1976-07-23', 'retired'),
-       (3, 'Fabiano', 'Caruana', 2805, 'GM', 'M', '1992-07-30', 'active'),
-       (4, 'Hou', 'Yifan', 2650, 'GM', 'F', '1994-02-27', 'active'),
-       (5, 'Jan', 'Nepomnjaschtschi', 2780, 'GM', 'M', '1990-07-14', 'active'),
-       (6, 'Alireza', 'Firouzja', 2760, 'GM', 'M', '2003-06-18', 'active'),
-       (7, 'Anna', 'Muzychuk', 2550, 'IM', 'F', '1990-02-28', 'active'),
-       (8, 'Viswanathan', 'Anand', 2751, 'GM', 'M', '1969-12-11', 'active'),
-       (9, 'Sergey', 'Karjakin', 2747, 'GM', 'M', '1990-01-12', 'active'),
-       (10, 'Lei', 'Tingjie', 2530, 'IM', 'F', '1997-01-12', 'active');
+VALUES (1, 'Magnus', 'Carlsen', 2831, 'GM', 'M', '1990-11-30', 'APPLIED'),
+       (2, 'Judit', 'Polgar', 2675, 'GM', 'F', '1976-07-23', 'DISQUALIFIED'),
+       (3, 'Fabiano', 'Caruana', 2805, 'GM', 'M', '1992-07-30', 'APPLIED'),
+       (4, 'Hou', 'Yifan', 2650, 'GM', 'F', '1994-02-27', 'APPLIED'),
+       (5, 'Jan', 'Nepomnjaschtschi', 2780, 'GM', 'M', '1990-07-14', 'FINISHED_GAMES'),
+       (6, 'Alireza', 'Firouzja', 2760, 'GM', 'M', '2003-06-18', 'FINISHED_GAMES'),
+       (7, 'Anna', 'Muzychuk', 2550, 'IM', 'F', '1990-02-28', 'APPLIED'),
+       (8, 'Viswanathan', 'Anand', 2751, 'GM', 'M', '1969-12-11', 'APPLIED'),
+       (9, 'Sergey', 'Karjakin', 2747, 'GM', 'M', '1990-01-12', 'APPLIED'),
+       (10, 'Lei', 'Tingjie', 2530, 'IM', 'F', '1997-01-12', 'APPLIED');
 
 -- ROUNDS (gehören zu Turnier 1 – Münster Open 2025)
 INSERT INTO rounds (id, tournament_id, round_number, status, begin)
-VALUES (1, 1, 1, 'completed', '2025-03-15 10:00:00'),
-       (2, 1, 2, 'completed', '2025-03-15 15:00:00'),
-       (3, 1, 3, 'completed', '2025-03-16 10:00:00'),
-       (4, 1, 4, 'completed', '2025-03-16 15:00:00'),
-       (5, 1, 5, 'completed', '2025-03-17 10:00:00');
+VALUES (1, 1, 1, 'COMPLETED', '2025-03-15 10:00:00'),
+       (2, 1, 2, 'COMPLETED', '2025-03-15 15:00:00'),
+       (3, 1, 3, 'COMPLETED', '2025-03-16 10:00:00'),
+       (4, 1, 4, 'COMPLETED', '2025-03-16 15:00:00'),
+       (5, 1, 5, 'COMPLETED', '2025-03-17 10:00:00');
 
 -- GAMES
 -- result: 1 = Weiß gewinnt, 2 = Schwarz gewinnt, 3 = Remis, 0 = laufend/kein Ergebnis
