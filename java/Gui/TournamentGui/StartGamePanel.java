@@ -62,7 +62,7 @@ public class StartGamePanel extends JPanel {
                     if (whitePlayer.id == blackPlayer.id) {
                         JOptionPane.showMessageDialog(getInstance(), "Es müssen zwei unterschiedliche Spieler ausgewählt werden!");
                     } else {
-                        BaseWindow.getInstance().setContentPane(new BoardPanel(new Game(tournamentDto, roundDto, whitePlayer, blackPlayer)));
+                        BaseWindow.getInstance().setContentPane(new BoardPanel(new Game(tournamentDto, roundDto, null, whitePlayer, blackPlayer)));
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package Gui.BoardGui;
 
+import Gui.Dto.GameDto;
 import Gui.Dto.PlayerDto;
 import Gui.Dto.RoundDto;
 import Gui.Dto.TournamentDto;
@@ -10,19 +11,21 @@ import java.util.List;
 public class Game {
     public Piece[][] board = new Piece[8][8];
 
-    public List<HistoryMove> history = new ArrayList<>();
+    public List<String> history = new ArrayList<>();
     public boolean whiteTurn = true;
     public String result = "*";
 
     TournamentDto tournamentDto;
     RoundDto roundDto;
+    GameDto gameDto;
     PlayerDto whitePlayerDto;
     PlayerDto blackPlayerDto;
 
-    public Game(TournamentDto tournamentDto, RoundDto roundDto, PlayerDto whitePlayerDto, PlayerDto blackPlayerDto) {
+    public Game(TournamentDto tournamentDto, RoundDto roundDto, GameDto gameDto, PlayerDto whitePlayerDto, PlayerDto blackPlayerDto) {
         setup();
         this.tournamentDto = tournamentDto;
         this.roundDto = roundDto;
+        this.gameDto = gameDto;
         this.whitePlayerDto = whitePlayerDto;
         this.blackPlayerDto = blackPlayerDto;
     }
@@ -60,7 +63,7 @@ public class Game {
     }
 
     public Game copy(){
-        Game game = new Game(null, null, null, null);
+        Game game = new Game(null, null, null, null, null);
 
         game.whiteTurn = whiteTurn;
         game.result = result;
@@ -87,14 +90,22 @@ public class Game {
     public ChessResult makeMove(Move move, boolean copy) {
         Piece piece = board[move.fromRow][move.fromColumn];
 
-        HistoryMove historyMove = new HistoryMove(move);
+        boolean capture = board[move.toRow][move.toColumn] != null || move.enPassant;
+        boolean castleKingSide = move.castle && move.toColumn == 6;
+        boolean castleQueenSide = move.castle && move.toColumn == 2;
+
+        boolean addRowIndex = false;
+        boolean addColumnIndex = false;
+
         if (!copy) {
-            historyMove.piece = piece.type;
-            historyMove.capture = board[move.toRow][move.toColumn] != null || move.enPassant;
-            historyMove.castleKingSide = move.castle && move.toColumn == 6;
-            historyMove.castleQueenSide = move.castle && move.toColumn == 2;
-            applyDisambiguation(historyMove);
+            boolean[] dis = applyDisambiguation(move, piece.type);
+            addRowIndex = dis[0];
+            addColumnIndex = dis[1];
         }
+
+        Piece.Type promotionType = null;
+        boolean check = false;
+        boolean checkmate = false;
 
         board[move.toRow][move.toColumn] = piece;
         board[move.fromRow][move.fromColumn] = null;
@@ -126,7 +137,7 @@ public class Game {
             if (!copy) {
                 Piece.Type type = PromotionDialog.choosePromotion(piece.white);
                 board[move.toRow][move.toColumn] = new Piece(type,piece.white);
-                historyMove.promotionType = type;
+                promotionType = type;
             } else {
                 board[move.toRow][move.toColumn] = new Piece(Piece.Type.QUEEN,piece.white);
             }
@@ -147,8 +158,13 @@ public class Game {
 
             if (movesOther.isEmpty()) {
                 if (MoveGenerator.inCheck(this, whiteTurn)) {
-                    historyMove.checkmate = true;
-                    history.add(historyMove);
+                    checkmate = true;
+                    String san = buildSAN(move, piece, capture,
+                            castleKingSide, castleQueenSide,
+                            promotionType, check, checkmate,
+                            addRowIndex, addColumnIndex);
+
+                    history.add(san);
                     if(whiteTurn) {
                         result = "1-0";
                     } else {
@@ -156,17 +172,32 @@ public class Game {
                     }
                     return ChessResult.CHECKMATE;
                 } else {
-                    history.add(historyMove);
+                    String san = buildSAN(move, piece, capture,
+                            castleKingSide, castleQueenSide,
+                            promotionType, check, checkmate,
+                            addRowIndex, addColumnIndex);
+
+                    history.add(san);
                     result = "1/2-1/2";
                     return ChessResult.STALEMATE;
                 }
             } else {
                 if (MoveGenerator.inCheck(this, whiteTurn)) {
-                    historyMove.check = true;
-                    history.add(historyMove);
+                    check = true;
+                    String san = buildSAN(move, piece, capture,
+                            castleKingSide, castleQueenSide,
+                            promotionType, check, checkmate,
+                            addRowIndex, addColumnIndex);
+
+                    history.add(san);
                     return ChessResult.CHECK;
                 } else {
-                    history.add(historyMove);
+                    String san = buildSAN(move, piece, capture,
+                            castleKingSide, castleQueenSide,
+                            promotionType, check, checkmate,
+                            addRowIndex, addColumnIndex);
+
+                    history.add(san);
                     return ChessResult.NONE;
                 }
             }
@@ -174,7 +205,10 @@ public class Game {
         return null;
     }
 
-    private void applyDisambiguation(HistoryMove historyMove) {
+    private boolean[] applyDisambiguation(Move move, Piece.Type type) {
+
+        boolean addRowIndex = false;
+        boolean addColumnIndex = false;
 
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
@@ -182,24 +216,84 @@ public class Game {
                 Piece piece = board[row][column];
                 if (piece == null) continue;
                 if (piece.white != whiteTurn) continue;
-                if (piece.type != historyMove.piece) continue;
+                if (piece.type != type) continue;
 
                 List<Move> moves = MoveGenerator.generateLegal(this, row, column);
                 for (Move other : moves) {
 
-                    if (other.toRow == historyMove.toRow && other.toColumn == historyMove.toColumn) {
+                    if (other.toRow == move.toRow && other.toColumn == move.toColumn) {
 
-                        if (row == historyMove.fromRow && column == historyMove.fromColumn) continue;
-                        
-                        if (column != historyMove.fromColumn) {
-                            historyMove.addColumnIndex = true;
+                        if (row == move.fromRow && column == move.fromColumn) continue;
+
+                        if (column != move.fromColumn) {
+                            addColumnIndex = true;
                         } else {
-                            historyMove.addRowIndex = true;
+                            addRowIndex = true;
                         }
                     }
                 }
             }
         }
+
+        return new boolean[]{addRowIndex, addColumnIndex};
+    }
+
+    private String buildSAN(Move move, Piece piece, boolean capture,
+                            boolean castleKingSide, boolean castleQueenSide,
+                            Piece.Type promotionType,
+                            boolean check, boolean checkmate,
+                            boolean addRowIndex, boolean addColumnIndex) {
+
+        if (castleKingSide) return "O-O";
+        if (castleQueenSide) return "O-O-O";
+
+        StringBuilder builder = new StringBuilder();
+
+        if (piece.type != Piece.Type.PAWN) {
+            builder.append(letter(piece.type));
+
+            if (addRowIndex && addColumnIndex) {
+                builder.append((char) ('a' + move.fromColumn));
+                builder.append(8 - move.fromRow);
+            } else if (addRowIndex) {
+                builder.append(8 - move.fromRow);
+            } else if (addColumnIndex) {
+                builder.append((char) ('a' + move.fromColumn));
+            }
+        }
+
+        if (capture) {
+            if (piece.type == Piece.Type.PAWN) {
+                builder.append((char) ('a' + move.fromColumn));
+            }
+            builder.append("x");
+        }
+
+        builder.append((char) ('a' + move.toColumn));
+        builder.append(8 - move.toRow);
+
+        if (promotionType != null) {
+            builder.append("=").append(letter(promotionType));
+        }
+
+        if (checkmate) {
+            builder.append("#");
+        } else if (check) {
+            builder.append("+");
+        }
+
+        return builder.toString();
+    }
+
+    private String letter(Piece.Type t) {
+        return switch (t) {
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case ROOK -> "R";
+            case BISHOP -> "B";
+            case KNIGHT -> "N";
+            default -> "";
+        };
     }
 
     public void win(boolean whiteWins){

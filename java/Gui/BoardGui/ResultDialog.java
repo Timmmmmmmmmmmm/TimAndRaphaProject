@@ -1,7 +1,5 @@
 package Gui.BoardGui;
 
-import Gui.BaseWindow;
-
 import javax.swing.*;
 import java.util.Objects;
 
@@ -11,8 +9,7 @@ public class ResultDialog {
 
         String[] options = {
                 "PGN herunterladen",
-                "Schließen",
-                "Neues Spiel"
+                "Schließen"
         };
 
         JOptionPane pane = new JOptionPane(
@@ -47,9 +44,6 @@ public class ResultDialog {
                 showResult(game, result, whiteWins);
                 break;
             case 1:
-                break;
-            case 2:
-                BaseWindow.getInstance().setPanel(new BoardPanel(new Game(null, null, null, null)));
                 break;
         }
     }

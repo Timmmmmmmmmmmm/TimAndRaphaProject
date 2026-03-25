@@ -253,6 +253,7 @@ public class BoardPanel extends JPanel {
 
     public void endGame(GameResult result, boolean whiteWins) {
         timer.stop();
+        PGNWriter.saveMovesInDatabase(game);
         ResultDialog.showResult(game, result, whiteWins);
     }
 }
