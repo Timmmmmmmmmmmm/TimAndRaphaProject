@@ -45,7 +45,7 @@ public class PlayerDto {
     }
 // @todo Bei Anmeldungen DTO hinzufügen
 //    public enum PlayerStatus {
-//        DISQUALIFIED(0), FINISHED_GAMES(1), PLAYING(2), APPLIED(3);
+//        APPLIED(0), PLAYING(1), FINISHED_GAMES(2), DISQUALIFIED(3);
 //        final int key;
 //        PlayerStatus(int key) {
 //            this.key = key;

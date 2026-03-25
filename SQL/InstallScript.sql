@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS games_moves;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS rounds;
+DROP TABLE IF EXISTS registrations;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
 -- VIEWS
@@ -9,6 +10,7 @@ DROP VIEW IF EXISTS leaderboard;
 DROP VIEW IF EXISTS round_overview;
 -- TRIGGER
 DROP TRIGGER IF EXISTS new_round;
+DROP TRIGGER IF EXISTS create_fist_round;
 DROP TRIGGER IF EXISTS update_player_points_after_round;
 
 CREATE TABLE tournaments
@@ -19,7 +21,7 @@ CREATE TABLE tournaments
     city               VARCHAR(255),
     base_consider_time INT,
     move_consider_time INT,
-    status             ENUM (0, 1, 2) DEFAULT 0,
+    status             ENUM ('PLANNED', 'ACTIVE', 'COMPLETED') DEFAULT 'PLANNED',
     PRIMARY KEY (id)
 );
 
@@ -28,9 +30,9 @@ CREATE TABLE players
     id          INT NOT NULL AUTO_INCREMENT,
     firstname   VARCHAR(255),
     lastname    VARCHAR(255),
-    score       DEC(4, 1) DEFAULT 0.0,
+    score       DEC(4, 1)                                                        DEFAULT 0.0,
     fide_rating INT,
-    fide_title  ENUM('GM', 'IM','fm', 'CM', 'WGM', 'WIM', 'WFM', 'WCM', 'NONE') DEFAULT 'NONE',
+    fide_title  ENUM ('GM', 'IM','fm', 'CM', 'WGM', 'WIM', 'WFM', 'WCM', 'NONE') DEFAULT 'NONE',
     gender      CHAR,
     birthdate   DATE,
     PRIMARY KEY (id)
@@ -38,10 +40,12 @@ CREATE TABLE players
 
 CREATE TABLE registrations
 (
-    id            INT NOT NULL AUTO_INCREMENT,
-    tournament_id INT NOT NULL,
-    tournament_status      ENUM(0, 1, 2, 3) DEFAULT 0,
-    player_id     INT NOT NULL,
+    id                INT NOT NULL AUTO_INCREMENT,
+    tournament_id     INT NOT NULL,
+    tournament_status ENUM ('APPLIED', 'PLAYING', 'FINISHED_GAMES', 'DISQUALIFIED') DEFAULT 'APPLIED',
+    player_id         INT NOT NULL,
+
+    PRIMARY KEY(id),
     CONSTRAINT fk_tournament_registration
         FOREIGN KEY (tournament_id)
             REFERENCES tournaments (id)
@@ -56,7 +60,7 @@ CREATE TABLE rounds
     id            INT NOT NULL AUTO_INCREMENT,
     tournament_id INT NOT NULL,
     round_number  INT,
-    status        ENUM (0, 1, 2) DEFAULT 0,
+    status        ENUM ('PLANNED', 'RUNNING', 'COMPLETED') DEFAULT 'PLANNED',
     begin         DATETIME,
     PRIMARY KEY (id),
     CONSTRAINT fk_tournament_round

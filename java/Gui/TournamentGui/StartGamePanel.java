@@ -39,7 +39,7 @@ public class StartGamePanel extends JPanel {
         if (playersHashMap != null && !playersHashMap.isEmpty()) {
             for (HashMap<String, String> player : playersHashMap) {
                 try {
-                    playerList.add(new PlayerDto(Integer.parseInt(player.get("id")), player.get("firstname"), player.get("lastname"), Integer.parseInt(player.get("fide_rating")), PlayerDto.fromKeyOrName(player.get("fide_title")) , player.get("gender").charAt(0), LocalDate.parse(player.get("birthdate")), PlayerDto.PlayerStatus.valueOf(player.get("status"))));
+                    playerList.add(new PlayerDto(Integer.parseInt(player.get("id")), player.get("firstname"), player.get("lastname"), Integer.parseInt(player.get("fide_rating")), PlayerDto.fromKeyOrName(player.get("fide_title")) , player.get("gender").charAt(0), LocalDate.parse(player.get("birthdate"))));
                 } catch (Exception _) {}
             }
         }
