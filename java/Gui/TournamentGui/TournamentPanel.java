@@ -1,31 +1,30 @@
 package Gui.TournamentGui;
 
+import Gui.BaseWindow;
+import Gui.BoardGui.BoardPanel;
+import Gui.BoardGui.Game;
 import Gui.Dto.GameDto;
 import Gui.Dto.PlayerDto;
 import Gui.Dto.RoundDto;
 import Gui.Dto.TournamentDto;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class TournamentPanel extends JPanel {
 
     private JTree tree;
+    private GameRoundPlayerDto selectedGame;
 
     public TournamentPanel(TournamentDto tournamentDto) {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Root-Knoten = Turnier
         DefaultMutableTreeNode tournamentNode = new DefaultMutableTreeNode(tournamentDto.name);
 
-        // Runden aus DB holen
         List<RoundDto> rounds = RoundDto.getAsList(
                 "SELECT * FROM rounds WHERE tournament_id = " + tournamentDto.id + " ORDER BY round_number;"
         );
@@ -34,19 +33,23 @@ public class TournamentPanel extends JPanel {
             for (RoundDto roundDto : rounds) {
                 DefaultMutableTreeNode roundNode = new DefaultMutableTreeNode("Round " + roundDto.round_number);
 
-                // Games für diese Runde
                 List<GameDto> games = GameDto.getAsList(
                         "SELECT * FROM games WHERE round_id = " + roundDto.id + ";"
                 );
 
                 if (games != null) {
-                    List<GameDtoWithPlayers> gamesWithPlayers = new ArrayList<>();
                     for (GameDto gameDto : games) {
-                        PlayerDto whitePlayer = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_white + ";")).getFirst();
-                        PlayerDto blackPlayer = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_black + ";")).getFirst();
-                        GameDtoWithPlayers gameWithPlayers = new GameDtoWithPlayers(gameDto, whitePlayer, blackPlayer);
-                        gamesWithPlayers.add(gameWithPlayers);
-                        DefaultMutableTreeNode gameNode = new DefaultMutableTreeNode(gameWithPlayers.whitePlayer.toString() + " | " + gameWithPlayers.blackPlayer.toString());
+                        PlayerDto whitePlayer = Objects.requireNonNull(
+                                PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_white + ";")
+                        ).getFirst();
+
+                        PlayerDto blackPlayer = Objects.requireNonNull(
+                                PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_black + ";")
+                        ).getFirst();
+
+                        GameRoundPlayerDto game = new GameRoundPlayerDto(gameDto, roundDto, whitePlayer, blackPlayer);
+
+                        DefaultMutableTreeNode gameNode = new DefaultMutableTreeNode(game);
                         roundNode.add(gameNode);
                     }
                 }
@@ -56,24 +59,40 @@ public class TournamentPanel extends JPanel {
         }
 
         tree = new JTree(tournamentNode);
+        tree.setRowHeight(28);
+
         JScrollPane scrollPane = new JScrollPane(tree);
-        add(scrollPane, BorderLayout.CENTER);
 
-        // TreeSelectionListener für Klicks
-        tree.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode selectedNode =
-                        (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                if (selectedNode == null) return;
+        JButton startGameButton = new JButton("Game starten");
+        startGameButton.setPreferredSize(new Dimension(150, 40));
 
-                Object userObject = selectedNode.getUserObject();
-                if (userObject instanceof GameDtoWithPlayers game) {
-                    // Nur Game-Knoten reagieren
-                    System.out.println("Game clicked! ID = " + game.whitePlayer.firstname);
-
-                    // TODO: Hier Spiel starten / Dialog öffnen / Ergebnis eingeben
+        startGameButton.addActionListener(e -> {
+            if (selectedGame != null) {
+                if (selectedGame.gameDto.result == null) {
+                    BaseWindow.getInstance().setContentPane(new BoardPanel(new Game(tournamentDto, selectedGame.roundDto, selectedGame.gameDto, selectedGame.whitePlayer, selectedGame.blackPlayer)));
+                } else {
+                    JOptionPane.showMessageDialog(this, "Spiel wurde bereits beendet!");
                 }
+            }
+        });
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.add(startGameButton);
+
+        add(scrollPane, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        tree.addTreeSelectionListener(e -> {
+            DefaultMutableTreeNode selectedNode =
+                    (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            if (selectedNode == null) return;
+
+            Object obj = selectedNode.getUserObject();
+
+            if (obj instanceof GameRoundPlayerDto game) {
+                selectedGame = game;
+            } else {
+                selectedGame = null;
             }
         });
     }
@@ -82,15 +101,28 @@ public class TournamentPanel extends JPanel {
         return tree;
     }
 
-    private class GameDtoWithPlayers {
+    private static class GameRoundPlayerDto {
         GameDto gameDto;
+        RoundDto roundDto;
         PlayerDto whitePlayer;
         PlayerDto blackPlayer;
 
-        GameDtoWithPlayers(GameDto gameDto, PlayerDto whitePlayer, PlayerDto blackPlayer) {
+        GameRoundPlayerDto(GameDto gameDto, RoundDto roundDto, PlayerDto whitePlayer, PlayerDto blackPlayer) {
             this.gameDto = gameDto;
+            this.roundDto = roundDto;
             this.whitePlayer = whitePlayer;
             this.blackPlayer = blackPlayer;
+        }
+
+        @Override
+        public String toString() {
+            return switch (gameDto.result) {
+                case null -> whitePlayer + " vs " + blackPlayer;
+                case 0 -> whitePlayer + " vs " + blackPlayer + " (Draw)";
+                case 1 -> whitePlayer + " 🏆 vs " + blackPlayer;
+                case -1 -> whitePlayer + " vs " + blackPlayer + " 🏆";
+                default -> whitePlayer + " vs " + blackPlayer;
+            };
         }
     }
 }

@@ -89,7 +89,6 @@ public class PGNReader {
             for (int i = 0; i < moves.size(); i++) {
                 stmt.setInt(1, i + 1);
                 stmt.setString(2, moves.get(i));
-                stmt.setInt(3, game.getGameId());
                 stmt.addBatch();
             }
 

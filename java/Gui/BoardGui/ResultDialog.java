@@ -1,6 +1,11 @@
 package Gui.BoardGui;
 
+import Gui.BaseWindow;
+import Gui.Dto.TournamentDto;
+import Gui.TournamentGui.TournamentPanel;
+
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class ResultDialog {
@@ -44,6 +49,10 @@ public class ResultDialog {
                 showResult(game, result, whiteWins);
                 break;
             case 1:
+                BaseWindow window = BaseWindow.getInstance();
+                window.setContentPane(new TournamentPanel(game.tournamentDto));
+                window.revalidate();
+                window.repaint();
                 break;
         }
     }
