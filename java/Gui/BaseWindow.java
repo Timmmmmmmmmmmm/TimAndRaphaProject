@@ -26,8 +26,8 @@ public class BaseWindow extends JFrame {
         setLocationRelativeTo(null);
         setContentPane(new BoardPanel(new Game(new TournamentDto(1, "Münsterland-Tunier", LocalDate.now(), "Münster", 90, 30, TournamentDto.TournamentStatus.ACTIVE),
                 new RoundDto(1, 1, RoundDto.RoundStatus.RUNNING, LocalDateTime.now()),
-                new PlayerDto(1, "Raphael", "Berkenheide", 15, PlayerDto.FideTitle.NONE, 'm', LocalDate.of(2008, Month.MAY, 31), PlayerDto.PlayerStatus.PLAYING),
-                new PlayerDto(2, "Tim", "Kaiser", 1500, PlayerDto.FideTitle.GRANDMASTER, 'm', LocalDate.of(2003, Month.MAY, 13), PlayerDto.PlayerStatus.PLAYING))));
+                new PlayerDto(1, "Raphael", "Berkenheide", 15, PlayerDto.FideTitle.NONE, 'm', LocalDate.of(2008, Month.MAY, 31)),
+                new PlayerDto(2, "Tim", "Kaiser", 1500, PlayerDto.FideTitle.GRANDMASTER, 'm', LocalDate.of(2003, Month.MAY, 13)))));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setMinimumSize(new Dimension(screenSize.width / 4, screenSize.height / 4));
         setDefaultCloseOperation(EXIT_ON_CLOSE);

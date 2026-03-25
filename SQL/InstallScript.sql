@@ -45,7 +45,7 @@ CREATE TABLE registrations
     tournament_status ENUM ('APPLIED', 'PLAYING', 'FINISHED_GAMES', 'DISQUALIFIED') DEFAULT 'APPLIED',
     player_id         INT NOT NULL,
 
-    PRIMARY KEY(id),
+    PRIMARY KEY (id),
     CONSTRAINT fk_tournament_registration
         FOREIGN KEY (tournament_id)
             REFERENCES tournaments (id)
@@ -128,7 +128,13 @@ CREATE TRIGGER create_fist_round
     ON tournaments
     FOR EACH ROW
 BEGIN
-    IF NEW.status = 'ACTIVE' THEN
+    DECLARE rounds_count INT;
+    SELECT COUNT(*)
+    INTO rounds_count
+    FROM rounds
+    WHERE tournament_id = NEW.id;
+
+    IF NEW.status = 'ACTIVE' AND rounds_count = 0 THEN
         INSERT INTO rounds (tournament_id, round_number, status)
         VALUES (NEW.id, 1, 'active');
     END IF;

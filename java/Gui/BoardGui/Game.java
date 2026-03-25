@@ -27,39 +27,39 @@ public class Game {
         this.blackPlayerDto = blackPlayerDto;
     }
 
-    private void setup(){
-        for(int i = 0;i < 8;i++){
+    private void setup() {
+        for (int i = 0; i < 8; i++) {
 
-            board[1][i] = new Piece(Piece.Type.PAWN,false);
-            board[6][i] = new Piece(Piece.Type.PAWN,true);
+            board[1][i] = new Piece(Piece.Type.PAWN, false);
+            board[6][i] = new Piece(Piece.Type.PAWN, true);
         }
 
-        board[0][0] = new Piece(Piece.Type.ROOK,false);
-        board[0][7] = new Piece(Piece.Type.ROOK,false);
+        board[0][0] = new Piece(Piece.Type.ROOK, false);
+        board[0][7] = new Piece(Piece.Type.ROOK, false);
 
-        board[7][0] = new Piece(Piece.Type.ROOK,true);
-        board[7][7] = new Piece(Piece.Type.ROOK,true);
+        board[7][0] = new Piece(Piece.Type.ROOK, true);
+        board[7][7] = new Piece(Piece.Type.ROOK, true);
 
-        board[0][1] = new Piece(Piece.Type.KNIGHT,false);
-        board[0][6] = new Piece(Piece.Type.KNIGHT,false);
+        board[0][1] = new Piece(Piece.Type.KNIGHT, false);
+        board[0][6] = new Piece(Piece.Type.KNIGHT, false);
 
-        board[7][1] = new Piece(Piece.Type.KNIGHT,true);
-        board[7][6] = new Piece(Piece.Type.KNIGHT,true);
+        board[7][1] = new Piece(Piece.Type.KNIGHT, true);
+        board[7][6] = new Piece(Piece.Type.KNIGHT, true);
 
-        board[0][2] = new Piece(Piece.Type.BISHOP,false);
-        board[0][5] = new Piece(Piece.Type.BISHOP,false);
+        board[0][2] = new Piece(Piece.Type.BISHOP, false);
+        board[0][5] = new Piece(Piece.Type.BISHOP, false);
 
-        board[7][2] = new Piece(Piece.Type.BISHOP,true);
-        board[7][5] = new Piece(Piece.Type.BISHOP,true);
+        board[7][2] = new Piece(Piece.Type.BISHOP, true);
+        board[7][5] = new Piece(Piece.Type.BISHOP, true);
 
-        board[0][3] = new Piece(Piece.Type.QUEEN,false);
-        board[7][3] = new Piece(Piece.Type.QUEEN,true);
+        board[0][3] = new Piece(Piece.Type.QUEEN, false);
+        board[7][3] = new Piece(Piece.Type.QUEEN, true);
 
-        board[0][4] = new Piece(Piece.Type.KING,false);
-        board[7][4] = new Piece(Piece.Type.KING,true);
+        board[0][4] = new Piece(Piece.Type.KING, false);
+        board[7][4] = new Piece(Piece.Type.KING, true);
     }
 
-    public Game copy(){
+    public Game copy() {
         Game game = new Game(null, null, null, null);
 
         game.whiteTurn = whiteTurn;
@@ -67,14 +67,14 @@ public class Game {
 
         game.board = new Piece[8][8];
 
-        for(int row = 0;row < 8;row++)
-            for(int column = 0;column < 8;column++){
+        for (int row = 0; row < 8; row++)
+            for (int column = 0; column < 8; column++) {
 
                 Piece piece = board[row][column];
 
-                if(piece != null){
+                if (piece != null) {
 
-                    Piece newPiece = new Piece(piece.type,piece.white);
+                    Piece newPiece = new Piece(piece.type, piece.white);
                     newPiece.moved = piece.moved;
 
                     game.board[row][column] = newPiece;
@@ -100,7 +100,7 @@ public class Game {
         board[move.fromRow][move.fromColumn] = null;
 
         if (!copy) {
-            if(piece.type == Piece.Type.PAWN && Math.abs(move.fromRow - move.toRow) == 2) {
+            if (piece.type == Piece.Type.PAWN && Math.abs(move.fromRow - move.toRow) == 2) {
                 MoveGenerator.enPassantColumn = move.toColumn;
             } else {
                 MoveGenerator.enPassantColumn = -1;
@@ -110,25 +110,25 @@ public class Game {
             board[move.fromRow][move.toColumn] = null;
         }
 
-        if(move.castle){
-            if(move.toColumn == 6){
+        if (move.castle) {
+            if (move.toColumn == 6) {
                 board[move.toRow][5] = board[move.toRow][7];
                 board[move.toRow][7] = null;
-            }else{
+            } else {
 
                 board[move.toRow][3] = board[move.toRow][0];
                 board[move.toRow][0] = null;
             }
         }
 
-        if(move.promotion){
+        if (move.promotion) {
 
             if (!copy) {
                 Piece.Type type = PromotionDialog.choosePromotion(piece.white);
-                board[move.toRow][move.toColumn] = new Piece(type,piece.white);
+                board[move.toRow][move.toColumn] = new Piece(type, piece.white);
                 historyMove.promotionType = type;
             } else {
-                board[move.toRow][move.toColumn] = new Piece(Piece.Type.QUEEN,piece.white);
+                board[move.toRow][move.toColumn] = new Piece(Piece.Type.QUEEN, piece.white);
             }
         }
 
@@ -149,7 +149,7 @@ public class Game {
                 if (MoveGenerator.inCheck(this, whiteTurn)) {
                     historyMove.checkmate = true;
                     history.add(historyMove);
-                    if(whiteTurn) {
+                    if (whiteTurn) {
                         result = "1-0";
                     } else {
                         result = "0-1";
@@ -190,7 +190,7 @@ public class Game {
                     if (other.toRow == historyMove.toRow && other.toColumn == historyMove.toColumn) {
 
                         if (row == historyMove.fromRow && column == historyMove.fromColumn) continue;
-                        
+
                         if (column != historyMove.fromColumn) {
                             historyMove.addColumnIndex = true;
                         } else {
@@ -202,16 +202,19 @@ public class Game {
         }
     }
 
-    public void win(boolean whiteWins){
-        if(whiteWins) {
+    public void win(boolean whiteWins) {
+        if (whiteWins) {
             result = "1-0";
         } else {
             result = "0-1";
         }
     }
 
-    public void draw(){
+    public void draw() {
         result = "1/2-1/2";
     }
 
+    public int getId() {
+        return 0;
+    }
 }
