@@ -57,7 +57,7 @@ public class PlayerDto {
                         player.get("firstname"),
                         player.get("lastname"),
                         Integer.parseInt(player.get("fide_rating")),
-                        FideTitle.valueOf(player.get("fide_title")),
+                        fromKeyOrName(player.get("fide_title")),
                         player.get("gender").charAt(0),
                         parseLocalDate(player.get("birthdate"))
                 ));

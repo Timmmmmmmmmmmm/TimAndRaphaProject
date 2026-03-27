@@ -7,14 +7,15 @@ import Gui.Dto.GameDto;
 import Gui.Dto.PlayerDto;
 import Gui.Dto.RoundDto;
 import Gui.Dto.TournamentDto;
+import Gui.DatabaseConnection;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class TournamentPanel extends JPanel {
 
@@ -48,16 +49,9 @@ public class TournamentPanel extends JPanel {
 
                 if (games != null) {
                     for (GameDto gameDto : games) {
-                        PlayerDto whitePlayer = Objects.requireNonNull(
-                                PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_white + ";")
-                        ).getFirst();
-
-                        PlayerDto blackPlayer = Objects.requireNonNull(
-                                PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_black + ";")
-                        ).getFirst();
-
+                        PlayerDto whitePlayer = PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_white + ";").getFirst();
+                        PlayerDto blackPlayer = PlayerDto.getAsList("SELECT * FROM players WHERE id = " + gameDto.player_black + ";").getFirst();
                         GameRoundPlayerDto game = new GameRoundPlayerDto(gameDto, roundDto, whitePlayer, blackPlayer);
-
                         DefaultMutableTreeNode gameNode = new DefaultMutableTreeNode(game);
                         roundNode.add(gameNode);
                     }
@@ -91,33 +85,29 @@ public class TournamentPanel extends JPanel {
         };
 
         leaderboardTable = new JTable(tableModel);
+        leaderboardTable.setFillsViewportHeight(true);
         JScrollPane leaderboardScrollPane = new JScrollPane(leaderboardTable);
 
-        JSplitPane splitPane = new JSplitPane(
-                JSplitPane.HORIZONTAL_SPLIT,
-                treeScrollPane,
-                leaderboardScrollPane
-        );
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, leaderboardScrollPane);
+        splitPane.setResizeWeight(0.5);
 
         startGameButton = new JButton("Game starten");
         backButton = new JButton("Zurück");
 
         startGameButton.addActionListener(e -> {
-            if (selectedGame != null) {
-                if (selectedGame.gameDto.result == null) {
-                    BaseWindow.getInstance().setContentPane(
-                            new BoardPanel(new Game(
-                                    tournamentDto,
-                                    selectedGame.roundDto,
-                                    selectedGame.gameDto,
-                                    selectedGame.whitePlayer,
-                                    selectedGame.blackPlayer
-                            ))
-                    );
-                    BaseWindow.getInstance().revalidate();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Spiel wurde bereits beendet!");
-                }
+            if (selectedGame != null && selectedGame.gameDto.result == null) {
+                BaseWindow.getInstance().setContentPane(
+                        new BoardPanel(new Game(
+                                tournamentDto,
+                                selectedGame.roundDto,
+                                selectedGame.gameDto,
+                                selectedGame.whitePlayer,
+                                selectedGame.blackPlayer
+                        ))
+                );
+                BaseWindow.getInstance().revalidate();
+            } else if (selectedGame != null) {
+                JOptionPane.showMessageDialog(this, "Spiel wurde bereits beendet!");
             }
         });
 
@@ -134,43 +124,53 @@ public class TournamentPanel extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
 
         tree.addTreeSelectionListener(e -> {
-            DefaultMutableTreeNode selectedNode =
-                    (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             if (selectedNode == null) return;
-
             Object obj = selectedNode.getUserObject();
-
-            if (obj instanceof GameRoundPlayerDto game) {
-                selectedGame = game;
-            } else {
-                selectedGame = null;
-            }
+            selectedGame = obj instanceof GameRoundPlayerDto game ? game : null;
         });
+
+        loadLeaderboard(tableModel);
 
         SwingUtilities.invokeLater(() -> {
-            int width = splitPane.getWidth();
-            int dividerSize = splitPane.getDividerSize();
-            splitPane.setDividerLocation((width - dividerSize) / 2);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            double scale = Math.max(screenSize.width / 1920.0, screenSize.height / 1080.0);
 
-            int h = getHeight();
+            int baseTreeRowHeight = 24;
+            int treeRowHeight = (int) (baseTreeRowHeight * scale);
+            tree.setRowHeight(treeRowHeight);
 
-            if (h > 0) {
-                int size = h / 25;
+            float baseFontSize = 14f;
+            float fontSize = (float) (baseFontSize * scale);
+            Font treeFont = tree.getFont().deriveFont(fontSize);
+            tree.setFont(treeFont);
 
-                tree.setRowHeight(size);
-                tree.setFont(tree.getFont().deriveFont((float) size));
+            renderer.setClosedIcon(new ImageIcon(folderIcon.getImage().getScaledInstance(treeRowHeight, treeRowHeight, Image.SCALE_SMOOTH)));
+            renderer.setOpenIcon(new ImageIcon(openFolderIcon.getImage().getScaledInstance(treeRowHeight, treeRowHeight, Image.SCALE_SMOOTH)));
+            renderer.setLeafIcon(new ImageIcon(fileIcon.getImage().getScaledInstance(treeRowHeight, treeRowHeight, Image.SCALE_SMOOTH)));
 
-                renderer.setClosedIcon(new ImageIcon(folderIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH)));
-                renderer.setOpenIcon(new ImageIcon(openFolderIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH)));
-                renderer.setLeafIcon(new ImageIcon(fileIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH)));
+            startGameButton.setFont(startGameButton.getFont().deriveFont(fontSize));
+            backButton.setFont(backButton.getFont().deriveFont(fontSize));
+            leaderboardTable.setFont(leaderboardTable.getFont().deriveFont(fontSize * 0.9f));
+            leaderboardTable.setRowHeight((int) (fontSize * 1.8));
 
-                float buttonFont = h / 30f;
-                startGameButton.setFont(startGameButton.getFont().deriveFont(buttonFont));
-                backButton.setFont(backButton.getFont().deriveFont(buttonFont));
-                leaderboardTable.setFont(leaderboardTable.getFont().deriveFont(buttonFont * 0.8f));
-                leaderboardTable.setRowHeight((int) (buttonFont * 1.5));
-            }
+            splitPane.setDividerLocation(splitPane.getWidth() / 2);
         });
+    }
+
+    private void loadLeaderboard(DefaultTableModel tableModel) {
+        tableModel.setRowCount(0);
+        String sql = "SELECT concat(firstname, ' ', lastname) AS name, score FROM players p INNER JOIN player_tournament_info i ON p.id = i.player_id ORDER BY score DESC LIMIT 10;";
+        List<HashMap<String, String>> result = DatabaseConnection.executeSql(sql);
+
+        int rank = 1;
+        if (result != null) {
+            for (HashMap<String, String> row : result) {
+                String name = row.get("name");
+                String score = row.get("score");
+                tableModel.addRow(new Object[]{rank++, name, score});
+            }
+        }
     }
 
     private static class GameRoundPlayerDto {
