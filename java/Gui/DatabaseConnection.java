@@ -15,7 +15,7 @@ public class DatabaseConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            System.out.println("Der JDBC Treiber konnte nicht geladen werden.");
+            System.out.println("JDBC Connection failed to connect.");
         }
     }
     
@@ -34,7 +34,7 @@ public class DatabaseConnection {
             }
 
         } catch (SQLException e) {
-            System.out.println("Die Datenbankabfrage ist fehlgeschlagen: " + e.getSQLState());
+            System.out.println("Failed to execute SQL statement: " + e.getSQLState());
             return null;
         }
     }

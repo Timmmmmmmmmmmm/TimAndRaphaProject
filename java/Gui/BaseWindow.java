@@ -51,6 +51,9 @@ public class BaseWindow extends JFrame {
         setIconImage(icon.getImage());
 
         setVisible(true);
+        revalidate();
+        repaint();
+
     }
 
     public static BaseWindow getInstance() {

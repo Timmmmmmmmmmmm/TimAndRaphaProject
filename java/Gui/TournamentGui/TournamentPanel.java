@@ -10,13 +10,22 @@ import Gui.Dto.TournamentDto;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
 public class TournamentPanel extends JPanel {
 
+    private DefaultTreeCellRenderer renderer;
+    private ImageIcon folderIcon;
+    private ImageIcon openFolderIcon;
+    private ImageIcon fileIcon;
     private JTree tree;
+    private JButton startGameButton;
+    private JButton backButton;
+    private JTable leaderboardTable;
     private GameRoundPlayerDto selectedGame;
 
     public TournamentPanel(TournamentDto tournamentDto) {
@@ -58,28 +67,70 @@ public class TournamentPanel extends JPanel {
             }
         }
 
+        renderer = new DefaultTreeCellRenderer();
+        folderIcon = new ImageIcon(getClass().getResource("/Gui/assets/images/treeIcons/folderIcon.png"));
+        openFolderIcon = new ImageIcon(getClass().getResource("/Gui/assets/images/treeIcons/openFolderIcon.png"));
+        fileIcon = new ImageIcon(getClass().getResource("/Gui/assets/images/treeIcons/fileIcon.png"));
+
+        renderer.setClosedIcon(folderIcon);
+        renderer.setOpenIcon(openFolderIcon);
+        renderer.setLeafIcon(fileIcon);
+
         tree = new JTree(tournamentNode);
-        tree.setRowHeight(28);
+        tree.setCellRenderer(renderer);
 
-        JScrollPane scrollPane = new JScrollPane(tree);
+        JScrollPane treeScrollPane = new JScrollPane(tree);
 
-        JButton startGameButton = new JButton("Game starten");
-        startGameButton.setPreferredSize(new Dimension(150, 40));
+        DefaultTableModel tableModel = new DefaultTableModel(
+                new Object[]{"Platz", "Name", "Punkte"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        leaderboardTable = new JTable(tableModel);
+        JScrollPane leaderboardScrollPane = new JScrollPane(leaderboardTable);
+
+        JSplitPane splitPane = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                treeScrollPane,
+                leaderboardScrollPane
+        );
+
+        startGameButton = new JButton("Game starten");
+        backButton = new JButton("Zurück");
 
         startGameButton.addActionListener(e -> {
             if (selectedGame != null) {
                 if (selectedGame.gameDto.result == null) {
-                    BaseWindow.getInstance().setContentPane(new BoardPanel(new Game(tournamentDto, selectedGame.roundDto, selectedGame.gameDto, selectedGame.whitePlayer, selectedGame.blackPlayer)));
+                    BaseWindow.getInstance().setContentPane(
+                            new BoardPanel(new Game(
+                                    tournamentDto,
+                                    selectedGame.roundDto,
+                                    selectedGame.gameDto,
+                                    selectedGame.whitePlayer,
+                                    selectedGame.blackPlayer
+                            ))
+                    );
+                    BaseWindow.getInstance().revalidate();
                 } else {
                     JOptionPane.showMessageDialog(this, "Spiel wurde bereits beendet!");
                 }
             }
         });
 
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        backButton.addActionListener(e -> {
+            BaseWindow.getInstance().setContentPane(new JPanel());
+            BaseWindow.getInstance().revalidate();
+        });
+
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+        bottomPanel.add(backButton);
         bottomPanel.add(startGameButton);
 
-        add(scrollPane, BorderLayout.CENTER);
+        add(splitPane, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
         tree.addTreeSelectionListener(e -> {
@@ -95,10 +146,31 @@ public class TournamentPanel extends JPanel {
                 selectedGame = null;
             }
         });
-    }
 
-    public JTree getTree() {
-        return tree;
+        SwingUtilities.invokeLater(() -> {
+            int width = splitPane.getWidth();
+            int dividerSize = splitPane.getDividerSize();
+            splitPane.setDividerLocation((width - dividerSize) / 2);
+
+            int h = getHeight();
+
+            if (h > 0) {
+                int size = h / 25;
+
+                tree.setRowHeight(size);
+                tree.setFont(tree.getFont().deriveFont((float) size));
+
+                renderer.setClosedIcon(new ImageIcon(folderIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH)));
+                renderer.setOpenIcon(new ImageIcon(openFolderIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH)));
+                renderer.setLeafIcon(new ImageIcon(fileIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH)));
+
+                float buttonFont = h / 30f;
+                startGameButton.setFont(startGameButton.getFont().deriveFont(buttonFont));
+                backButton.setFont(backButton.getFont().deriveFont(buttonFont));
+                leaderboardTable.setFont(leaderboardTable.getFont().deriveFont(buttonFont * 0.8f));
+                leaderboardTable.setRowHeight((int) (buttonFont * 1.5));
+            }
+        });
     }
 
     private static class GameRoundPlayerDto {
@@ -117,11 +189,10 @@ public class TournamentPanel extends JPanel {
         @Override
         public String toString() {
             return switch (gameDto.result) {
-                case null -> whitePlayer + " vs " + blackPlayer;
-                case 0 -> whitePlayer + " vs " + blackPlayer + " (Draw)";
-                case 1 -> whitePlayer + " 🏆 vs " + blackPlayer;
-                case -1 -> whitePlayer + " vs " + blackPlayer + " 🏆";
-                default -> whitePlayer + " vs " + blackPlayer;
+                case 0 -> whitePlayer + " vs " + blackPlayer + " (½ - ½)";
+                case 1 -> whitePlayer + " vs " + blackPlayer + " (1 - 0)";
+                case -1 -> whitePlayer + " vs " + blackPlayer + " (0 - 1)";
+                case null, default -> whitePlayer + " vs " + blackPlayer;
             };
         }
     }
