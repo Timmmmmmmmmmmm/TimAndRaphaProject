@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS games_moves;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS rounds;
-DROP TABLE IF EXISTS registrations;
+DROP TABLE IF EXISTS player_tournament_info;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
 -- VIEWS
@@ -30,7 +30,6 @@ CREATE TABLE players
     id          INT NOT NULL AUTO_INCREMENT,
     firstname   VARCHAR(255),
     lastname    VARCHAR(255),
-    score       DEC(4, 1)                                                        DEFAULT 0.0,
     fide_rating INT,
     fide_title  ENUM ('GM', 'IM','fm', 'CM', 'WGM', 'WIM', 'WFM', 'WCM', 'NONE') DEFAULT 'NONE',
     gender      CHAR,
@@ -38,12 +37,13 @@ CREATE TABLE players
     PRIMARY KEY (id)
 );
 
-CREATE TABLE registrations
+CREATE TABLE player_tournament_info
 (
     id                INT NOT NULL AUTO_INCREMENT,
     tournament_id     INT NOT NULL,
     tournament_status ENUM ('APPLIED', 'PLAYING', 'FINISHED_GAMES', 'DISQUALIFIED') DEFAULT 'APPLIED',
     player_id         INT NOT NULL,
+    score             DEC(4, 1)                                                     DEFAULT 0.0,
 
     PRIMARY KEY (id),
     CONSTRAINT fk_tournament_registration
@@ -110,7 +110,9 @@ CREATE TABLE games_moves
 
 CREATE VIEW leaderboard AS
 SELECT firstname, lastname, fide_rating, score
-FROM players
+FROM players p
+INNER JOIN player_tournament_info i
+ON p.id = i.player_id
 ORDER BY score, fide_rating DESC;
 
 CREATE VIEW round_overview AS
