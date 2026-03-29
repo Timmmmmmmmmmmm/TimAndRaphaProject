@@ -20,6 +20,11 @@ public class StartTournamentPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
+        setupTopPanel();
+        setupTable();
+    }
+
+    private void setupTopPanel() {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         JButton newPlayerButton = new JButton("New Player");
@@ -32,26 +37,28 @@ public class StartTournamentPanel extends JPanel {
 
         add(topPanel, BorderLayout.NORTH);
 
-        tableModel = new PlayerTableModel();
-        table = new JTable(tableModel);
-        table.setRowHeight(28);
-
-        JComboBox<PlayerDto.FideTitle> comboBox = new JComboBox<>(PlayerDto.FideTitle.values());
-        table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(comboBox));
-
-        table.getColumnModel().getColumn(7).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor());
-
-        add(new JScrollPane(table), BorderLayout.CENTER);
-
         newPlayerButton.addActionListener(e -> openNewPlayerDialog());
         newTournamentButton.addActionListener(e -> openNewTournamentDialog());
         openTournamentButton.addActionListener(e -> openTournamentDialog());
     }
 
+    private void setupTable() {
+        tableModel = new PlayerTableModel();
+        table = new JTable(tableModel);
+        table.setRowHeight(28);
+        table.setFillsViewportHeight(true);
+
+        JComboBox<PlayerDto.FideTitle> comboBox = new JComboBox<>(PlayerDto.FideTitle.values());
+        table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(comboBox));
+
+        table.getColumnModel().getColumn(7).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor(table, tableModel));
+
+        add(new JScrollPane(table), BorderLayout.CENTER);
+    }
+
     private void openNewPlayerDialog() {
         JDialog dialog = createDialog("New Player", 400, 400);
-
         JPanel panel = createFormPanel();
 
         JTextField first = new JTextField();
@@ -74,7 +81,7 @@ public class StartTournamentPanel extends JPanel {
                     "'" + first.getText() + "'," +
                     "'" + last.getText() + "'," +
                     rating.getText() + "," +
-                    "'" + title.getSelectedItem() + "'," +
+                    "'" + ((PlayerDto.FideTitle)title.getSelectedItem()).getKey() + "'," +
                     "'" + gender.getText() + "'," +
                     "'" + birth.getText() + "')";
             DatabaseConnection.executeSql(sql);
@@ -89,12 +96,10 @@ public class StartTournamentPanel extends JPanel {
 
     private void openNewTournamentDialog() {
         JDialog dialog = createDialog("New Tournament", 600, 450);
-
         JPanel main = new JPanel(new BorderLayout(10,10));
         main.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
         JPanel form = new JPanel(new GridLayout(0,1,5,5));
-
         JTextField name = new JTextField();
         JTextField city = new JTextField();
         JTextField base = new JTextField();
@@ -104,24 +109,25 @@ public class StartTournamentPanel extends JPanel {
         addField(form, "City", city);
         addField(form, "Base Time", base);
         addField(form, "Move Time", move);
-
         main.add(form, BorderLayout.NORTH);
 
         List<PlayerDto> allPlayers = PlayerDto.getAsList("SELECT * FROM players");
-
         DefaultListModel<PlayerDto> leftModel = new DefaultListModel<>();
         DefaultListModel<PlayerDto> rightModel = new DefaultListModel<>();
-
-        if (allPlayers != null) {
-            for (PlayerDto p : allPlayers) leftModel.addElement(p);
-        }
+        if (allPlayers != null) for (PlayerDto p : allPlayers) leftModel.addElement(p);
 
         JList<PlayerDto> leftList = new JList<>(leftModel);
         JList<PlayerDto> rightList = new JList<>(rightModel);
+        leftList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+            PlayerDto p = (PlayerDto)value;
+            return new DefaultListCellRenderer().getListCellRendererComponent(list,
+                    p.lastname + ", " + p.firstname + " (" + p.fide_title + ")", index, isSelected, cellHasFocus);
+        });
+        rightList.setCellRenderer(leftList.getCellRenderer());
 
         JScrollPane leftScroll = new JScrollPane(leftList);
         JScrollPane rightScroll = new JScrollPane(rightList);
-        rightScroll.setBorder(BorderFactory.createTitledBorder("Ausgewählte Spieler"));
+        rightScroll.setBorder(BorderFactory.createTitledBorder("Selected players"));
 
         JPanel center = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -135,7 +141,6 @@ public class StartTournamentPanel extends JPanel {
                 rightModel.addElement(p);
             }
         });
-
         remove.addActionListener(e -> {
             for (PlayerDto p : rightList.getSelectedValuesList()) {
                 rightModel.removeElement(p);
@@ -168,10 +173,13 @@ public class StartTournamentPanel extends JPanel {
                     move.getText() + ",'PLANNED');";
             DatabaseConnection.executeSql(sql);
 
-            String tournamentId = DatabaseConnection.executeSql("SELECT id FROM tournaments WHERE name = '" + name.getText() + "';").getFirst().get("id");
+            String tournamentId = DatabaseConnection.executeSql(
+                    "SELECT id FROM tournaments WHERE name = '" + name.getText() + "';").getFirst().get("id");
             for (int i = 0;i < rightModel.size();i++) {
-                String playerId = DatabaseConnection.executeSql("SELECT id FROM players WHERE firstname = '" + rightModel.get(i).firstname + "' AND lastname = '" + rightModel.get(i).lastname + "';").getFirst().get("id");
-                DatabaseConnection.executeSql("INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score)" +
+                String playerId = DatabaseConnection.executeSql(
+                        "SELECT id FROM players WHERE firstname = '" + rightModel.get(i).firstname +
+                                "' AND lastname = '" + rightModel.get(i).lastname + "';").getFirst().get("id");
+                DatabaseConnection.executeSql("INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) " +
                         "VALUES ('" + tournamentId + "', 'APPLIED', '" + playerId + "', 0);");
             }
             dialog.dispose();
@@ -179,13 +187,11 @@ public class StartTournamentPanel extends JPanel {
 
         dialog.add(main, BorderLayout.CENTER);
         dialog.add(ok, BorderLayout.SOUTH);
-
         dialog.setVisible(true);
     }
 
     private void openTournamentDialog() {
         JDialog dialog = createDialog("Open Tournament", 400, 200);
-
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
@@ -234,27 +240,19 @@ public class StartTournamentPanel extends JPanel {
         private List<PlayerDto> players;
         private final String[] columns = {"ID","Firstname","Lastname","Rating","Title","Gender","Birthdate",""};
 
-        public PlayerTableModel() {
-            reload();
-        }
+        public PlayerTableModel() { reload(); }
 
         public void reload() {
             players = PlayerDto.getAsList("SELECT * FROM players");
             fireTableDataChanged();
         }
 
-        public PlayerDto getPlayerAt(int row) {
-            return players.get(row);
-        }
+        public PlayerDto getPlayerAt(int row) { return players.get(row); }
 
         @Override public int getRowCount() { return players == null ? 0 : players.size(); }
         @Override public int getColumnCount() { return columns.length; }
         @Override public String getColumnName(int column) { return columns[column]; }
-
-        @Override
-        public boolean isCellEditable(int row, int col) {
-            return col != 0;
-        }
+        @Override public boolean isCellEditable(int row, int col) { return col != 0; }
 
         @Override
         public Object getValueAt(int row, int col) {
@@ -275,61 +273,50 @@ public class StartTournamentPanel extends JPanel {
         @Override
         public void setValueAt(Object value, int row, int col) {
             PlayerDto p = players.get(row);
-
             String sql = null;
-
             switch (col) {
                 case 1 -> { p.firstname = value.toString(); sql = "firstname='" + p.firstname + "'"; }
                 case 2 -> { p.lastname = value.toString(); sql = "lastname='" + p.lastname + "'"; }
                 case 3 -> { p.fide_rating = Integer.parseInt(value.toString()); sql = "fide_rating=" + p.fide_rating; }
-                case 4 -> { p.fide_title = (PlayerDto.FideTitle) value; sql = "fide_title='" + p.fide_title.getKey() + "'"; }
+                case 4 -> { p.fide_title = (PlayerDto.FideTitle)value; sql = "fide_title='" + p.fide_title.getKey() + "'"; }
                 case 5 -> { p.gender = value.toString().charAt(0); sql = "gender='" + p.gender + "'"; }
                 case 6 -> { p.birthdate = PlayerDto.parseLocalDate(value.toString()); sql = "birthdate='" + p.birthdate + "'"; }
             }
-
-            if (sql != null) {
-                DatabaseConnection.executeSql("UPDATE players SET " + sql + " WHERE id=" + p.id);
-            }
-
+            if (sql != null) DatabaseConnection.executeSql("UPDATE players SET " + sql + " WHERE id=" + p.id);
             fireTableRowsUpdated(row, row);
         }
     }
 
     class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() { setText("Delete"); }
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
             return this;
         }
     }
 
-    class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
-
+    class ButtonEditor extends DefaultCellEditor {
         private final JButton button = new JButton("Delete");
-        private int row;
+        private PlayerDto player;
+        private final PlayerTableModel model;
 
-        public ButtonEditor() {
+        public ButtonEditor(JTable table, PlayerTableModel model) {
+            super(new JCheckBox());
+            this.model = model;
             button.addActionListener(e -> {
-                int r = row;
-                fireEditingStopped();
-
-                SwingUtilities.invokeLater(() -> {
-                    PlayerDto p = tableModel.getPlayerAt(r);
-
-                    DatabaseConnection.executeSql("DELETE FROM players WHERE id=" + p.id);
-                    tableModel.reload();
-                });
+                DatabaseConnection.executeSql("DELETE FROM players WHERE id=" + player.id);
+                model.reload();
             });
         }
 
         @Override
-        public Object getCellEditorValue() {
-            return "Delete";
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            player = model.getPlayerAt(row);
+            return button;
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            this.row = row;
-            return button;
-        }
+        public Object getCellEditorValue() { return "Delete"; }
     }
 }
