@@ -31,7 +31,7 @@ CREATE TABLE players
     firstname   VARCHAR(255),
     lastname    VARCHAR(255),
     fide_rating INT,
-    fide_title  ENUM ('GM', 'IM','fm', 'CM', 'WGM', 'WIM', 'WFM', 'WCM', 'NONE') DEFAULT 'NONE',
+    fide_title  ENUM ('GM', 'IM', 'FM', 'CM', 'WGM', 'WIM', 'WFM', 'WCM', 'NONE') DEFAULT 'NONE',
     gender      CHAR,
     birthdate   DATE,
     PRIMARY KEY (id)
@@ -53,6 +53,7 @@ CREATE TABLE player_tournament_info
     CONSTRAINT fk_player_registration
         FOREIGN KEY (player_id)
             REFERENCES players (id)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE rounds
@@ -85,10 +86,12 @@ CREATE TABLE games
             ON DELETE CASCADE,
     CONSTRAINT fk_player_white_game
         FOREIGN KEY (player_white)
-            REFERENCES players (id),
+            REFERENCES players (id)
+            ON DELETE CASCADE,
     CONSTRAINT fk_player_black_game
         FOREIGN KEY (player_black)
-            REFERENCES players (id),
+            REFERENCES players (id)
+            ON DELETE CASCADE,
     CONSTRAINT fk_tournament_game
         FOREIGN KEY (tournament_id)
             REFERENCES tournaments (id)

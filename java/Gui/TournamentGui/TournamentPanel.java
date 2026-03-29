@@ -28,8 +28,11 @@ public class TournamentPanel extends JPanel {
     private JButton backButton;
     private JTable leaderboardTable;
     private GameRoundPlayerDto selectedGame;
+    private TournamentDto tournamentDto;
 
     public TournamentPanel(TournamentDto tournamentDto) {
+        this.tournamentDto = tournamentDto;
+
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -151,16 +154,17 @@ public class TournamentPanel extends JPanel {
 
             startGameButton.setFont(startGameButton.getFont().deriveFont(fontSize));
             backButton.setFont(backButton.getFont().deriveFont(fontSize));
-            leaderboardTable.setFont(leaderboardTable.getFont().deriveFont(fontSize * 0.9f));
-            leaderboardTable.setRowHeight((int) (fontSize * 1.8));
 
-            splitPane.setDividerLocation(splitPane.getWidth() / 2);
+            leaderboardTable.setFont(leaderboardTable.getFont().deriveFont(fontSize * 0.9f));
+            leaderboardTable.setRowHeight((int) (fontSize * 2.2));
+            leaderboardTable.getTableHeader().setFont(leaderboardTable.getTableHeader().getFont().deriveFont(fontSize * 0.95f));
+            leaderboardTable.getTableHeader().setPreferredSize(new Dimension(leaderboardTable.getWidth(), (int) (fontSize * 3)));
         });
     }
 
     private void loadLeaderboard(DefaultTableModel tableModel) {
         tableModel.setRowCount(0);
-        String sql = "SELECT concat(firstname, ' ', lastname) AS name, score FROM players p INNER JOIN player_tournament_info i ON p.id = i.player_id ORDER BY score DESC LIMIT 10;";
+        String sql = "SELECT concat(firstname, ' ', lastname) AS name, score FROM players p INNER JOIN player_tournament_info i ON p.id = i.player_id WHERE tournament_id = '" + tournamentDto.id + "' ORDER BY score DESC LIMIT 10;";
         List<HashMap<String, String>> result = DatabaseConnection.executeSql(sql);
 
         int rank = 1;

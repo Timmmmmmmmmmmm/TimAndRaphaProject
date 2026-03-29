@@ -70,20 +70,12 @@ public class PlayerDto {
 
     public static FideTitle fromKeyOrName(String value) {
         for (FideTitle fideTitle : FideTitle.values()) {
-            if (value.toLowerCase().equals(fideTitle.getKey()) || value.toUpperCase().equals(fideTitle.name())) {
+            if (value.toUpperCase().equals(fideTitle.getKey()) || value.toUpperCase().equals(fideTitle.name())) {
                 return fideTitle;
             }
         }
         return null;
     }
-// @todo Bei Anmeldungen DTO hinzufügen
-//    public enum PlayerStatus {
-//        APPLIED(0), PLAYING(1), FINISHED_GAMES(2), DISQUALIFIED(3);
-//        final int key;
-//        PlayerStatus(int key) {
-//            this.key = key;
-//        }
-//    }
 
     @Override
     public String toString() {
