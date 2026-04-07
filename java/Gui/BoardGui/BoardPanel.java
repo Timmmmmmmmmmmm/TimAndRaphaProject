@@ -97,6 +97,10 @@ public class BoardPanel extends JPanel {
         timer.start();
     }
 
+    public BoardPanel() {
+        //TODO Board Panel ohne Game
+    }
+
     public void click(int row, int column) {
         for (Move move : legalMoves) {
             if (move.toRow == row && move.toColumn == column) {
@@ -186,7 +190,7 @@ public class BoardPanel extends JPanel {
                 if (piece == null) {
                     board[row][column].setIcon(null);
                 } else {
-                    String file = "images/pieces/";
+                    String file = "/Gui/assets/pieces/";
                     file = file + piece.getSymbol() + ".png";
                     Image img = getPieceImage(file);
 
@@ -251,7 +255,7 @@ public class BoardPanel extends JPanel {
 
     public Image getPieceImage(String piece) {
         if (!pieceImages.containsKey(piece)) {
-            ImageIcon icon = new ImageIcon(Objects. requireNonNull(getClass().getResource(piece)));
+            ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource(piece)));
             pieceImages.put(piece, icon.getImage());
         }
         return pieceImages.get(piece);

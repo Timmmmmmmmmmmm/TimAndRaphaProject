@@ -1,21 +1,10 @@
 package Gui;
 
-import Gui.BoardGui.BoardPanel;
-import Gui.BoardGui.Game;
-import Gui.Dto.GameDto;
-import Gui.Dto.PlayerDto;
-import Gui.Dto.RoundDto;
-import Gui.Dto.TournamentDto;
-import Gui.TournamentGui.StartGamePanel;
+import Gui.TournamentGui.StartPanel;
 import Gui.TournamentGui.StartTournamentPanel;
-import Gui.TournamentGui.TournamentPanel;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.Objects;
 
 public class BaseWindow extends JFrame {
@@ -29,13 +18,13 @@ public class BaseWindow extends JFrame {
         setTitle("Schach-Turnierverwaltung");
         setSize(800, 600);
         setLocationRelativeTo(null);
-        setContentPane(new StartTournamentPanel());
+        setContentPane(new StartPanel());
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setMinimumSize(new Dimension(screenSize.width / 4, screenSize.height / 4));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
 
-        ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("icon.png")));
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Gui/assets/icon.png")));
         setIconImage(icon.getImage());
 
         setVisible(true);

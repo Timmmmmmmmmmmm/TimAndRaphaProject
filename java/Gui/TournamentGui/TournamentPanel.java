@@ -1,12 +1,7 @@
 package Gui.TournamentGui;
 
 import Gui.BaseWindow;
-import Gui.BoardGui.BoardPanel;
-import Gui.BoardGui.Game;
-import Gui.Dto.GameDto;
-import Gui.Dto.PlayerDto;
-import Gui.Dto.RoundDto;
-import Gui.Dto.TournamentDto;
+import Gui.Dto.*;
 import Gui.DatabaseConnection;
 
 import javax.swing.*;
@@ -69,8 +64,8 @@ public class TournamentPanel extends JPanel {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, leaderboardScrollPane);
         splitPane.setResizeWeight(0.5);
 
-        startGameButton = new JButton("Game starten");
-        backButton = new JButton("Zurück");
+        startGameButton = new JButton("Start selected game");
+        backButton = new JButton("Exit tournament");
 
         startGameButton.addActionListener(e -> {
             if (selectedGame == null) return;
@@ -85,16 +80,7 @@ public class TournamentPanel extends JPanel {
                 return;
             }
 
-            BaseWindow.getInstance().setContentPane(
-                    new BoardPanel(new Game(
-                            tournamentDto,
-                            selectedGame.roundDto,
-                            selectedGame.gameDto,
-                            selectedGame.whitePlayer,
-                            selectedGame.blackPlayer
-                    ))
-            );
-            BaseWindow.getInstance().revalidate();
+            StartGameDialog.showStart(tournamentDto, selectedGame);
         });
 
         backButton.addActionListener(e -> {
@@ -132,12 +118,12 @@ public class TournamentPanel extends JPanel {
         int rowHeight = (int) (24 * scale);
         tree.setRowHeight(rowHeight);
 
-        tournamentIcon = scaleIcon("/Gui/assets/images/analysis/theory.png", rowHeight);
-        roundPlannedIcon = scaleIcon("/Gui/assets/images/analysis/inaccuracy.png", rowHeight);
-        roundRunningIcon = scaleIcon("/Gui/assets/images/analysis/mistake.png", rowHeight);
-        roundCompletedIcon = scaleIcon("/Gui/assets/images/analysis/blunder.png", rowHeight);
-        gameOpenIcon = scaleIcon("/Gui/assets/images/analysis/critical.png", rowHeight);
-        gameClosedIcon = scaleIcon("/Gui/assets/images/analysis/brilliant.png", rowHeight);
+        tournamentIcon = scaleIcon("/Gui/assets/analysis/theory.png", rowHeight);
+        roundPlannedIcon = scaleIcon("/Gui/assets/analysis/inaccuracy.png", rowHeight);
+        roundRunningIcon = scaleIcon("/Gui/assets/analysis/mistake.png", rowHeight);
+        roundCompletedIcon = scaleIcon("/Gui/assets/analysis/blunder.png", rowHeight);
+        gameOpenIcon = scaleIcon("/Gui/assets/analysis/critical.png", rowHeight);
+        gameClosedIcon = scaleIcon("/Gui/assets/analysis/brilliant.png", rowHeight);
 
         tree.setCellRenderer(new DefaultTreeCellRenderer() {
             public Component getTreeCellRendererComponent(JTree t, Object v, boolean sel, boolean exp, boolean leaf, int row, boolean focus) {
@@ -271,7 +257,9 @@ public class TournamentPanel extends JPanel {
         treeModel.setRoot(rootNode);
         treeModel.reload();
 
-        tree.expandRow(currentRound);
+        if (currentRound != null) {
+            tree.expandRow(currentRound);
+        }
 
         updateButtonText();
     }
@@ -364,35 +352,6 @@ public class TournamentPanel extends JPanel {
         DatabaseConnection.executeSql(
                 "UPDATE tournaments SET status = 'COMPLETED' WHERE id = " + tournamentDto.id
         );
-        onTournamentFinished();
-    }
-
-    protected void onTournamentFinished() {}
-
-    private static class GameRoundPlayerDto {
-        GameDto gameDto;
-        RoundDto roundDto;
-        PlayerDto whitePlayer;
-        PlayerDto blackPlayer;
-
-        GameRoundPlayerDto(GameDto g, RoundDto r, PlayerDto w, PlayerDto b) {
-            gameDto = g;
-            roundDto = r;
-            whitePlayer = w;
-            blackPlayer = b;
-        }
-
-        public String toString() {
-            if (gameDto.result == null) {
-                return whitePlayer + " vs " + blackPlayer;
-            }
-
-            return switch (gameDto.result) {
-                case 0 -> whitePlayer + " vs " + blackPlayer + " (½ - ½)";
-                case 1 -> whitePlayer + " vs " + blackPlayer + " (1 - 0)";
-                case -1 -> whitePlayer + " vs " + blackPlayer + " (0 - 1)";
-                default -> whitePlayer + " vs " + blackPlayer;
-            };
-        }
+        TournamentResultDialog.showResult();
     }
 }

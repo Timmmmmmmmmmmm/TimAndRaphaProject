@@ -15,7 +15,7 @@ public class PGNWriter {
 
         JFileChooser chooser = new JFileChooser(System.getProperty("user.home") + "/Downloads");
         chooser.setSelectedFile(new File("game.pgn"));
-        chooser.setFileFilter(new FileNameExtensionFilter("PGN Dateien (*.pgn)", "pgn"));
+        chooser.setFileFilter(new FileNameExtensionFilter("PGN files (*.pgn)", "pgn"));
 
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) return;
         File file = chooser.getSelectedFile();
