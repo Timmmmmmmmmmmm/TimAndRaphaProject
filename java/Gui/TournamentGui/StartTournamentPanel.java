@@ -8,6 +8,7 @@ import Gui.Dto.TournamentDto;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,6 +16,11 @@ public class StartTournamentPanel extends JPanel {
 
     private JTable table;
     private PlayerTableModel tableModel;
+    private int hoverRow = -1;
+    private int hoverCol = -1;
+
+    DefaultListModel<PlayerDto> leftModel;
+    DefaultListModel<PlayerDto> rightModel;
 
     public StartTournamentPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -51,8 +57,37 @@ public class StartTournamentPanel extends JPanel {
         JComboBox<PlayerDto.FideTitle> comboBox = new JComboBox<>(PlayerDto.FideTitle.values());
         table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(comboBox));
 
-        table.getColumnModel().getColumn(7).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor(table, tableModel));
+        table.getColumnModel().getColumn(7).setCellRenderer(new DeleteRenderer());
+
+        table.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                hoverRow = table.rowAtPoint(e.getPoint());
+                hoverCol = table.columnAtPoint(e.getPoint());
+                table.repaint();
+            }
+        });
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hoverRow = -1;
+                hoverCol = -1;
+                table.repaint();
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+
+                if (col == 7 && row >= 0) {
+                    PlayerDto p = tableModel.getPlayerAt(row);
+                    DatabaseConnection.executeSql("DELETE FROM players WHERE id = " + p.id);
+                    tableModel.reload();
+                }
+            }
+        });
 
         add(new JScrollPane(table), BorderLayout.CENTER);
     }
@@ -112,8 +147,8 @@ public class StartTournamentPanel extends JPanel {
         main.add(form, BorderLayout.NORTH);
 
         List<PlayerDto> allPlayers = PlayerDto.getAsList("SELECT * FROM players");
-        DefaultListModel<PlayerDto> leftModel = new DefaultListModel<>();
-        DefaultListModel<PlayerDto> rightModel = new DefaultListModel<>();
+        leftModel = new DefaultListModel<>();
+        rightModel = new DefaultListModel<>();
         if (allPlayers != null) for (PlayerDto p : allPlayers) leftModel.addElement(p);
 
         JList<PlayerDto> leftList = new JList<>(leftModel);
@@ -121,7 +156,7 @@ public class StartTournamentPanel extends JPanel {
         leftList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             PlayerDto p = (PlayerDto)value;
             return new DefaultListCellRenderer().getListCellRendererComponent(list,
-                    p.lastname + ", " + p.firstname + " (" + p.fide_title + ")", index, isSelected, cellHasFocus);
+                    p.lastname + ", " + p.firstname, index, isSelected, cellHasFocus);
         });
         rightList.setCellRenderer(leftList.getCellRenderer());
 
@@ -164,24 +199,8 @@ public class StartTournamentPanel extends JPanel {
         main.add(center, BorderLayout.CENTER);
 
         JButton ok = new JButton("OK");
-        ok.addActionListener(e -> {
-            String sql = "INSERT INTO tournaments (name, date, city, base_consider_time, move_consider_time, status) VALUES (" +
-                    "'" + name.getText() + "'," +
-                    "'" + LocalDate.now() + "'," +
-                    "'" + city.getText() + "'," +
-                    base.getText() + "," +
-                    move.getText() + ",'PLANNED');";
-            DatabaseConnection.executeSql(sql);
-
-            String tournamentId = DatabaseConnection.executeSql(
-                    "SELECT id FROM tournaments WHERE name = '" + name.getText() + "';").getFirst().get("id");
-            for (int i = 0;i < rightModel.size();i++) {
-                String playerId = DatabaseConnection.executeSql(
-                        "SELECT id FROM players WHERE firstname = '" + rightModel.get(i).firstname +
-                                "' AND lastname = '" + rightModel.get(i).lastname + "';").getFirst().get("id");
-                DatabaseConnection.executeSql("INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) " +
-                        "VALUES ('" + tournamentId + "', 'APPLIED', '" + playerId + "', 0);");
-            }
+        ok.addActionListener(_ -> {
+            addTournament(name.getText(), city.getText(), base.getText(), move.getText());
             dialog.dispose();
         });
 
@@ -214,6 +233,80 @@ public class StartTournamentPanel extends JPanel {
         dialog.setVisible(true);
     }
 
+    private void addTournament(String name, String city, String base, String move) {
+        System.out.println("!!!NEUES TURNIER WIRD HINZUGEFÜGT!!!");
+        String sql = "INSERT INTO tournaments (name, date, city, base_consider_time, move_consider_time, status) VALUES (" +
+                "'" + name + "'," +
+                "'" + LocalDate.now() + "'," +
+                "'" + city + "'," +
+                base + "," +
+                move + ",'PLANNED');";
+
+        String tournamentId = DatabaseConnection.insertAndReturnPrimaryKey(sql);
+
+        for (int i = 0; i < rightModel.size(); i++) {
+            DatabaseConnection.executeSql(
+                    "INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES ('" +
+                            tournamentId + "', 'APPLIED', '" + rightModel.get(i).id + "', 0);"
+            );
+        }
+
+        int rounds = (int) Math.ceil(Math.log(rightModel.size()) / Math.log(2));
+
+        for (int r = 1; r <= rounds; r++) {
+            DatabaseConnection.executeSql(
+                    "INSERT INTO rounds (tournament_id, round_number, status) VALUES (" +
+                            tournamentId + ", " + r + ", 'PLANNED');"
+            );
+        }
+
+        String roundId = DatabaseConnection.executeSql(
+                "SELECT id FROM rounds WHERE tournament_id = " + tournamentId + " AND round_number = 1;"
+        ).getFirst().get("id");
+
+        var players = DatabaseConnection.executeSql(
+                "SELECT p.id, p.fide_rating FROM players p " +
+                        "JOIN player_tournament_info pti ON p.id = pti.player_id " +
+                        "WHERE pti.tournament_id = " + tournamentId + " " +
+                        "ORDER BY p.fide_rating DESC;"
+        );
+
+        int count = players.size();
+
+        if (count % 2 != 0) {
+            String byePlayer = players.get(count - 1).get("id");
+            DatabaseConnection.executeSql(
+                    "UPDATE player_tournament_info SET score = score + 1 WHERE player_id = " +
+                            byePlayer + " AND tournament_id = " + tournamentId
+            );
+            count--;
+        }
+
+        int half = count / 2;
+
+        for (int i = 0; i < half; i++) {
+            String white = players.get(i).get("id");
+            String black = players.get(i + half).get("id");
+
+            if (i % 2 == 1) {
+                String temp = white;
+                white = black;
+                black = temp;
+            }
+
+            DatabaseConnection.executeSql(
+                    "INSERT INTO games (round_id, tournament_id, player_white, player_black, board_number) VALUES (" +
+                            roundId + ", " +
+                            tournamentId + ", " +
+                            white + ", " +
+                            black + ", " +
+                            (i + 1) +
+                            ");"
+            );
+        }
+        System.out.println("!!!TURNIER WURDE HINZUGEFÜGT!!!");
+    }
+
     private JDialog createDialog(String title, int w, int h) {
         JDialog dialog = new JDialog();
         dialog.setTitle(title);
@@ -233,6 +326,27 @@ public class StartTournamentPanel extends JPanel {
     private void addField(JPanel panel, String name, JComponent comp) {
         panel.add(new JLabel(name));
         panel.add(comp);
+    }
+
+    class DeleteRenderer extends JLabel implements TableCellRenderer {
+        public DeleteRenderer() {
+            setHorizontalAlignment(SwingConstants.CENTER);
+            setOpaque(true);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            setText("Delete");
+            if (row == hoverRow && column == hoverCol) {
+                setBackground(new Color(239, 81, 81));
+                setForeground(Color.WHITE);
+            } else {
+                setBackground(UIManager.getColor("Table.background"));
+                setForeground(Color.BLACK);
+            }
+            return this;
+        }
     }
 
     class PlayerTableModel extends AbstractTableModel {
@@ -285,38 +399,5 @@ public class StartTournamentPanel extends JPanel {
             if (sql != null) DatabaseConnection.executeSql("UPDATE players SET " + sql + " WHERE id=" + p.id);
             fireTableRowsUpdated(row, row);
         }
-    }
-
-    class ButtonRenderer extends JButton implements TableCellRenderer {
-        public ButtonRenderer() { setText("Delete"); }
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
-            return this;
-        }
-    }
-
-    class ButtonEditor extends DefaultCellEditor {
-        private final JButton button = new JButton("Delete");
-        private PlayerDto player;
-        private final PlayerTableModel model;
-
-        public ButtonEditor(JTable table, PlayerTableModel model) {
-            super(new JCheckBox());
-            this.model = model;
-            button.addActionListener(e -> {
-                DatabaseConnection.executeSql("DELETE FROM players WHERE id=" + player.id);
-                model.reload();
-            });
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            player = model.getPlayerAt(row);
-            return button;
-        }
-
-        @Override
-        public Object getCellEditorValue() { return "Delete"; }
     }
 }

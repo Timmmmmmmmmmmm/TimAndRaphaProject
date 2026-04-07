@@ -18,23 +18,43 @@ public class DatabaseConnection {
             System.out.println("JDBC Connection failed to connect.");
         }
     }
-    
-    public static List<HashMap<String, String>> executeSql(String sql) {
-        try (Connection con = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement stmt = con.createStatement()) {
 
-            System.out.println("Executing SQL: " + sql);
-            boolean hasResultSet = stmt.execute(sql);
+    public static List<HashMap<String, String>> executeSql(String sql) {
+        System.out.println("Executing SQL: " + sql);
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
+
+            boolean hasResultSet = statement.execute(sql);
 
             if (hasResultSet) {
-                List<HashMap<String, String>> result = getHashMaps(stmt);
+                List<HashMap<String, String>> result = getHashMaps(statement);
                 return result.isEmpty() ? null : result;
             } else {
                 return null;
             }
 
         } catch (SQLException e) {
-            System.out.println("Failed to execute SQL statement: " + e.getSQLState());
+            System.out.println("Failed to execute SQL statement: " + e.getMessage() + " (" + e.getSQLState() + ")");
+            return null;
+        }
+    }
+
+    public static String insertAndReturnPrimaryKey(String sql) {
+        System.out.println("Executing SQL and return primary key: " + sql);
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            statement.executeUpdate();
+            ResultSet resultSet = statement.getGeneratedKeys();
+
+            if (resultSet.next()) {
+                return resultSet.getString(1);
+            } else {
+                return null;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to execute SQL statement: " + e.getMessage() + " (" + e.getSQLState() + ")");
             return null;
         }
     }

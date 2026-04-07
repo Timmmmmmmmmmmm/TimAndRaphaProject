@@ -1,6 +1,7 @@
 package Gui.BoardGui;
 
 import Gui.BaseWindow;
+import Gui.DatabaseConnection;
 import Gui.Dto.TournamentDto;
 import Gui.TournamentGui.TournamentPanel;
 
@@ -49,6 +50,18 @@ public class ResultDialog {
                 showResult(game, result, whiteWins);
                 break;
             case 1:
+                int resultInt;
+                if (result == GameResult.DRAW || result == GameResult.STALEMATE || result == GameResult.FIFTY_MOVE_RULE || result == GameResult.THREE_REPETITION_RULE) {
+                    resultInt = 0;
+                } else {
+                    resultInt = whiteWins ? 1 : -1;
+                }
+                DatabaseConnection.executeSql("UPDATE games SET result = " + resultInt + " WHERE id = " + game.gameDto.id);
+
+                double whiteScore = (resultInt == 1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
+                double blackScore = (resultInt == -1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
+                DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + whiteScore + " WHERE player_id = " + game.whitePlayerDto.id);
+                DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + blackScore + " WHERE player_id = " + game.blackPlayerDto.id);
                 BaseWindow window = BaseWindow.getInstance();
                 window.setContentPane(new TournamentPanel(game.tournamentDto));
                 window.revalidate();

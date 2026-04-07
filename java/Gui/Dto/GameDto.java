@@ -50,7 +50,8 @@ public class GameDto {
                         Integer.parseInt(game.get("player_black")),
                         Integer.parseInt(game.get("tournament_id"))
                 ));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -59,13 +60,17 @@ public class GameDto {
 
     public static LocalDate parseLocalDate(String s) {
         for (String f : new String[]{"yyyy-MM-dd","dd.MM.yyyy","yyyy/MM/dd"})
-            try { return LocalDate.parse(s, DateTimeFormatter.ofPattern(f)); } catch (DateTimeParseException ignored) {}
-        throw new DateTimeParseException("No format", s, 0);
+            try {
+                return LocalDate.parse(s, DateTimeFormatter.ofPattern(f));
+            } catch (Exception ignored) {}
+        return null;
     }
 
     public static LocalDateTime parseLocalDateTime(String s) {
         for (String f : new String[]{"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd'T'HH:mm:ss","yyyy/MM/dd HH:mm:ss","dd.MM.yyyy HH:mm:ss"})
-            try { return LocalDateTime.parse(s, DateTimeFormatter.ofPattern(f)); } catch (DateTimeParseException ignored) {}
-        throw new DateTimeParseException("No format", s, 0);
+            try {
+                return LocalDateTime.parse(s, DateTimeFormatter.ofPattern(f));
+            } catch (Exception ignored) {}
+        return null;
     }
 }

@@ -59,7 +59,6 @@ public class BaseWindow extends JFrame {
         Color primaryGreen = new Color(80, 124, 101);
         Color primaryLight = new Color(222, 227, 230);
         Color primaryDark = new Color(140, 162, 173);
-        Color accentRed = new Color(239, 81, 81, 180);
         Color textDark = new Color(40, 40, 40);
 
         UIManager.put("Button.background", primaryGreen);
@@ -72,14 +71,14 @@ public class BaseWindow extends JFrame {
         UIManager.put("Table.background", primaryLight);
         UIManager.put("Table.alternateRowColor", primaryDark);
         UIManager.put("Table.foreground", textDark);
-        UIManager.put("Table.selectionBackground", accentRed);
+        UIManager.put("Table.selectionBackground", primaryDark);
         UIManager.put("Table.selectionForeground", Color.WHITE);
         UIManager.put("Table.gridColor", new Color(200, 200, 200));
         UIManager.put("Table.rowHeight", 28);
 
         UIManager.put("ComboBox.background", primaryLight);
         UIManager.put("ComboBox.foreground", textDark);
-        UIManager.put("ComboBox.selectionBackground", accentRed);
+        UIManager.put("ComboBox.selectionBackground", primaryDark);
         UIManager.put("ComboBox.selectionForeground", Color.WHITE);
 
         UIManager.put("TextField.background", Color.WHITE);
@@ -94,7 +93,7 @@ public class BaseWindow extends JFrame {
 
         UIManager.put("List.background", primaryLight);
         UIManager.put("List.foreground", textDark);
-        UIManager.put("List.selectionBackground", accentRed);
+        UIManager.put("List.selectionBackground", primaryDark);
         UIManager.put("List.selectionForeground", Color.WHITE);
 
         UIManager.put("OptionPane.background", primaryLight);

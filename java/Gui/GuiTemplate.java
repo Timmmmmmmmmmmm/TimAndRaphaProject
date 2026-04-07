@@ -139,12 +139,12 @@ public class GuiTemplate<T> extends JPanel {
                 values.add(row.get(f.getName()));
             }
 
-            values.add("Delete");
+            values.add("Remove");
             model.addRow(values.toArray());
         }
 
-        table.getColumn("Delete").setCellRenderer(new ButtonRenderer("delete.png"));
-        table.getColumn("Delete").setMaxWidth(40);
+        table.getColumn("Remove").setCellRenderer(new ButtonRenderer("delete.png"));
+        table.getColumn("Remove").setMaxWidth(40);
     }
 
     private void setupEditors() {
