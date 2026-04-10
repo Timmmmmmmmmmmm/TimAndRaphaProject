@@ -6,21 +6,21 @@ Wir wollen eine Schachturnierverwaltung, die alle wichtigen Informationen zuverl
 2. Was muss das System grundsätzlich können?
 Das System muss:
     - Turniere anlegen und speichern (z. B. „Vereinsmeisterschaft 2026“)
-    - Gruppen verwalten (z. B. “Pokalmeisterschaft A, Pokalmeisterschaft B”)
+    - Gruppen verwalten (z. B. "Pokalmeisterschaft A, Pokalmeisterschaft B")
     - Spieler verwalten (wer macht mit?)
     - Runden verwalten (z. B. Runde 1 bis Runde 7)
     - Paarungen speichern (wer spielt gegen wen?)
     - Ergebnisse speichern (1–0, ½–½, 0–1, +--,- - +, - - -, 0 - 0)
     - Tabelle/Stand berechnen und anzeigen können
 
-4. Welche Daten müssen gespeichert werden? (nicht final)
+3. Welche Daten müssen gespeichert werden? (nicht final)
 3.1 Turnierdaten (die Grundinfos)
-Für jedes Turnier sollen gespeichert werden:
+für jedes Turnier sollen gespeichert werden:
     - Name des Turniers
     - Datum (Start und Ende)
     - Ort
     - Turnierart? (z. B. Schweizer System, Rundenturnier – genaue Begriffe sind egal, aber die Auswahl muss gespeichert werden)
-    - Bedenkzeit (z. B. 10+0, 15+10)
+    - Bedenkzeit (z. B. 10 + 0, 15 + 10)
     - Status: geplant / läuft / beendet
 Optional:
     - Hinweise/Notizen zum Turnier
@@ -28,7 +28,7 @@ Optional:
 
 
 3.2 Spieler (wer spielt mit?)
-Für jeden Spieler sollen gespeichert werden:
+für jeden Spieler sollen gespeichert werden:
     - Vorname und Nachname
     - Wertungszahl (FIDE)
     - Geschlecht
@@ -36,26 +36,26 @@ Für jeden Spieler sollen gespeichert werden:
     - Status im Turnier
 
 3.3 Anmeldung zum Turnier
-Das System muss speichern:
+das System muss speichern:
     - Welcher Spieler spielt in welchem Turnier mit
     - Wie viel Startgeld gezahlt werden muss
     - Wie viel Startgeld gezahlt wurde
 
 3.4 Runden
-Für jede Runde sollen gespeichert werden:
+für jede Runde sollen gespeichert werden:
     - Rundennummer (1, 2, 3, …)
     - Geplanter Beginn (optional)
     - Status: noch nicht gestartet / läuft / fertig
 
 3.5 Paarungen (wer spielt gegen wen?)
-Für jede Runde muss gespeichert werden:
-    - Spieler A/Weiss 
+für jede Runde muss gespeichert werden:
+    - Spieler A/Weiß 
     - Spieler B/Schwarz
     - Brettnummer / Tisch
     - Freilos (ein Spieler spielt nicht, bekommt aber Punkte oder nicht – je nach Regel)
 
 3.6 Ergebnisse
-Für jede Partie muss gespeichert werden:
+für jede Partie muss gespeichert werden:
     - Ergebnis:
         - Weiß gewinnt (1–0)
         - Schwarz gewinnt (0–1)

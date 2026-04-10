@@ -93,7 +93,7 @@ opponent_player_id IS NOT NULL THEN
 
 INSERT INTO games (id, result, start, board_number,
                    round_id, player_white, player_black, tournament_id)
-VALUES ((SELECT IFNULL(MAX(id), 0) + 1 FROM games),
+VALUES ((SELECT IF NULL(MAX(id), 0) + 1 FROM games),
         NULL,
         NEW.begin,
         game_counter,

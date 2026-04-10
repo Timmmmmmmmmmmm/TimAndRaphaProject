@@ -1,0 +1,5 @@
+package gui.util;
+
+public enum GameResult {
+    DRAW, STALEMATE, RESIGN, TIME, FIFTY_MOVE_RULE, THREE_REPETITION_RULE, CHECKMATE
+}
