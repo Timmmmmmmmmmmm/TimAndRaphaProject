@@ -46,17 +46,8 @@ public class TournamentResultPanel extends JPanel {
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JButton backButton = new JButton("Exit tournament");
-        backButton.addActionListener(_ -> {
-            BaseWindow.getInstance().setContentPane(new StartTournamentPanel());
-            BaseWindow.getInstance().revalidate();
-        });
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        buttonPanel.add(backButton);
-
-        content.add(buttonPanel);
-
+        content.add(createMenuPanel());
+        content.add(Box.createVerticalStrut(10));
         content.add(createWinnerPanel());
         content.add(Box.createVerticalStrut(10));
         content.add(createPlayerTablePanel());
@@ -68,6 +59,19 @@ public class TournamentResultPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(content);
         scrollPane.getVerticalScrollBar().setUnitIncrement(12);
         return scrollPane;
+    }
+
+    public JPanel createMenuPanel() {
+        JButton backButton = new JButton("Exit tournament");
+        backButton.addActionListener(_ -> {
+            BaseWindow.getInstance().setContentPane(new StartTournamentPanel());
+            BaseWindow.getInstance().revalidate();
+            BaseWindow.getInstance().repaint();
+        });
+
+        JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        menuPanel.add(backButton);
+        return menuPanel;
     }
 
     private JPanel createWinnerPanel() {
@@ -86,7 +90,7 @@ public class TournamentResultPanel extends JPanel {
 
     private JPanel createPlayerTablePanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Player details"));
+        panel.setBorder(BorderFactory.createTitledBorder("Players"));
 
         String[] columns = {"#", "Score", "Name", "FIDE"};
 

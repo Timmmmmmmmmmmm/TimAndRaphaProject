@@ -1,5 +1,6 @@
 package gui.panel;
 
+import gui.BaseWindow;
 import gui.DatabaseConnection;
 import gui.dialog.NewPlayerDialog;
 import gui.dialog.NewTournamentDialog;
@@ -24,29 +25,36 @@ public class StartTournamentPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-        setupTopPanel();
+        add(createMenuPanel(), BorderLayout.NORTH);
         setupTable();
     }
 
-    private void setupTopPanel() {
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    public JPanel createMenuPanel() {
+        JButton backButton = new JButton("Exit Tournament Menu");
+        backButton.addActionListener(_ -> {
+            BaseWindow.getInstance().setContentPane(new StartPanel());
+            BaseWindow.getInstance().revalidate();
+            BaseWindow.getInstance().repaint();
+        });
+
+        JButton openTournamentButton = new JButton("Open Tournament");
+        openTournamentButton.addActionListener(_ -> OpenTournamentDialog.show());
+
+        JButton newTournamentButton = new JButton("New Tournament");
+        newTournamentButton.addActionListener(_ -> NewTournamentDialog.show());
 
         JButton newPlayerButton = new JButton("New Player");
-        JButton newTournamentButton = new JButton("New Tournament");
-        JButton openTournamentButton = new JButton("Open Tournament");
-
-        topPanel.add(newPlayerButton);
-        topPanel.add(newTournamentButton);
-        topPanel.add(openTournamentButton);
-
-        add(topPanel, BorderLayout.NORTH);
-
         newPlayerButton.addActionListener(_ -> {
             NewPlayerDialog.show();
             tableModel.reload();
         });
-        newTournamentButton.addActionListener(_ -> NewTournamentDialog.show());
-        openTournamentButton.addActionListener(_ -> OpenTournamentDialog.show());
+
+        JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        menuPanel.add(backButton);
+        menuPanel.add(openTournamentButton);
+        menuPanel.add(newTournamentButton);
+        menuPanel.add(newPlayerButton);
+        return menuPanel;
     }
 
     private void setupTable() {

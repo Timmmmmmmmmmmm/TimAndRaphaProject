@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 public class PGNWriter {
 
-    public static void export(Game game) {
+    public static void export(SimpleGame game) {
 
         JFileChooser chooser = new JFileChooser(System.getProperty("user.home") + "/Downloads");
         chooser.setSelectedFile(new File("game.pgn"));
@@ -38,6 +38,10 @@ public class PGNWriter {
         }
     }
 
+    private static void writeHeader(FileWriter writer, SimpleGame game) throws IOException {
+        writer.write("[Result \"" + game.result + "\"]\n\n");
+    }
+
     private static void writeHeader(FileWriter writer, Game game) throws IOException {
         writer.write("[Event \"" + game.tournamentDto.name() + "\"]\n");
         writer.write("[Site \"" + game.tournamentDto.city() + "\"]\n");
@@ -53,7 +57,7 @@ public class PGNWriter {
         writer.write("[Result \"" + game.result + "\"]\n\n");
     }
 
-    private static void writeMoves(FileWriter writer, Game game) throws IOException {
+    private static void writeMoves(FileWriter writer, SimpleGame game) throws IOException {
 
         int moveNumber = 1;
 

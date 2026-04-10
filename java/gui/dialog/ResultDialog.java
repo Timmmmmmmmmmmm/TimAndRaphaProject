@@ -1,18 +1,20 @@
 package gui.dialog;
 
 import gui.BaseWindow;
+import gui.panel.StartPanel;
 import gui.util.Game;
 import gui.util.GameResult;
 import gui.util.PGNWriter;
 import gui.DatabaseConnection;
 import gui.panel.TournamentPanel;
+import gui.util.SimpleGame;
 
 import javax.swing.*;
 import java.util.Objects;
 
 public class ResultDialog {
 
-    public static void show(Game game, GameResult result, boolean whiteWins) {
+    public static void show(SimpleGame game, GameResult result, boolean whiteWins) {
 
         String[] options = {
                 "PGN herunterladen",
@@ -51,22 +53,26 @@ public class ResultDialog {
                 show(game, result, whiteWins);
                 break;
             case 1:
-                int resultInt;
-                if (result == GameResult.DRAW || result == GameResult.STALEMATE || result == GameResult.FIFTY_MOVE_RULE || result == GameResult.THREE_REPETITION_RULE) {
-                    resultInt = 0;
-                } else {
-                    resultInt = whiteWins ? 1 : -1;
-                }
-                DatabaseConnection.executeSql("UPDATE games SET result = " + resultInt + " WHERE id = " + game.gameDto.id);
+                if (game instanceof Game) {
+                    int resultInt;
+                    if (result == GameResult.DRAW || result == GameResult.STALEMATE || result == GameResult.FIFTY_MOVE_RULE || result == GameResult.THREE_REPETITION_RULE) {
+                        resultInt = 0;
+                    } else {
+                        resultInt = whiteWins ? 1 : -1;
+                    }
+                    DatabaseConnection.executeSql("UPDATE games SET result = " + resultInt + " WHERE id = " + ((Game) game).gameDto.id);
 
-                double whiteScore = (resultInt == 1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
-                double blackScore = (resultInt == -1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
-                DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + whiteScore + " WHERE player_id = " + game.whitePlayerDto.id);
-                DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + blackScore + " WHERE player_id = " + game.blackPlayerDto.id);
-                BaseWindow window = BaseWindow.getInstance();
-                window.setContentPane(new TournamentPanel(game.tournamentDto));
-                window.revalidate();
-                window.repaint();
+                    double whiteScore = (resultInt == 1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
+                    double blackScore = (resultInt == -1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
+                    DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + whiteScore + " WHERE player_id = " + ((Game) game).whitePlayerDto.id);
+                    DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + blackScore + " WHERE player_id = " + ((Game) game).blackPlayerDto.id);
+                    BaseWindow.getInstance().setContentPane(new TournamentPanel(((Game) game).tournamentDto));
+                } else {
+                    BaseWindow.getInstance().setContentPane(new StartPanel());
+                }
+
+                BaseWindow.getInstance().revalidate();
+                BaseWindow.getInstance().repaint();
                 break;
         }
     }

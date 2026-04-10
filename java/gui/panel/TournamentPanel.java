@@ -29,9 +29,10 @@ public class TournamentPanel extends JPanel {
     private DefaultMutableTreeNode rootNode;
     private final DefaultTreeModel treeModel;
 
-    private final JButton startGameButton;
-    private final JButton backButton;
-    private final JButton nextRoundButton;
+    private JButton backButton;
+    private JButton startGameButton;
+    private JButton nextRoundButton;
+
     private final JTable leaderboardTable;
 
     private GameRoundPlayerDto selectedGame;
@@ -46,8 +47,6 @@ public class TournamentPanel extends JPanel {
         rootNode = new DefaultMutableTreeNode(tournamentDto.name());
         treeModel = new DefaultTreeModel(rootNode);
         tree = new JTree(treeModel);
-
-        nextRoundButton = new JButton();
 
         JScrollPane treeScrollPane = new JScrollPane(tree);
 
@@ -66,9 +65,30 @@ public class TournamentPanel extends JPanel {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, leaderboardScrollPane);
         splitPane.setResizeWeight(0.5);
 
-        startGameButton = new JButton("Start selected game");
-        backButton = new JButton("Exit tournament");
+        add(splitPane, BorderLayout.CENTER);
+        add(createMenuPanel(), BorderLayout.SOUTH);
 
+        tree.addTreeSelectionListener(_ -> {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            if (node == null) return;
+            selectedGame = node.getUserObject() instanceof GameRoundPlayerDto g ? g : null;
+        });
+
+        loadLeaderboard(tableModel);
+
+        SwingUtilities.invokeLater(this::setupUI);
+
+        refreshTree();
+    }
+
+    public JPanel createMenuPanel() {
+        backButton = new JButton("Exit tournament");
+        backButton.addActionListener(_ -> {
+            BaseWindow.getInstance().setContentPane(new StartTournamentPanel());
+            BaseWindow.getInstance().revalidate();
+        });
+
+        startGameButton = new JButton("Start selected game");
         startGameButton.addActionListener(_ -> {
             if (selectedGame == null) return;
 
@@ -85,32 +105,14 @@ public class TournamentPanel extends JPanel {
             StartGameDialog.show(tournamentDto, selectedGame);
         });
 
-        backButton.addActionListener(_ -> {
-            BaseWindow.getInstance().setContentPane(new StartTournamentPanel());
-            BaseWindow.getInstance().revalidate();
-        });
-
+        nextRoundButton = new JButton();
         nextRoundButton.addActionListener(_ -> handleRoundButton());
 
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 3, 10, 0));
-        bottomPanel.add(backButton);
-        bottomPanel.add(startGameButton);
-        bottomPanel.add(nextRoundButton);
-
-        add(splitPane, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        tree.addTreeSelectionListener(_ -> {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-            if (node == null) return;
-            selectedGame = node.getUserObject() instanceof GameRoundPlayerDto g ? g : null;
-        });
-
-        loadLeaderboard(tableModel);
-
-        SwingUtilities.invokeLater(this::setupUI);
-
-        refreshTree();
+        JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        menuPanel.add(backButton);
+        menuPanel.add(startGameButton);
+        menuPanel.add(nextRoundButton);
+        return menuPanel;
     }
 
     private void setupUI() {

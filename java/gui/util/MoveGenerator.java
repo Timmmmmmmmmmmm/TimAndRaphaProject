@@ -7,7 +7,7 @@ public class MoveGenerator {
 
     static int enPassantColumn = -1;
 
-    public static List<Move> generateLegal(Game game, int row, int column) {
+    public static List<Move> generateLegal(SimpleGame game, int row, int column) {
         List<Move> moves = generate(game, row, column);
         if (moves == null || moves.isEmpty()) {
             return new ArrayList<>();
@@ -15,7 +15,7 @@ public class MoveGenerator {
         List<Move> legal = new ArrayList<>();
         for (Move move : moves) {
 
-            Game copy = game.copy();
+            SimpleGame copy = game.copy();
             copy.makeMove(move, true);
 
             if (!inCheck(copy, !copy.whiteTurn))
@@ -25,7 +25,7 @@ public class MoveGenerator {
         return legal;
     }
 
-    public static List<Move> generate(Game game, int row, int column) {
+    public static List<Move> generate(SimpleGame game, int row, int column) {
         Piece piece = game.board[row][column];
         if (piece == null) return null;
 
@@ -39,7 +39,7 @@ public class MoveGenerator {
         };
     }
 
-    static public List<Move> pawnMoves(Game game, int row, int column) {
+    static public List<Move> pawnMoves(SimpleGame game, int row, int column) {
         List<Move> moves = new ArrayList<>();
         Piece piece = game.board[row][column];
         int direction = piece.white ? -1 : 1;
@@ -91,7 +91,7 @@ public class MoveGenerator {
                 }
             }
 
-            if (column < 8) {
+            if (column < 7) {
                 Piece left = game.board[row][column + 1];
                 if (left != null && left.type == Piece.Type.PAWN && !left.white) {
                     Move move = new Move(row, column, row + direction, column + 1);
@@ -129,7 +129,7 @@ public class MoveGenerator {
         return moves;
     }
 
-    static public List<Move> knightMoves(Game game, int row, int column) {
+    static public List<Move> knightMoves(SimpleGame game, int row, int column) {
         List<Move> moves = new ArrayList<>();
         int[][] d = {
                 {1, 2}, {2, 1}, {2, -1}, {1, -2},
@@ -151,19 +151,19 @@ public class MoveGenerator {
         return moves;
     }
 
-    static public List<Move> bishopMoves(Game game, int row, int column) {
+    static public List<Move> bishopMoves(SimpleGame game, int row, int column) {
         return new ArrayList<>(slide(game, row, column, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}));
     }
 
-    static public List<Move> rookMoves(Game game, int row, int column) {
+    static public List<Move> rookMoves(SimpleGame game, int row, int column) {
         return new ArrayList<>(slide(game, row, column, new int[][]{{1, 0}, {-1, -0}, {0, 1}, {0, -1}}));
     }
 
-    static public List<Move> queenMoves(Game game, int row, int column) {
+    static public List<Move> queenMoves(SimpleGame game, int row, int column) {
         return new ArrayList<>(slide(game, row, column, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {-1, -0}, {0, 1}, {0, -1}}));
     }
 
-    static public List<Move> kingMoves(Game game, int row, int column) {
+    static public List<Move> kingMoves(SimpleGame game, int row, int column) {
         List<Move> moves = new ArrayList<>();
         Piece piece = game.board[row][column];
 
@@ -194,7 +194,7 @@ public class MoveGenerator {
         return moves;
     }
 
-    static boolean canCastle(Game game, int row, int column, boolean kingSide) {
+    static boolean canCastle(SimpleGame game, int row, int column, boolean kingSide) {
         int rookCol = kingSide ? 7 : 0;
         Piece rook = game.board[row][rookCol];
 
@@ -220,7 +220,7 @@ public class MoveGenerator {
         return move;
     }
 
-    static List<Move> slide(Game game, int row, int column, int[][] directions) {
+    static List<Move> slide(SimpleGame game, int row, int column, int[][] directions) {
         List<Move> moves = new ArrayList<>();
         Piece piece = game.board[row][column];
 
@@ -247,7 +247,7 @@ public class MoveGenerator {
         return row >= 0 && row < 8 && column >= 0 && column < 8;
     }
 
-    static boolean inCheck(Game game, boolean white) {
+    static boolean inCheck(SimpleGame game, boolean white) {
 
         int kingR = -1, kingC = -1;
 

@@ -20,45 +20,35 @@ public class StartPanel extends JPanel {
         } catch (Exception ignored) {
         }
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
-        buttonPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-
-        JButton turniereButton = new JButton("Manage tournaments");
-        JButton schnellesSpielButton = new JButton("Start quick game");
-        JButton spielImportierenButton = new JButton("Import game");
-
-        gbc.gridy = 0;
-        buttonPanel.add(turniereButton, gbc);
-        gbc.gridy = 1;
-        buttonPanel.add(schnellesSpielButton, gbc);
-        gbc.gridy = 2;
-        buttonPanel.add(spielImportierenButton, gbc);
-
-        turniereButton.addActionListener(_ -> {
-            BaseWindow.getInstance().setContentPane(new StartTournamentPanel());
-            BaseWindow.getInstance().revalidate();
-            BaseWindow.getInstance().repaint();
-        });
-        schnellesSpielButton.addActionListener(_ -> BaseWindow.getInstance().setContentPane(new BoardPanel()));
-        spielImportierenButton.addActionListener(_ -> {
-            // TODO Read PGN file
-        });
-
-        add(buttonPanel, BorderLayout.WEST);
+        add(createMenuPanel(), BorderLayout.NORTH);
 
         JLabel titleLabel = new JLabel("<html>Schachturnier -<br>Verwaltung</html>");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
-        JPanel titlePanel = new JPanel();
-        titlePanel.setOpaque(false);
-        titlePanel.setLayout(new GridBagLayout());
-        titlePanel.add(titleLabel);
-        add(titlePanel, BorderLayout.EAST);
+        add(titleLabel, BorderLayout.EAST);
+    }
+
+    public JPanel createMenuPanel() {
+        JButton tournamentButton = new JButton("Manage tournaments");
+        tournamentButton.addActionListener(_ -> {
+            BaseWindow.getInstance().setContentPane(new StartTournamentPanel());
+            BaseWindow.getInstance().revalidate();
+            BaseWindow.getInstance().repaint();
+        });
+
+        JButton quickGameButton = new JButton("Start quick game");
+        quickGameButton.addActionListener(_ -> BaseWindow.getInstance().setContentPane(new BoardPanel(60, 10)));
+
+        JButton importGameButton = new JButton("Import game");
+        importGameButton.addActionListener(_ -> {
+            // TODO Read PGN file
+        });
+
+        JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        menuPanel.add(tournamentButton);
+        menuPanel.add(quickGameButton);
+        menuPanel.add(importGameButton);
+        return menuPanel;
     }
 
     @Override

@@ -7,12 +7,24 @@ import java.awt.*;
 
 public class PlayerDisplay extends JPanel {
 
-    final JLabel timeLabel;
-    final JLabel nameLabel;
-    final JLabel ratingLabel;
+    JLabel timeLabel;
+    JLabel nameLabel;
+    JLabel ratingLabel;
 
     public PlayerDisplay(PlayerDto playerDto, int time) {
+        setupUI();
+        nameLabel.setText(playerDto.lastname + ", " + playerDto.firstname);
+        ratingLabel.setText(playerDto.fide_title.getKey().toUpperCase() +  " (" + playerDto.fide_rating + ")");
+        update(time);
+    }
 
+    public PlayerDisplay(String name, int time) {
+        setupUI();
+        nameLabel.setText(name);
+        update(time);
+    }
+
+    public void setupUI() {
         setLayout(new BorderLayout(10, 10));
 
         JPanel textPanel = new JPanel();
@@ -21,22 +33,19 @@ public class PlayerDisplay extends JPanel {
 
         timeLabel = new JLabel();
         timeLabel.setAlignmentX(LEFT_ALIGNMENT);
-        timeLabel.setText(playerDto.fide_title.getKey().toUpperCase());
         add(timeLabel, BorderLayout.WEST);
 
         nameLabel = new JLabel();
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        nameLabel.setText(playerDto.lastname + ", " + playerDto.firstname);
         textPanel.add(nameLabel);
 
         ratingLabel = new JLabel();
         ratingLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         ratingLabel.setForeground(new Color(76, 153, 234));
-        ratingLabel.setText(playerDto.fide_title.getKey().toUpperCase() +  " (" + playerDto.fide_rating + ")");
         textPanel.add(ratingLabel);
 
         add(textPanel, BorderLayout.CENTER);
-        update(time);
+
     }
 
     public void update(int time) {
