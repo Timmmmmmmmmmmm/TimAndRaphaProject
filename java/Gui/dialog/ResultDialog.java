@@ -1,17 +1,18 @@
-package Gui.BoardGui;
+package Gui.dialog;
 
 import Gui.BaseWindow;
+import Gui.util.Game;
+import Gui.util.GameResult;
+import Gui.util.PGNWriter;
 import Gui.DatabaseConnection;
-import Gui.Dto.TournamentDto;
-import Gui.TournamentGui.TournamentPanel;
+import Gui.panel.TournamentPanel;
 
 import javax.swing.*;
-import java.time.LocalDate;
 import java.util.Objects;
 
 public class ResultDialog {
 
-    public static void showResult(Game game, GameResult result, boolean whiteWins) {
+    public static void show(Game game, GameResult result, boolean whiteWins) {
 
         String[] options = {
                 "PGN herunterladen",
@@ -47,7 +48,7 @@ public class ResultDialog {
         switch (res) {
             case 0:
                 PGNWriter.export(game);
-                showResult(game, result, whiteWins);
+                show(game, result, whiteWins);
                 break;
             case 1:
                 int resultInt;

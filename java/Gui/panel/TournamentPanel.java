@@ -1,7 +1,8 @@
-package Gui.TournamentGui;
+package Gui.panel;
 
 import Gui.BaseWindow;
-import Gui.Dto.*;
+import Gui.dialog.StartGameDialog;
+import Gui.dto.*;
 import Gui.DatabaseConnection;
 
 import javax.swing.*;
@@ -80,7 +81,7 @@ public class TournamentPanel extends JPanel {
                 return;
             }
 
-            StartGameDialog.showStart(tournamentDto, selectedGame);
+            StartGameDialog.show(tournamentDto, selectedGame);
         });
 
         backButton.addActionListener(e -> {
@@ -118,12 +119,12 @@ public class TournamentPanel extends JPanel {
         int rowHeight = (int) (24 * scale);
         tree.setRowHeight(rowHeight);
 
-        tournamentIcon = scaleIcon("/Gui/assets/analysis/theory.png", rowHeight);
-        roundPlannedIcon = scaleIcon("/Gui/assets/analysis/inaccuracy.png", rowHeight);
-        roundRunningIcon = scaleIcon("/Gui/assets/analysis/mistake.png", rowHeight);
-        roundCompletedIcon = scaleIcon("/Gui/assets/analysis/blunder.png", rowHeight);
-        gameOpenIcon = scaleIcon("/Gui/assets/analysis/critical.png", rowHeight);
-        gameClosedIcon = scaleIcon("/Gui/assets/analysis/brilliant.png", rowHeight);
+        tournamentIcon = scaleIcon("/Gui/assets/treeIcons/tournament.png", rowHeight);
+        roundPlannedIcon = scaleIcon("/Gui/assets/treeIcons/roundPlanned.png", rowHeight);
+        roundRunningIcon = scaleIcon("/Gui/assets/treeIcons/roundRunning.png", rowHeight);
+        roundCompletedIcon = scaleIcon("/Gui/assets/treeIcons/roundCompleted.png", rowHeight);
+        gameOpenIcon = scaleIcon("/Gui/assets/treeIcons/gameOpen.png", rowHeight);
+        gameClosedIcon = scaleIcon("/Gui/assets/treeIcons/gameClosed.png", rowHeight);
 
         tree.setCellRenderer(new DefaultTreeCellRenderer() {
             public Component getTreeCellRendererComponent(JTree t, Object v, boolean sel, boolean exp, boolean leaf, int row, boolean focus) {
@@ -164,7 +165,7 @@ public class TournamentPanel extends JPanel {
         return new ImageIcon(
                 new ImageIcon(getClass().getResource(path))
                         .getImage()
-                        .getScaledInstance(size, size, Image.SCALE_SMOOTH)
+                        .getScaledInstance(size - 3, size - 3, Image.SCALE_DEFAULT)
         );
     }
 
@@ -352,6 +353,8 @@ public class TournamentPanel extends JPanel {
         DatabaseConnection.executeSql(
                 "UPDATE tournaments SET status = 'COMPLETED' WHERE id = " + tournamentDto.id
         );
-        TournamentResultDialog.showResult();
+        BaseWindow.getInstance().setContentPane(new TournamentResultPanel(tournamentDto));
+        BaseWindow.getInstance().revalidate();
+        BaseWindow.getInstance().repaint();
     }
 }

@@ -1,6 +1,6 @@
-package Gui.BoardGui;
+package Gui.util;
 
-import Gui.Dto.PlayerDto;
+import Gui.dto.PlayerDto;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,17 +1,15 @@
-package Gui.BoardGui;
+package Gui.panel;
 
 import Gui.BaseWindow;
+import Gui.util.*;
+import Gui.dialog.ResultDialog;
 
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.ButtonUI;
 import javax.swing.plaf.basic.BasicButtonUI;
-import javax.swing.plaf.metal.MetalButtonUI;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -264,6 +262,6 @@ public class BoardPanel extends JPanel {
     public void endGame(GameResult result, boolean whiteWins) {
         timer.stop();
         PGNWriter.saveMovesInDatabase(game);
-        ResultDialog.showResult(game, result, whiteWins);
+        ResultDialog.show(game, result, whiteWins);
     }
 }

@@ -1,9 +1,10 @@
-package Gui.BoardGui;
+package Gui.util;
 
-import Gui.Dto.GameDto;
-import Gui.Dto.PlayerDto;
-import Gui.Dto.RoundDto;
-import Gui.Dto.TournamentDto;
+import Gui.dialog.PromotionDialog;
+import Gui.dto.GameDto;
+import Gui.dto.PlayerDto;
+import Gui.dto.RoundDto;
+import Gui.dto.TournamentDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +16,11 @@ public class Game {
     public boolean whiteTurn = true;
     public String result = "*";
 
-    TournamentDto tournamentDto;
-    RoundDto roundDto;
-    GameDto gameDto;
-    PlayerDto whitePlayerDto;
-    PlayerDto blackPlayerDto;
+    public TournamentDto tournamentDto;
+    public RoundDto roundDto;
+    public GameDto gameDto;
+    public PlayerDto whitePlayerDto;
+    public PlayerDto blackPlayerDto;
 
     public Game(TournamentDto tournamentDto, RoundDto roundDto, GameDto gameDto, PlayerDto whitePlayerDto, PlayerDto blackPlayerDto) {
         setup();
@@ -135,7 +136,7 @@ public class Game {
         if (move.promotion) {
 
             if (!copy) {
-                Piece.Type type = PromotionDialog.choosePromotion(piece.white);
+                Piece.Type type = PromotionDialog.show(piece.white);
                 board[move.toRow][move.toColumn] = new Piece(type,piece.white);
                 promotionType = type;
             } else {

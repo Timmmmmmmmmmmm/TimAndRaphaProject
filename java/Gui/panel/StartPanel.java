@@ -1,13 +1,9 @@
-package Gui.TournamentGui;
+package Gui.panel;
 
 import Gui.BaseWindow;
-import Gui.BoardGui.BoardPanel;
-import Gui.BoardGui.Game;
-import Gui.BoardGui.PGNReader;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
 import javax.imageio.ImageIO;
@@ -19,10 +15,10 @@ public class StartPanel extends JPanel {
     private JButton spielImportierenButton;
 
     public StartPanel() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
 
         try {
-            backgroundImage = ImageIO.read(getClass().getResource("/Gui/assets/icon.png"));
+            backgroundImage = ImageIO.read(getClass().getResource("/Gui/assets/startBackground.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,9 +31,9 @@ public class StartPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        turniereButton = new JButton("Turniere verwalten");
-        schnellesSpielButton = new JButton("Schnelles Spiel starten");
-        spielImportierenButton = new JButton("Spiel importieren");
+        turniereButton = new JButton("Manage tournaments");
+        schnellesSpielButton = new JButton("Start quick game");
+        spielImportierenButton = new JButton("Import game");
 
         gbc.gridy = 0;
         buttonPanel.add(turniereButton, gbc);
@@ -74,7 +70,23 @@ public class StartPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }
+            int panelWidth = getWidth();
+            int panelHeight = getHeight();
+
+            int imgWidth = backgroundImage.getWidth(this);
+            int imgHeight = backgroundImage.getHeight(this);
+
+            double scale = Math.max(
+                    (double) panelWidth / imgWidth,
+                    (double) panelHeight / imgHeight
+            );
+
+            int newWidth = (int) (imgWidth * scale);
+            int newHeight = (int) (imgHeight * scale);
+
+            int x = (panelWidth - newWidth) / 2;
+            int y = (panelHeight - newHeight) / 2;
+
+            g.drawImage(backgroundImage, x, y, newWidth, newHeight, this);        }
     }
 }

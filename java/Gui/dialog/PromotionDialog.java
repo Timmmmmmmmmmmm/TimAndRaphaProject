@@ -1,11 +1,13 @@
-package Gui.BoardGui;
+package Gui.dialog;
+
+import Gui.util.Piece;
 
 import javax.swing.*;
 import java.util.Objects;
 
 public class PromotionDialog {
 
-    public static Piece.Type choosePromotion(boolean white) {
+    public static Piece.Type show(boolean white) {
         String[] options = {
                 "Queen",
                 "Rook",

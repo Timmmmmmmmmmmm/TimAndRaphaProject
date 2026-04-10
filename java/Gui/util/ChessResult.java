@@ -1,4 +1,4 @@
-package Gui.BoardGui;
+package Gui.util;
 
 public enum ChessResult {
     NONE, CHECK, STALEMATE, CHECKMATE;

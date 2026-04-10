@@ -1,4 +1,4 @@
-package Gui.Dto;
+package Gui.dto;
 
 public class GameRoundPlayerDto {
     public GameDto gameDto;

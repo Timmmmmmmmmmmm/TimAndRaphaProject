@@ -1,13 +1,13 @@
-package Gui.BoardGui;
+package Gui.util;
 
 public class Move {
 
-    int fromRow, fromColumn;
-    int toRow, toColumn;
+    public int fromRow, fromColumn;
+    public int toRow, toColumn;
 
-    boolean castle = false;
-    boolean enPassant = false;
-    boolean promotion = false;
+    public boolean castle = false;
+    public boolean enPassant = false;
+    public boolean promotion = false;
 
     public Move(int fromRow, int fromColumn, int toRow, int toColumn){
 

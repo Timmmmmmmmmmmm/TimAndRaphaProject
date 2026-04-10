@@ -1,4 +1,4 @@
-package Gui.BoardGui;
+package Gui.util;
 
 public class Piece {
 
@@ -6,9 +6,9 @@ public class Piece {
         PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
     }
 
-    Type type;
-    boolean white;
-    boolean moved = false;
+    public Type type;
+    public boolean white;
+    public boolean moved = false;
 
     public Piece(Type type, boolean white) {
         this.type = type;

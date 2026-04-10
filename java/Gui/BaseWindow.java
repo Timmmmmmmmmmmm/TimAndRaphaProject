@@ -1,7 +1,6 @@
 package Gui;
 
-import Gui.TournamentGui.StartPanel;
-import Gui.TournamentGui.StartTournamentPanel;
+import Gui.panel.StartPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,11 +15,11 @@ public class BaseWindow extends JFrame {
         applyChessTheme(this);
 
         setTitle("Schach-Turnierverwaltung");
-        setSize(800, 600);
-        setLocationRelativeTo(null);
         setContentPane(new StartPanel());
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize((int) (screenSize.width * 0.65), (int) (screenSize.height * 0.65));
         setMinimumSize(new Dimension(screenSize.width / 4, screenSize.height / 4));
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
 

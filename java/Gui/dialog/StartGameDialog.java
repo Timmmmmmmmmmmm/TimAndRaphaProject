@@ -1,12 +1,12 @@
-package Gui.TournamentGui;
+package Gui.dialog;
 
 import Gui.BaseWindow;
-import Gui.BoardGui.BoardPanel;
-import Gui.BoardGui.Game;
+import Gui.panel.BoardPanel;
+import Gui.util.Game;
 import Gui.DatabaseConnection;
-import Gui.Dto.GameDto;
-import Gui.Dto.GameRoundPlayerDto;
-import Gui.Dto.TournamentDto;
+import Gui.dto.GameDto;
+import Gui.dto.GameRoundPlayerDto;
+import Gui.dto.TournamentDto;
 
 import javax.swing.*;
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class StartGameDialog {
 
-    public static void showStart(TournamentDto tournamentDto, GameRoundPlayerDto selectedGame) {
+    public static void show(TournamentDto tournamentDto, GameRoundPlayerDto selectedGame) {
         String whitePlayerText = selectedGame.whitePlayer.firstname + " " + selectedGame.whitePlayer.lastname + " (" + selectedGame.whitePlayer.fide_rating + ")";
         JLabel whitePlayer = new JLabel(whitePlayerText, new ImageIcon(Objects.requireNonNull(StartGameDialog.class.getResource("/Gui/assets/pieces/wK.png"))), SwingConstants.CENTER);
         whitePlayer.setFont(whitePlayer.getFont().deriveFont(18f));

@@ -1,4 +1,4 @@
-package Gui.BoardGui;
+package Gui.util;
 
 import Gui.DatabaseConnection;
 
