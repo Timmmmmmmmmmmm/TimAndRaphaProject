@@ -19,14 +19,13 @@ public class BoardPanel extends JPanel {
     final SimpleGame game;
     final int base_consider_time;
     final int move_consider_time;
-
-    JPanel boardPanel;
-
-    int whiteTime;
-    PlayerDisplay whitePlayerDisplay;
-
     int blackTime;
+    int whiteTime;
+
+    JPanel mainPanel;
+    JPanel boardPanel;
     PlayerDisplay blackPlayerDisplay;
+    PlayerDisplay whitePlayerDisplay;
 
     final JButton[][] board = new JButton[8][8];
 
@@ -64,11 +63,17 @@ public class BoardPanel extends JPanel {
         blackTime = move_consider_time;
 
         setLayout(new BorderLayout());
+        add(createMenuPanel(), BorderLayout.NORTH);
+
+        mainPanel = new JPanel();
+        mainPanel.setLayout(null);
+        add(mainPanel, BorderLayout.CENTER);
 
         boardPanel = new JPanel();
-        boardPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        boardPanel.setBorder(BorderFactory.createRaisedSoftBevelBorder());
         boardPanel.setLayout(new GridLayout(8, 8));
-        add(boardPanel, BorderLayout.CENTER);
+
+        mainPanel.add(boardPanel, BorderLayout.CENTER);
 
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
@@ -107,22 +112,11 @@ public class BoardPanel extends JPanel {
             whitePlayerDisplay.updateTime(whiteTime);
         });
 
-        timer.start();
+        //timer.start();
     }
 
     public JPanel createMenuPanel() {
-        JButton backButton = new JButton("Exit game");
-        backButton.addActionListener(_ -> {
-            if (game instanceof Game) {
-                BaseWindow.getInstance().setContentPane(
-                        new TournamentPanel(((Game) game).tournamentDto)
-                );
-            } else {
-                BaseWindow.getInstance().setContentPane(new StartPanel());
-            }
-            BaseWindow.getInstance().revalidate();
-            BaseWindow.getInstance().repaint();
-        });
+        JButton backButton = getBackButton();
 
         JButton drawButton = new JButton("Draw");
         drawButton.addActionListener(_ -> endGame(GameResult.DRAW, true));
@@ -142,24 +136,40 @@ public class BoardPanel extends JPanel {
         return menuPanel;
     }
 
+    private JButton getBackButton() {
+        JButton backButton = new JButton("Exit game");
+        backButton.addActionListener(_ -> {
+            if (game instanceof Game) {
+                BaseWindow.getInstance().setContentPane(
+                        new TournamentPanel(((Game) game).tournamentDto)
+                );
+            } else {
+                BaseWindow.getInstance().setContentPane(new StartPanel());
+            }
+            BaseWindow.getInstance().revalidate();
+            BaseWindow.getInstance().repaint();
+        });
+        return backButton;
+    }
+
     public void setupPlayerDisplays(PlayerDto blackPlayerDto, PlayerDto whitePlayerDto) {
         blackPlayerDisplay = new PlayerDisplay(blackPlayerDto, blackTime);
         blackPlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
-        add(blackPlayerDisplay, BorderLayout.NORTH);
+        mainPanel.add(blackPlayerDisplay, BorderLayout.NORTH);
 
         whitePlayerDisplay = new PlayerDisplay(whitePlayerDto, whiteTime);
         whitePlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
-        add(whitePlayerDisplay, BorderLayout.SOUTH);
+        mainPanel.add(whitePlayerDisplay, BorderLayout.SOUTH);
     }
 
     public void setupPlayerDisplays() {
         blackPlayerDisplay = new PlayerDisplay("Black Player", blackTime);
         blackPlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
-        add(blackPlayerDisplay, BorderLayout.NORTH);
+        mainPanel.add(blackPlayerDisplay, BorderLayout.NORTH);
 
         whitePlayerDisplay = new PlayerDisplay("White Player", whiteTime);
         whitePlayerDisplay.setBorder(new EmptyBorder(10, 10, 10, 10));
-        add(whitePlayerDisplay, BorderLayout.SOUTH);
+        mainPanel.add(whitePlayerDisplay, BorderLayout.SOUTH);
     }
 
     public void click(int row, int column) {
@@ -176,9 +186,11 @@ public class BoardPanel extends JPanel {
                         inCheck = true;
                     } else {
                         if (result == ChessResult.CHECKMATE) {
+                            legalMoves.clear();
                             refresh();
                             endGame(GameResult.CHECKMATE, !game.whiteTurn);
                         } else {
+                            legalMoves.clear();
                             refresh();
                             endGame(GameResult.STALEMATE, !game.whiteTurn);
                         }
@@ -216,37 +228,35 @@ public class BoardPanel extends JPanel {
     }
 
     void refresh() {
-        int minWindowSize = Math.min(getWidth(), getHeight());
-        int northSouthHeight = getHeight() / 8;
-        int centerSize = Math.min(minWindowSize, getHeight() - northSouthHeight * 2);
+        int minWindowSize = Math.min(mainPanel.getWidth(), mainPanel.getHeight());
+        int northSouthHeight = mainPanel.getHeight() / 8;
+        int centerSize = Math.min(minWindowSize, mainPanel.getHeight() - northSouthHeight * 2);
 
         boardPanel.setBounds(
-                (getWidth() - centerSize) / 2,
-                (getHeight() - centerSize) / 2,
+                (mainPanel.getWidth() - centerSize) / 2,
+                (mainPanel.getHeight() - centerSize) / 2,
                 centerSize,
                 centerSize
         );
 
         blackPlayerDisplay.setBounds(
-                (getWidth() - centerSize) / 2,
+                (mainPanel.getWidth() - centerSize) / 2,
                 0,
                 centerSize,
                 northSouthHeight
         );
 
         whitePlayerDisplay.setBounds(
-                (getWidth() - centerSize) / 2,
-                getHeight() - northSouthHeight,
+                (mainPanel.getWidth() - centerSize) / 2,
+                mainPanel.getHeight() - northSouthHeight,
                 centerSize,
                 northSouthHeight
         );
 
-        boardPanel.doLayout();
-        blackPlayerDisplay.doLayout();
-        whitePlayerDisplay.doLayout();
-
         blackPlayerDisplay.update(blackTime);
         whitePlayerDisplay.update(whiteTime);
+
+        int size = Math.min(boardPanel.getWidth(), boardPanel.getHeight()) / 8;
 
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
@@ -281,17 +291,10 @@ public class BoardPanel extends JPanel {
                 } else {
                     String file = "/gui/assets/pieces/" + piece.getSymbol() + ".png";
                     Image img = getPieceImage(file);
-
-                    int width = board[row][column].getWidth();
-                    int height = board[row][column].getHeight();
-
-                    if (width > 0 && height > 0) {
-                        Image scaled = img.getScaledInstance(
-                                width, height, Image.SCALE_SMOOTH
-                        );
-                        board[row][column].setIcon(new ImageIcon(scaled));
-                    }
+                    Image scaled = img.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+                    board[row][column].setIcon(new ImageIcon(scaled));
                 }
+
             }
         }
 
@@ -300,8 +303,7 @@ public class BoardPanel extends JPanel {
 
     public void highlight() {
         for (Move move : legalMoves) {
-            board[move.toRow][move.toColumn]
-                    .setBackground(new Color(155, 199, 0));
+            board[move.toRow][move.toColumn].setBackground(new Color(155, 199, 0));
         }
     }
 
