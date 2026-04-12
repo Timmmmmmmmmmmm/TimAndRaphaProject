@@ -39,21 +39,21 @@ public class PGNWriter {
     }
 
     private static void writeHeader(FileWriter writer, SimpleGame game) throws IOException {
-        writer.write("[Result \"" + game.result + "\"]\n\n");
-    }
+        if (game instanceof Game) {
+            writer.write("[Event \"" + ((Game) game).tournamentDto.name() + "\"]\n");
+            writer.write("[Site \"" + ((Game) game).tournamentDto.city() + "\"]\n");
+            writer.write("[Date \"" + ((Game) game).tournamentDto.date().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\"]\n");
+            writer.write("[Round \"" + ((Game) game).roundDto.round_number() + "\"]\n");
+            writer.write("[White \"" + ((Game) game).whitePlayerDto.lastname + ", " + ((Game) game).whitePlayerDto.firstname + "\"]\n");
+            writer.write("[Black \"" + ((Game) game).blackPlayerDto.lastname + ", " + ((Game) game).blackPlayerDto.firstname + "\"]\n");
+            writer.write("[WhiteElo \"" + ((Game) game).whitePlayerDto.fide_rating + "\"]\n");
+            writer.write("[BlackElo \"" + ((Game) game).blackPlayerDto.fide_rating + "\"]\n");
+            writer.write("[WhiteTitle \"" + ((Game) game).whitePlayerDto.fide_title + "\"]\n");
+            writer.write("[BlackTitle \"" + ((Game) game).blackPlayerDto.fide_title + "\"]\n");
+            writer.write("[TimeControl \"" + ((Game) game).tournamentDto.base_consider_time() + "+" + ((Game) game).tournamentDto.move_consider_time() + "\"]\n");
+        }
 
-    private static void writeHeader(FileWriter writer, Game game) throws IOException {
-        writer.write("[Event \"" + game.tournamentDto.name() + "\"]\n");
-        writer.write("[Site \"" + game.tournamentDto.city() + "\"]\n");
-        writer.write("[Date \"" + game.tournamentDto.date().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\"]\n");
-        writer.write("[Round \"" + game.roundDto.round_number() + "\"]\n");
-        writer.write("[White \"" + game.whitePlayerDto.lastname + ", " + game.whitePlayerDto.firstname + "\"]\n");
-        writer.write("[Black \"" + game.blackPlayerDto.lastname + ", " + game.blackPlayerDto.firstname + "\"]\n");
-        writer.write("[WhiteElo \"" + game.whitePlayerDto.fide_rating + "\"]\n");
-        writer.write("[BlackElo \"" + game.blackPlayerDto.fide_rating + "\"]\n");
-        writer.write("[WhiteTitle \"" + game.whitePlayerDto.fide_title + "\"]\n");
-        writer.write("[BlackTitle \"" + game.blackPlayerDto.fide_title + "\"]\n");
-        writer.write("[TimeControl \"" + game.tournamentDto.base_consider_time() + "+" + game.tournamentDto.move_consider_time() + "\"]\n");
+
         writer.write("[Result \"" + game.result + "\"]\n\n");
     }
 
