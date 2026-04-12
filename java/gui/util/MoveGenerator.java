@@ -195,15 +195,34 @@ public class MoveGenerator {
     }
 
     static boolean canCastle(SimpleGame game, int row, int column, boolean kingSide) {
+        Piece king = game.board[row][column];
+        if (king.moved) return false;
+
         int rookCol = kingSide ? 7 : 0;
         Piece rook = game.board[row][rookCol];
 
         if (rook == null || rook.moved) return false;
         int dir = kingSide ? 1 : -1;
 
-        for (int col = column + dir; col != rookCol; col += dir)
-            if (game.board[row][col] != null)
-                return false;
+        for (int col = column + dir; col != rookCol; col += dir) {
+            if (game.board[row][col] != null) return false;
+        }
+
+        if (isSquareAttacked(game, row, column, !king.white)) return false;
+
+        for (int i = 1; i <= 2; i++) {
+            int newCol = column + dir * i;
+            if (isSquareAttacked(game, row, newCol, !king.white)) return false;
+        }
+
+        for (int i = 1; i <= 2; i++) {
+            int newCol = column + dir * i;
+
+            SimpleGame copy = game.copy();
+            copy.makeMove(new Move(row, column, row, newCol), true);
+
+            if (inCheck(copy, king.white)) return false;
+        }
 
         return true;
     }
@@ -251,31 +270,104 @@ public class MoveGenerator {
 
         int kingR = -1, kingC = -1;
 
-        for (int row = 0; row < 8; row++)
-            for (int column = 0; column < 8; column++) {
-
-                Piece piece = game.board[row][column];
-
-                if (piece != null && piece.type == Piece.Type.KING && piece.white == white) {
-                    kingR = row;
-                    kingC = column;
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++) {
+                Piece p = game.board[r][c];
+                if (p != null && p.type == Piece.Type.KING && p.white == white) {
+                    kingR = r;
+                    kingC = c;
                 }
             }
 
-        for (int row = 0; row < 8; row++)
-            for (int column = 0; column < 8; column++) {
+        return isSquareAttacked(game, kingR, kingC, !white);
+    }
 
-                Piece piece = game.board[row][column];
+    static boolean isSquareAttacked(SimpleGame game, int row, int col, boolean byWhite) {
 
-                if (piece != null && piece.white != white) {
+        // === PAWNS ===
+        int pawnDir = byWhite ? -1 : 1;
+        int pawnRow = row + pawnDir;
 
-                    List<Move> moves = generate(game, row, column);
+        if (inBoard(pawnRow, col - 1)) {
+            Piece p = game.board[pawnRow][col - 1];
+            if (p != null && p.white == byWhite && p.type == Piece.Type.PAWN)
+                return true;
+        }
 
-                    assert moves != null;
-                    for (Move move : moves)
-                        if (move.toRow == kingR && move.toColumn == kingC)
-                            return true;
+        if (inBoard(pawnRow, col + 1)) {
+            Piece p = game.board[pawnRow][col + 1];
+            if (p != null && p.white == byWhite && p.type == Piece.Type.PAWN)
+                return true;
+        }
+
+        // === KNIGHTS ===
+        int[][] knightMoves = {
+                {1, 2}, {2, 1}, {2, -1}, {1, -2},
+                {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}
+        };
+
+        for (int[] d : knightMoves) {
+            int r = row + d[0];
+            int c = col + d[1];
+
+            if (!inBoard(r, c)) continue;
+
+            Piece p = game.board[r][c];
+            if (p != null && p.white == byWhite && p.type == Piece.Type.KNIGHT)
+                return true;
+        }
+
+        // Bishop + Queen
+        int[][] bishopDirs = {{1,1},{1,-1},{-1,1},{-1,-1}};
+        for (int[] d : bishopDirs) {
+            int r = row + d[0];
+            int c = col + d[1];
+
+            while (inBoard(r, c)) {
+                Piece p = game.board[r][c];
+                if (p != null) {
+                    if (p.white == byWhite &&
+                            (p.type == Piece.Type.BISHOP || p.type == Piece.Type.QUEEN))
+                        return true;
+                    break;
                 }
+                r += d[0];
+                c += d[1];
+            }
+        }
+
+        // Rook + Queen
+        int[][] rookDirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        for (int[] d : rookDirs) {
+            int r = row + d[0];
+            int c = col + d[1];
+
+            while (inBoard(r, c)) {
+                Piece p = game.board[r][c];
+                if (p != null) {
+                    if (p.white == byWhite &&
+                            (p.type == Piece.Type.ROOK || p.type == Piece.Type.QUEEN))
+                        return true;
+                    break;
+                }
+                r += d[0];
+                c += d[1];
+            }
+        }
+
+        // === KING ===
+        for (int dr = -1; dr <= 1; dr++)
+            for (int dc = -1; dc <= 1; dc++) {
+                if (dr == 0 && dc == 0) continue;
+
+                int r = row + dr;
+                int c = col + dc;
+
+                if (!inBoard(r, c)) continue;
+
+                Piece p = game.board[r][c];
+                if (p != null && p.white == byWhite && p.type == Piece.Type.KING)
+                    return true;
             }
 
         return false;
