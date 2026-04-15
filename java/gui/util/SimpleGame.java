@@ -279,16 +279,4 @@ public class SimpleGame {
             default -> "";
         };
     }
-
-    public void win(boolean whiteWins) {
-        if (whiteWins) {
-            result = "1-0";
-        } else {
-            result = "0-1";
-        }
-    }
-
-    public void draw() {
-        result = "1/2-1/2";
-    }
 }

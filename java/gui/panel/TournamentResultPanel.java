@@ -36,7 +36,6 @@ public class TournamentResultPanel extends JPanel {
                         + tournamentDto.id() + " ORDER BY score DESC");
 
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         add(createScrollContent(), BorderLayout.CENTER);
     }
@@ -71,6 +70,9 @@ public class TournamentResultPanel extends JPanel {
 
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         menuPanel.add(backButton);
+        menuPanel.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, menuPanel.getPreferredSize().height)
+        );
         return menuPanel;
     }
 
@@ -240,7 +242,11 @@ public class TournamentResultPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Tournament Info"));
 
-        DefaultTableModel model = new DefaultTableModel(new String[]{"Attribute", "Value"}, 0);
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Attribute", "Value"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         JTable table = new JTable(model);
         table.setRowHeight(22);

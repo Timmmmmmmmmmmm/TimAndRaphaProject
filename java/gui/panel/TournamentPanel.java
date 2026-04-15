@@ -65,8 +65,8 @@ public class TournamentPanel extends JPanel {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, leaderboardScrollPane);
         splitPane.setResizeWeight(0.5);
 
+        add(createMenuPanel(), BorderLayout.NORTH);
         add(splitPane, BorderLayout.CENTER);
-        add(createMenuPanel(), BorderLayout.SOUTH);
 
         tree.addTreeSelectionListener(_ -> {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -86,6 +86,7 @@ public class TournamentPanel extends JPanel {
         backButton.addActionListener(_ -> {
             BaseWindow.getInstance().setContentPane(new StartTournamentPanel());
             BaseWindow.getInstance().revalidate();
+            BaseWindow.getInstance().repaint();
         });
 
         startGameButton = new JButton("Start selected game");
@@ -159,6 +160,7 @@ public class TournamentPanel extends JPanel {
 
         startGameButton.setFont(startGameButton.getFont().deriveFont(fontSize));
         backButton.setFont(backButton.getFont().deriveFont(fontSize));
+        nextRoundButton.setFont(backButton.getFont().deriveFont(fontSize));
 
         leaderboardTable.setFont(leaderboardTable.getFont().deriveFont(fontSize * 0.9f));
         leaderboardTable.setRowHeight((int) (fontSize * 2.2));
@@ -190,9 +192,6 @@ public class TournamentPanel extends JPanel {
 
             if (isLastRound(currentRound)) {
                 finishTournament();
-            } else {
-                currentRound++;
-                roundActive = false;
             }
         } else {
             var games = DatabaseConnection.executeSql(
@@ -213,15 +212,22 @@ public class TournamentPanel extends JPanel {
             roundActive = true;
         }
 
-        updateButtonText();
         refreshTree();
         loadLeaderboard((DefaultTableModel) leaderboardTable.getModel());
     }
 
     private void updateButtonText() {
-        nextRoundButton.setText(
-                roundActive ? "Complete round " + currentRound : "Start round " + currentRound
-        );
+        if (currentRound == null) {
+            nextRoundButton.setText("");
+        } else {
+            if (isLastRound(currentRound) && roundActive) {
+                nextRoundButton.setText("Complete tournament");
+            } else {
+                nextRoundButton.setText(
+                        roundActive ? "Complete round " + currentRound : "Start round " + currentRound
+                );
+            }
+        }
     }
 
     private void refreshTree() {
@@ -248,13 +254,13 @@ public class TournamentPanel extends JPanel {
                 );
 
                 if (games != null) {
-                    for (GameDto g : games) {
+                    for (GameDto game : games) {
                         try {
-                            PlayerDto white = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + g.player_white)).getFirst();
-                            PlayerDto black = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + g.player_black)).getFirst();
+                            PlayerDto white = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + game.player_white)).getFirst();
+                            PlayerDto black = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + game.player_black)).getFirst();
 
                             roundNode.add(new DefaultMutableTreeNode(
-                                    new GameRoundPlayerDto(g, round, white, black)
+                                    new GameRoundPlayerDto(game, round, white, black)
                             ));
                         } catch (Exception e) {
                             System.out.println("Error while trying to refresh the tournament tree");
@@ -265,6 +271,12 @@ public class TournamentPanel extends JPanel {
 
                 rootNode.add(roundNode);
             }
+
+            if (currentRound == null) {
+                finishTournament();
+            }
+        } else {
+            finishTournament();
         }
 
         treeModel.setRoot(rootNode);
@@ -355,7 +367,9 @@ public class TournamentPanel extends JPanel {
                         " AND g.result IS NULL"
         );
 
-        assert result != null;
+        if (result == null) {
+            return true;
+        }
         return result.getFirst().get("c").equals("0");
     }
 
@@ -364,7 +378,9 @@ public class TournamentPanel extends JPanel {
                 "SELECT COUNT(*) as c FROM rounds WHERE tournament_id = " + tournamentDto.id()
         );
 
-        assert result != null;
+        if (result == null) {
+            return true;
+        }
         return roundNumber >= Integer.parseInt(result.getFirst().get("c"));
     }
 

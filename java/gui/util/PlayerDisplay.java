@@ -15,6 +15,7 @@ public class PlayerDisplay extends JPanel {
         setupUI();
         nameLabel.setText(playerDto.lastname + ", " + playerDto.firstname);
         ratingLabel.setText(playerDto.fide_title.getKey().toUpperCase() +  " (" + playerDto.fide_rating + ")");
+        styleByTitle(playerDto.fide_title);
         update(time);
     }
 
@@ -26,7 +27,7 @@ public class PlayerDisplay extends JPanel {
 
     public void setupUI() {
         setLayout(new BorderLayout(10, 10));
-        setBackground(new Color(0, 0, 0, 0));
+        setBackground(new Color(255, 255, 255, 70));
 
         JPanel textPanel = new JPanel();
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
@@ -42,7 +43,6 @@ public class PlayerDisplay extends JPanel {
 
         ratingLabel = new JLabel();
         ratingLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        ratingLabel.setForeground(new Color(76, 153, 234));
         textPanel.add(ratingLabel);
 
         add(textPanel, BorderLayout.CENTER);
@@ -61,6 +61,31 @@ public class PlayerDisplay extends JPanel {
             timeLabel.setText("");
         } else {
             timeLabel.setText(formatTime(time));
+        }
+    }
+
+    private void styleByTitle(FideTitle title) {
+        switch (title) {
+            case GRANDMASTER, WOMAN_GRANDMASTER:
+                ratingLabel.setForeground(new Color(197, 32, 32));
+                ratingLabel.setFont(ratingLabel.getFont().deriveFont(Font.BOLD));
+                break;
+
+            case INTERNATIONAL_MASTER, WOMAN_INTERNATIONAL_MASTER:
+                ratingLabel.setForeground(new Color(255, 140, 0));
+                ratingLabel.setFont(ratingLabel.getFont().deriveFont(Font.BOLD));
+                break;
+
+            case FIDE_MASTER, WOMAN_FIDE_MASTER:
+                ratingLabel.setForeground(new Color(63, 131, 40));
+                break;
+
+            case FIDE_CANDIDATE_MASTER, WOMAN_CANDIDATE_MASTER:
+                ratingLabel.setForeground(new Color(0, 21, 255));
+                break;
+
+            default:
+                ratingLabel.setForeground(new Color(0, 0, 0));
         }
     }
 

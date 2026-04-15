@@ -41,6 +41,10 @@ public record TournamentDto(int id, String name, LocalDate date, String city, in
 
     @Override
     public String toString() {
-        return name;
+        return switch (status) {
+            case COMPLETED -> name + " (completed)";
+            case ACTIVE -> name + " (running)";
+            default -> name;
+        };
     }
 }

@@ -46,7 +46,11 @@ public class StartPanel extends JPanel {
         });
 
         JButton quickGameButton = new JButton("Start quick game");
-        quickGameButton.addActionListener(_ -> BaseWindow.getInstance().setContentPane(new BoardPanel(60, 10)));
+        quickGameButton.addActionListener(_ -> {
+            BaseWindow.getInstance().setContentPane(new BoardPanel(60, 10));
+            BaseWindow.getInstance().revalidate();
+            BaseWindow.getInstance().repaint();
+        });
 
         JButton importGameButton = getImportGameButton();
 
@@ -65,6 +69,7 @@ public class StartPanel extends JPanel {
             if (moves != null && !moves.isEmpty()) {
                 BaseWindow.getInstance().setContentPane(new BoardPanel(moves));
                 BaseWindow.getInstance().revalidate();
+                BaseWindow.getInstance().repaint();
             }
         });
         return importGameButton;

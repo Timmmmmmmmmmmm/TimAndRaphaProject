@@ -127,13 +127,13 @@ public class BoardPanel extends JPanel {
 
                 if (whiteTime <= 0) {
                     ((Timer) e.getSource()).stop();
-                    game.win(true);
+                    game.result = "1-0";
                     endGame(GameResult.TIME, false);
                 }
 
                 if (blackTime <= 0) {
                     ((Timer) e.getSource()).stop();
-                    game.win(false);
+                    game.result = "0-1";
                     endGame(GameResult.TIME, true);
                 }
 
@@ -180,10 +180,9 @@ public class BoardPanel extends JPanel {
     private JButton getBackButton() {
         JButton backButton = new JButton("Exit game");
         backButton.addActionListener(_ -> {
+            timer.stop();
             if (game instanceof Game) {
-                BaseWindow.getInstance().setContentPane(
-                        new TournamentPanel(((Game) game).tournamentDto)
-                );
+                BaseWindow.getInstance().setContentPane(new TournamentPanel(((Game) game).tournamentDto));
             } else {
                 BaseWindow.getInstance().setContentPane(new StartPanel());
             }
