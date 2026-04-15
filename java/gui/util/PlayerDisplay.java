@@ -26,6 +26,7 @@ public class PlayerDisplay extends JPanel {
 
     public void setupUI() {
         setLayout(new BorderLayout(10, 10));
+        setBackground(new Color(0, 0, 0, 0));
 
         JPanel textPanel = new JPanel();
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));

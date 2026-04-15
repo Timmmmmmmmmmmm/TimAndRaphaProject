@@ -14,6 +14,7 @@ public class StartPanel extends JPanel {
 
     public StartPanel() {
         setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         try {
             backgroundImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/gui/assets/startBackground.png")));
@@ -22,10 +23,13 @@ public class StartPanel extends JPanel {
 
         add(createMenuPanel(), BorderLayout.NORTH);
 
-        JLabel titleLabel = new JLabel("<html>Schachturnier -<br>Verwaltung</html>");
+        JLabel titleLabel = new JLabel("Schachturnier - Verwaltung");
         titleLabel.setForeground(Color.WHITE);
+        titleLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
-        add(titleLabel, BorderLayout.EAST);
+        add(titleLabel, BorderLayout.CENTER);
     }
 
     public JPanel createMenuPanel() {
@@ -46,6 +50,7 @@ public class StartPanel extends JPanel {
 
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         menuPanel.add(tournamentButton);
+        menuPanel.setBackground(new Color(0, 0, 0, 0));
         menuPanel.add(quickGameButton);
         menuPanel.add(importGameButton);
         return menuPanel;
@@ -72,6 +77,7 @@ public class StartPanel extends JPanel {
             int x = (panelWidth - newWidth) / 2;
             int y = (panelHeight - newHeight) / 2;
 
-            g.drawImage(backgroundImage, x, y, newWidth, newHeight, this);        }
+            g.drawImage(backgroundImage, x, y, newWidth, newHeight, null);
+        }
     }
 }

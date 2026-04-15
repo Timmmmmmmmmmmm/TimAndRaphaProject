@@ -5,16 +5,20 @@ import gui.dto.PlayerDto;
 import gui.util.*;
 import gui.dialog.ResultDialog;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
 public class BoardPanel extends JPanel {
+
+    private BufferedImage backgroundImage;
 
     final SimpleGame game;
     final int base_consider_time;
@@ -59,14 +63,21 @@ public class BoardPanel extends JPanel {
     }
 
     public void setupUI() {
-        whiteTime = base_consider_time;
-        blackTime = move_consider_time;
+        try {
+            backgroundImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/gui/assets/chessBackground.png")));
+        } catch (Exception ignored) {
+        }
 
-        setLayout(new BorderLayout());
+        whiteTime = base_consider_time;
+        blackTime = base_consider_time;
+
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(createMenuPanel(), BorderLayout.NORTH);
 
         mainPanel = new JPanel();
         mainPanel.setLayout(null);
+        mainPanel.setBackground(new Color(0, 0, 0, 0));
         add(mainPanel, BorderLayout.CENTER);
 
         boardPanel = new JPanel();
@@ -110,9 +121,10 @@ public class BoardPanel extends JPanel {
 
             blackPlayerDisplay.updateTime(blackTime);
             whitePlayerDisplay.updateTime(whiteTime);
+            repaint();
         });
 
-        //timer.start();
+        timer.start();
     }
 
     public JPanel createMenuPanel() {
@@ -128,6 +140,7 @@ public class BoardPanel extends JPanel {
         whiteResignButton.addActionListener(_ -> endGame(GameResult.RESIGN, false));
 
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        menuPanel.setBackground(new Color(0, 0, 0, 0));
         menuPanel.add(backButton);
         menuPanel.add(drawButton);
         menuPanel.add(whiteResignButton);
@@ -299,6 +312,7 @@ public class BoardPanel extends JPanel {
         }
 
         highlight();
+        repaint();
     }
 
     public void highlight() {
@@ -331,5 +345,30 @@ public class BoardPanel extends JPanel {
         }
 
         ResultDialog.show(game, result, whiteWins);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            int panelWidth = getWidth();
+            int panelHeight = getHeight();
+
+            int imgWidth = backgroundImage.getWidth(this);
+            int imgHeight = backgroundImage.getHeight(this);
+
+            double scale = Math.max(
+                    (double) panelWidth / imgWidth,
+                    (double) panelHeight / imgHeight
+            );
+
+            int newWidth = (int) (imgWidth * scale);
+            int newHeight = (int) (imgHeight * scale);
+
+            int x = (panelWidth - newWidth) / 2;
+            int y = (panelHeight - newHeight) / 2;
+
+            g.drawImage(backgroundImage, x, y, newWidth, newHeight, null);
+        }
     }
 }
