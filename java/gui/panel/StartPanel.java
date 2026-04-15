@@ -1,12 +1,17 @@
 package gui.panel;
 
 import gui.BaseWindow;
+import gui.util.Move;
+import gui.util.PGNReader;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
+import java.io.File;
+import java.util.List;
 import java.util.Objects;
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class StartPanel extends JPanel {
 
@@ -43,10 +48,7 @@ public class StartPanel extends JPanel {
         JButton quickGameButton = new JButton("Start quick game");
         quickGameButton.addActionListener(_ -> BaseWindow.getInstance().setContentPane(new BoardPanel(60, 10)));
 
-        JButton importGameButton = new JButton("Import game");
-        importGameButton.addActionListener(_ -> {
-            // TODO Read PGN file
-        });
+        JButton importGameButton = getImportGameButton();
 
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         menuPanel.add(tournamentButton);
@@ -54,6 +56,18 @@ public class StartPanel extends JPanel {
         menuPanel.add(quickGameButton);
         menuPanel.add(importGameButton);
         return menuPanel;
+    }
+
+    private static JButton getImportGameButton() {
+        JButton importGameButton = new JButton("Import game");
+        importGameButton.addActionListener(_ -> {
+            List<Move> moves = PGNReader.readPGN();
+            if (moves != null && !moves.isEmpty()) {
+                BaseWindow.getInstance().setContentPane(new BoardPanel(moves));
+                BaseWindow.getInstance().revalidate();
+            }
+        });
+        return importGameButton;
     }
 
     @Override

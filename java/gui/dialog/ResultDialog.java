@@ -49,7 +49,7 @@ public class ResultDialog {
 
         switch (res) {
             case 0:
-                PGNWriter.export(game);
+                PGNWriter.exportPGN(game);
                 show(game, result, whiteWins);
                 break;
             case 1:

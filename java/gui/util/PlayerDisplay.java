@@ -57,7 +57,11 @@ public class PlayerDisplay extends JPanel {
     }
 
     public void updateTime(int time) {
-        timeLabel.setText(formatTime(time));
+        if (time == -1) {
+            timeLabel.setText("");
+        } else {
+            timeLabel.setText(formatTime(time));
+        }
     }
 
     private String formatTime(int seconds) {

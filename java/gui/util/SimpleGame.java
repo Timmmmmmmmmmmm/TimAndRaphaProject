@@ -11,6 +11,7 @@ public class SimpleGame {
     public final List<String> history = new ArrayList<>();
     public boolean whiteTurn = true;
     public String result = "*";
+    public int moveCounter = 0;
 
     public SimpleGame() {
         setup();
@@ -95,6 +96,7 @@ public class SimpleGame {
         board[move.fromRow][move.fromColumn] = null;
 
         if (!copy) {
+            moveCounter++;
             if (piece.type == Piece.Type.PAWN && Math.abs(move.fromRow - move.toRow) == 2) {
                 MoveGenerator.enPassantColumn = move.toColumn;
             } else {

@@ -1,8 +1,15 @@
 package gui.util;
 
+import gui.BaseWindow;
+import gui.panel.BoardPanel;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,46 +20,54 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PGNReader {
-    protected final Game game;
 
-    public PGNReader(Game game) {
-        this.game = game;
-    }
+    public static List<Move> readPGN() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File(System.getProperty("user.home") + "/Downloads"));
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
+        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.setDialogTitle("Select PGN file");
+        int result = chooser.showOpenDialog(null);
 
-    protected void readPgnFile(String path) {
-        List<String> moves = new ArrayList<>();
-        StringBuilder moveText = new StringBuilder();
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = chooser.getSelectedFile();
+            List<Move> moves = new ArrayList<>();
+            StringBuilder moveText = new StringBuilder();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            String line;
-            boolean inMoveSection = false;
+            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile.toPath().toString()))) {
+                String line;
+                boolean inMoveSection = false;
 
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
 
-                // Skip empty lines and header tags
-                if (line.isEmpty() || line.startsWith("[")) {
-                    continue;
+                    // Skip empty lines and header tags
+                    if (line.isEmpty() || line.startsWith("[")) {
+                        continue;
+                    }
+
+                    // Collect move text
+                    inMoveSection = true;
+                    moveText.append(line).append(" ");
                 }
 
-                // Collect move text
-                inMoveSection = true;
-                moveText.append(line).append(" ");
-            }
+                if (inMoveSection) {
+                    moves = parseMoves(moveText.toString());
+                    //saveMovesToDatabase(moves);
+                }
 
-            if (inMoveSection) {
-                moves = parseMoves(moveText.toString());
-                saveMovesToDatabase(moves);
+            } catch (IOException e) {
+                System.err.println("Error reading PGN file: " + e.getMessage());
+                e.printStackTrace();
             }
-
-        } catch (IOException e) {
-            System.err.println("Error reading PGN file: " + e.getMessage());
-            e.printStackTrace();
+            return moves;
         }
+        return null;
     }
 
-    private List<String> parseMoves(String moveText) {
-        List<String> moves = new ArrayList<>();
+    private static List<Move> parseMoves(String moveText) {
+        List<Move> moves = new ArrayList<>();
 
         // Remove game result (1-0, 0-1, 1/2-1/2, *)
         moveText = moveText.replaceAll("(1-0|0-1|1/2-1/2|\\*)\\s*$", "");
@@ -66,17 +81,17 @@ public class PGNReader {
             String blackMove = matcher.group(2);
 
             if (whiteMove != null && !whiteMove.isEmpty()) {
-                moves.add(whiteMove);
+                //moves.add(whiteMove);
             }
             if (blackMove != null && !blackMove.isEmpty()) {
-                moves.add(blackMove);
+                //moves.add(blackMove);
             }
         }
 
         return moves;
     }
 
-    private void saveMovesToDatabase(List<String> moves) {
+    private static void saveMovesToDatabase(List<String> moves) {
         String url = "jdbc:mysql://localhost:3306/chess_tournament";
         String user = "root";
         String password = "";

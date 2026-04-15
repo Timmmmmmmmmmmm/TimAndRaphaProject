@@ -7,9 +7,12 @@ import gui.DatabaseConnection;
 import gui.dto.GameDto;
 import gui.dto.GameRoundPlayerDto;
 import gui.dto.TournamentDto;
+import gui.util.Move;
+import gui.util.PGNReader;
 
 import javax.swing.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 public class StartGameDialog {
@@ -37,15 +40,19 @@ public class StartGameDialog {
         panel.add(new JLabel("Board number:"));
         panel.add(boardField);
 
-        int result = JOptionPane.showConfirmDialog(
+        String[] options = {"Start game", "Import game", "Cancel"};
+        int result = JOptionPane.showOptionDialog(
                 null,
                 panel,
                 "Start game",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]
         );
 
-        if (result == JOptionPane.OK_OPTION) {
+        if (result == 0) {
             GameDto gameDto = selectedGame.gameDto();
             gameDto.board_number = Integer.parseInt(boardField.getText());
 
@@ -61,6 +68,25 @@ public class StartGameDialog {
                     ))
             );
             BaseWindow.getInstance().revalidate();
+        } else if (result == 1) {
+            GameDto gameDto = selectedGame.gameDto();
+            gameDto.board_number = Integer.parseInt(boardField.getText());
+            List<Move> moves = PGNReader.readPGN();
+
+            if (moves != null && !moves.isEmpty()) {
+                DatabaseConnection.executeSql("UPDATE games SET board_number = " + gameDto.board_number + " , start = '" + LocalDateTime.now() + "' WHERE id = " + gameDto.id);
+
+                BaseWindow.getInstance().setContentPane(
+                        new BoardPanel(new Game(
+                                tournamentDto,
+                                selectedGame.roundDto(),
+                                gameDto,
+                                selectedGame.whitePlayer(),
+                                selectedGame.blackPlayer()
+                        ), moves)
+                );
+                BaseWindow.getInstance().revalidate();
+            }
         }
     }
 }

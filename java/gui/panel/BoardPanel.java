@@ -21,8 +21,11 @@ public class BoardPanel extends JPanel {
     private BufferedImage backgroundImage;
 
     final SimpleGame game;
-    final int base_consider_time;
-    final int move_consider_time;
+    final boolean isReplay;
+    List<Move> replayMoves = new ArrayList<>();
+
+    int base_consider_time = -1;
+    int move_consider_time = -1;
     int blackTime;
     int whiteTime;
 
@@ -42,24 +45,38 @@ public class BoardPanel extends JPanel {
 
     private final Map<String, Image> pieceImages = new HashMap<>();
 
-    final boolean isComplexGame;
-
     public BoardPanel(int base_consider_time, int move_consider_time) {
-        isComplexGame = false;
         game = new SimpleGame();
+        isReplay = false;
         this.base_consider_time = base_consider_time;
         this.move_consider_time = move_consider_time;
         setupUI();
         setupPlayerDisplays();
     }
 
+    public BoardPanel(List<Move> replayMoves) {
+        game = new SimpleGame();
+        isReplay = true;
+        this.replayMoves = replayMoves;
+        setupUI();
+        setupPlayerDisplays();
+    }
+
     public BoardPanel(Game game) {
-        isComplexGame = true;
         this.game = game;
+        isReplay = false;
         base_consider_time = game.tournamentDto.base_consider_time();
         move_consider_time = game.tournamentDto.move_consider_time();
         setupUI();
         setupPlayerDisplays(game.blackPlayerDto, game.whitePlayerDto);
+    }
+
+    public BoardPanel(Game game, List<Move> replayMoves) {
+        this.game = game;
+        isReplay = true;
+        this.replayMoves = replayMoves;
+        setupUI();
+        setupPlayerDisplays(game.whitePlayerDto, game.blackPlayerDto);
     }
 
     public void setupUI() {
@@ -100,51 +117,62 @@ public class BoardPanel extends JPanel {
             }
         }
 
-        timer = new Timer(1000, e -> {
-            if (game.whiteTurn) {
-                whiteTime--;
-            } else {
-                blackTime--;
-            }
+        if (!isReplay) {
+            timer = new Timer(1000, e -> {
+                if (game.whiteTurn) {
+                    whiteTime--;
+                } else {
+                    blackTime--;
+                }
 
-            if (whiteTime <= 0) {
-                ((Timer) e.getSource()).stop();
-                game.win(true);
-                endGame(GameResult.TIME, false);
-            }
+                if (whiteTime <= 0) {
+                    ((Timer) e.getSource()).stop();
+                    game.win(true);
+                    endGame(GameResult.TIME, false);
+                }
 
-            if (blackTime <= 0) {
-                ((Timer) e.getSource()).stop();
-                game.win(false);
-                endGame(GameResult.TIME, true);
-            }
+                if (blackTime <= 0) {
+                    ((Timer) e.getSource()).stop();
+                    game.win(false);
+                    endGame(GameResult.TIME, true);
+                }
 
-            blackPlayerDisplay.updateTime(blackTime);
-            whitePlayerDisplay.updateTime(whiteTime);
-            repaint();
-        });
+                blackPlayerDisplay.updateTime(blackTime);
+                whitePlayerDisplay.updateTime(whiteTime);
+                repaint();
+            });
 
-        timer.start();
+            timer.start();
+        }
     }
 
     public JPanel createMenuPanel() {
-        JButton backButton = getBackButton();
-
-        JButton drawButton = new JButton("Draw");
-        drawButton.addActionListener(_ -> endGame(GameResult.DRAW, true));
-
-        JButton blackResignButton = new JButton("Black resign");
-        blackResignButton.addActionListener(_ -> endGame(GameResult.RESIGN, true));
-
-        JButton whiteResignButton = new JButton("White resign");
-        whiteResignButton.addActionListener(_ -> endGame(GameResult.RESIGN, false));
-
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         menuPanel.setBackground(new Color(0, 0, 0, 0));
+
+        JButton backButton = getBackButton();
         menuPanel.add(backButton);
-        menuPanel.add(drawButton);
-        menuPanel.add(whiteResignButton);
-        menuPanel.add(blackResignButton);
+
+        if (isReplay) {
+            JButton nextMoveButton = new JButton("Next move");
+            nextMoveButton.addActionListener(_ -> {
+                game.makeMove(replayMoves.get(game.moveCounter), false);
+                refresh();
+            });
+            menuPanel.add(nextMoveButton);
+        } else {
+            JButton drawButton = new JButton("Draw");
+            drawButton.addActionListener(_ -> endGame(GameResult.DRAW, true));
+            menuPanel.add(drawButton);
+
+            JButton blackResignButton = new JButton("Black resign");
+            blackResignButton.addActionListener(_ -> endGame(GameResult.RESIGN, true));
+            menuPanel.add(blackResignButton);
+
+            JButton whiteResignButton = new JButton("White resign");
+            whiteResignButton.addActionListener(_ -> endGame(GameResult.RESIGN, false));
+            menuPanel.add(whiteResignButton);
+        }
 
         return menuPanel;
     }

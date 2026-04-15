@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 public class PGNWriter {
 
-    public static void export(SimpleGame game) {
+    public static void exportPGN(SimpleGame game) {
 
         JFileChooser chooser = new JFileChooser(System.getProperty("user.home") + "/Downloads");
         chooser.setSelectedFile(new File("game.pgn"));
