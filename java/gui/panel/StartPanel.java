@@ -7,11 +7,9 @@ import gui.util.PGNReader;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import javax.imageio.ImageIO;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class StartPanel extends JPanel {
 
