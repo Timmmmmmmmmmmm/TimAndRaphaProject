@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS tournaments;
 -- VIEWS
 DROP VIEW IF EXISTS leaderboard;
 DROP VIEW IF EXISTS round_overview;
+DROP VIEW IF EXISTS player_statistics;
 -- TRIGGER
 DROP TRIGGER IF EXISTS new_round;
 DROP TRIGGER IF EXISTS create_fist_round;
@@ -114,64 +115,69 @@ CREATE TABLE games_moves
 CREATE VIEW leaderboard AS
 SELECT firstname, lastname, fide_rating, score
 FROM players p
-INNER JOIN player_tournament_info i
-ON p.id = i.player_id
+         INNER JOIN player_tournament_info i
+                    ON p.id = i.player_id
 ORDER BY score, fide_rating DESC;
 
---CREATE VIEW round_overview AS
---SELECT g.id,
---       concat(pw.lastname, ", ", pw.firstname) AS player_white,
---       concat(pb.lastname, ", ", pb.firstname) AS player_black
---FROM games g
---         INNER JOIN players pw ON g.player_white = pw.id
---         INNER JOIN players pb ON g.player_black = pb.id
---WHERE g.round_id = 1;
---
---
---CREATE TRIGGER create_fist_round
---    AFTER UPDATE
---    ON tournaments
---    FOR EACH ROW
---BEGIN
---    DECLARE rounds_count INT;
---    SELECT COUNT(*)
---    INTO rounds_count
---    FROM rounds
---    WHERE tournament_id = NEW.id;
---
---    IF NEW.status = 'ACTIVE' AND rounds_count = 0 THEN
---        INSERT INTO rounds (tournament_id, round_number, status)
---        VALUES (NEW.id, 1, 'active');
---    END IF;
---END;
---
---CREATE TRIGGER update_player_points_after_round
---    AFTER UPDATE
---    ON rounds
---    FOR EACH ROW
---BEGIN
---    -- Nur beim Wechsel auf "completed"
---    IF NEW.status = 'completed' AND OLD.status <> 'completed' THEN
---
---        -- Punkte für Weiß
---        UPDATE players p
---        SET p.score = p.score + (SELECT g.result
---                                 FROM games g
---                                 WHERE g.player_white = p.id
---                                   AND g.round_id = NEW.id)
---        WHERE p.id IN (SELECT g.player_white
---                       FROM games g
---                       WHERE g.round_id = NEW.id);
---
---        -- Punkte für Schwarz (invertiert)
---        UPDATE players p
---        SET p.score = p.score - (SELECT g.result
---                                 FROM games g
---                                 WHERE g.player_black = p.id
---                                   AND g.round_id = NEW.id)
---        WHERE p.id IN (SELECT g.player_black
---                       FROM games g
---                       WHERE g.round_id = NEW.id);
---
---    END IF;
---END;
+CREATE VIEW player_statistics AS
+    SELECT COUNT(*) AS Partien, concat(p.lastname, ", ", p.firstname) AS Spieler
+FROM (
+SELECT *
+FROM player_tournament_info as pti
+         INNER JOIN players p ON p.id = pti.player_id
+         INNER JOIN games g ON g.player_white = p.id OR g.player_black = p.id
+GROUP BY player_id) as `allInfo`;
+
+# CREATE VIEW round_overview AS
+# SELECT g.id,
+#        concat(pw.lastname, ", ", pw.firstname) AS player_white,
+#        concat(pb.lastname, ", ", pb.firstname) AS player_black
+# FROM games g
+#          INNER JOIN players pw ON g.player_white = pw.id
+#          INNER JOIN players pb ON g.player_black = pb.id
+# WHERE g.round_id = 1;
+# CREATE TRIGGER create_fist_round
+#     AFTER UPDATE
+#     ON tournaments
+#     FOR EACH ROW
+# BEGIN
+#     DECLARE rounds_count INT;
+#     SELECT COUNT(*)
+#     INTO rounds_count
+#     FROM rounds
+#     WHERE tournament_id = NEW.id;
+#     IF NEW.status = 'ACTIVE' AND rounds_count = 0 THEN
+#         INSERT INTO rounds (tournament_id, round_number, status)
+#         VALUES (NEW.id, 1, 'active');
+#     END IF;
+# END;
+
+# CREATE TRIGGER update_player_points_after_round
+#     AFTER UPDATE
+#     ON rounds
+#     FOR EACH ROW
+# BEGIN
+#     Nur beim Wechsel auf "completed"
+#     IF NEW.status = 'completed' AND OLD.status <> 'completed' THEN
+#         Punkte für Weiß
+#         UPDATE players p
+#         SET p.score = p.score + (SELECT g.result
+#                                  FROM games g
+#                                  WHERE g.player_white = p.id
+#                                    AND g.round_id = NEW.id)
+#         WHERE p.id IN (SELECT g.player_white
+#                        FROM games g
+#                        WHERE g.round_id = NEW.id);
+#
+#         Punkte für Schwarz (invertiert)
+#         UPDATE players p
+#         SET p.score = p.score - (SELECT g.result
+#                                  FROM games g
+#                                  WHERE g.player_black = p.id
+#                                    AND g.round_id = NEW.id)
+#         WHERE p.id IN (SELECT g.player_black
+#                        FROM games g
+#                        WHERE g.round_id = NEW.id);
+#
+#     END IF;
+# END;
