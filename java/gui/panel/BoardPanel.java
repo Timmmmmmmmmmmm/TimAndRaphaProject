@@ -156,7 +156,7 @@ public class BoardPanel extends JPanel {
         if (isReplay) {
             JButton nextMoveButton = new JButton("Next move");
             nextMoveButton.addActionListener(_ -> {
-                game.makeMove(replayMoves.get(game.moveCounter), false);
+                makeMove(replayMoves.get(game.moveCounter));
                 refresh();
             });
             menuPanel.add(nextMoveButton);
@@ -215,35 +215,10 @@ public class BoardPanel extends JPanel {
     public void click(int row, int column) {
         for (Move move : legalMoves) {
             if (move.toRow == row && move.toColumn == column) {
-
                 selectedRow = -1;
                 selectedColumn = -1;
 
-                ChessResult result = game.makeMove(move, false);
-
-                if (result != null && result != ChessResult.NONE) {
-                    if (result == ChessResult.CHECK) {
-                        inCheck = true;
-                    } else {
-                        if (result == ChessResult.CHECKMATE) {
-                            legalMoves.clear();
-                            refresh();
-                            endGame(GameResult.CHECKMATE, !game.whiteTurn);
-                        } else {
-                            legalMoves.clear();
-                            refresh();
-                            endGame(GameResult.STALEMATE, !game.whiteTurn);
-                        }
-                    }
-                } else {
-                    inCheck = false;
-                }
-
-                if (game.whiteTurn) {
-                    blackTime += move_consider_time;
-                } else {
-                    whiteTime += move_consider_time;
-                }
+                makeMove(move);
 
                 legalMoves.clear();
                 refresh();
@@ -265,6 +240,34 @@ public class BoardPanel extends JPanel {
         }
 
         refresh();
+    }
+
+    public void makeMove(Move move) {
+        ChessResult result = game.makeMove(move, false);
+
+        if (result != null && result != ChessResult.NONE) {
+            if (result == ChessResult.CHECK) {
+                inCheck = true;
+            } else {
+                if (result == ChessResult.CHECKMATE) {
+                    legalMoves.clear();
+                    refresh();
+                    endGame(GameResult.CHECKMATE, !game.whiteTurn);
+                } else {
+                    legalMoves.clear();
+                    refresh();
+                    endGame(GameResult.STALEMATE, !game.whiteTurn);
+                }
+            }
+        } else {
+            inCheck = false;
+        }
+
+        if (game.whiteTurn) {
+            blackTime += move_consider_time;
+        } else {
+            whiteTime += move_consider_time;
+        }
     }
 
     void refresh() {
@@ -365,7 +368,9 @@ public class BoardPanel extends JPanel {
     }
 
     public void endGame(GameResult result, boolean whiteWins) {
-        timer.stop();
+        if (timer != null) {
+            timer.stop();
+        }
 
         if (game instanceof Game) {
             PGNWriter.saveMovesInDatabase((Game) game);

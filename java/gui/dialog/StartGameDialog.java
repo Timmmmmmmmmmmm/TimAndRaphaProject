@@ -99,19 +99,15 @@ public class StartGameDialog {
             int boardNumber = Integer.parseInt(boardField.getText());
             GameDto gameDto = selectedGame.gameDto();
             gameDto.board_number = boardNumber;
-            List<Move> moves = PGNReader.readPGN();
+
+            Game game = new Game(tournamentDto, selectedGame.roundDto(), gameDto, selectedGame.whitePlayer(), selectedGame.blackPlayer());
+            List<Move> moves = PGNReader.readPGN(game);
 
             if (moves != null && !moves.isEmpty()) {
                 DatabaseConnection.executeSql("UPDATE games SET board_number = " + gameDto.board_number + " , start = '" + LocalDateTime.now() + "' WHERE id = " + gameDto.id);
 
                 BaseWindow.getInstance().setContentPane(
-                        new BoardPanel(new Game(
-                                tournamentDto,
-                                selectedGame.roundDto(),
-                                gameDto,
-                                selectedGame.whitePlayer(),
-                                selectedGame.blackPlayer()
-                        ), moves)
+                        new BoardPanel(game, moves)
                 );
                 BaseWindow.getInstance().revalidate();
                 BaseWindow.getInstance().repaint();

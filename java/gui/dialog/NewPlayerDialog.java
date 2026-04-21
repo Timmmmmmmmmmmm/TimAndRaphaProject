@@ -11,6 +11,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class NewPlayerDialog {
@@ -133,7 +134,7 @@ public class NewPlayerDialog {
                     "'" + first.getText() + "'," +
                     "'" + last.getText() + "'," +
                     Integer.parseInt(rating.getText()) + "," +
-                    "'" + ((FideTitle) title.getSelectedItem()).getKey() + "'," +
+                    "'" + ((FideTitle) Objects.requireNonNull(title.getSelectedItem())).getKey() + "'," +
                     "'" + gender.getText().charAt(0) + "'," +
                     "'" + date + "')";
 

@@ -248,6 +248,7 @@ public class NewTournamentDialog {
                             "ORDER BY p.fide_rating DESC;"
             );
 
+            assert players != null;
             int count = players.size();
 
             if (count % 2 != 0) {

@@ -50,14 +50,14 @@ public class PlayerDisplay extends JPanel {
     }
 
     public void update(int time) {
-        timeLabel.setText(formatTime(time));
+        updateTime(time);
         timeLabel.setFont(timeLabel.getFont().deriveFont((float) (getHeight() - 20)));
         nameLabel.setFont(nameLabel.getFont().deriveFont((float) ((getHeight() - 20) * 0.5)));
         ratingLabel.setFont(ratingLabel.getFont().deriveFont((float) ((getHeight() - 20) * 0.3)));
     }
 
     public void updateTime(int time) {
-        if (time == -1) {
+        if (time < 0) {
             timeLabel.setText("");
         } else {
             timeLabel.setText(formatTime(time));
