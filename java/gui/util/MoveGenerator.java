@@ -285,7 +285,7 @@ public class MoveGenerator {
     static boolean isSquareAttacked(SimpleGame game, int row, int col, boolean byWhite) {
 
         // === PAWNS ===
-        int pawnDir = byWhite ? -1 : 1;
+        int pawnDir = byWhite ? 1 : -1;
         int pawnRow = row + pawnDir;
 
         if (inBoard(pawnRow, col - 1)) {
