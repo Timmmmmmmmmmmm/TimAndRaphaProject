@@ -101,7 +101,7 @@ public class StartGameDialog {
             gameDto.board_number = boardNumber;
 
             Game game = new Game(tournamentDto, selectedGame.roundDto(), gameDto, selectedGame.whitePlayer(), selectedGame.blackPlayer());
-            List<Move> moves = PGNReader.readPGN(game);
+            List<Move> moves = PGNReader.readMoves(game);
 
             if (moves != null && !moves.isEmpty()) {
                 DatabaseConnection.executeSql("UPDATE games SET board_number = " + gameDto.board_number + " , start = '" + LocalDateTime.now() + "' WHERE id = " + gameDto.id);

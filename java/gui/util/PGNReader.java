@@ -8,11 +8,11 @@ import java.util.regex.*;
 
 public class PGNReader {
 
-    public static List<Move> readPGN() {
-        return readPGN(new SimpleGame());
+    public static List<Move> readMoves() {
+        return readMoves(new SimpleGame());
     }
 
-    public static List<Move> readPGN(SimpleGame game) {
+    public static List<Move> readMoves(SimpleGame game) {
         File file = chooseFile();
         if (file == null) return Collections.emptyList();
 
@@ -50,7 +50,7 @@ public class PGNReader {
 
         moveText = moveText.replaceAll("(1-0|0-1|1/2-1/2|\\*)\\s*$", "");
 
-        Pattern pattern = Pattern.compile("\\d+\\.\\s*([^\\s]+)(?:\\s+([^\\s]+))?");
+        Pattern pattern = Pattern.compile("\\d+\\.\\s*(\\S+)(?:\\s+(\\S+))?");
         Matcher matcher = pattern.matcher(moveText);
 
         SimpleGame replay = game.copy();

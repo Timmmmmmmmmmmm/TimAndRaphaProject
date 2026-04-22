@@ -213,6 +213,10 @@ public class BoardPanel extends JPanel {
     }
 
     public void click(int row, int column) {
+        if (isReplay) {
+            return;
+        }
+
         for (Move move : legalMoves) {
             if (move.toRow == row && move.toColumn == column) {
                 selectedRow = -1;

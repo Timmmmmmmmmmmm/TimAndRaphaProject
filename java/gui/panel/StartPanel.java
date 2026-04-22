@@ -63,7 +63,7 @@ public class StartPanel extends JPanel {
     private static JButton getImportGameButton() {
         JButton importGameButton = new JButton("Import game");
         importGameButton.addActionListener(_ -> {
-            List<Move> moves = PGNReader.readPGN();
+            List<Move> moves = PGNReader.readMoves();
             if (moves != null && !moves.isEmpty()) {
                 BaseWindow.getInstance().setContentPane(new BoardPanel(moves));
                 BaseWindow.getInstance().revalidate();
