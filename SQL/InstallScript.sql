@@ -113,20 +113,32 @@ CREATE TABLE games_moves
 );
 
 CREATE VIEW leaderboard AS
-SELECT firstname, lastname, fide_rating, score
+SELECT p.firstname, p.lastname, p.fide_rating, pti.score, sum(oti.score) AS buchholz
 FROM players p
-         INNER JOIN player_tournament_info i
-                    ON p.id = i.player_id
-ORDER BY score, fide_rating DESC;
+INNER JOIN player_tournament_info pti
+ON p.id = pti.player_id
+INNER JOIN games g
+ON (g.player_white = p.id OR g.player_black = p.id)
+INNER JOIN player_tournament_info oti
+ON oti.player_id =
+    CASE
+        WHEN g.player_white = p.id
+        THEN g.player_black
+        ELSE g.player_white
+    END
+AND oti.tournament_id = 1
+WHERE tournament_id = 1
+GROUP BY p.id, p.firstname, p.lastname, p.fide_rating, pti.score
+ORDER BY pti.score DESC, buchholz DESC, p.fide_rating DESC;
 
 CREATE VIEW player_statistics AS
-    SELECT COUNT(*) AS Partien, concat(p.lastname, ", ", p.firstname) AS Spieler
-FROM (
-SELECT *
-FROM player_tournament_info as pti
-         INNER JOIN players p ON p.id = pti.player_id
-         INNER JOIN games g ON g.player_white = p.id OR g.player_black = p.id
-GROUP BY player_id) as `allInfo`;
+SELECT COUNT(*) AS Partien, concat(p.lastname, ', ', p.firstname) AS Spieler
+FROM player_tournament_info pti
+INNER JOIN players p
+    ON pti.player_id = p.id
+INNER JOIN games g
+    ON g.player_white = p.id OR g.player_black = p.id
+GROUP BY pti.player_id, p.lastname, p.firstname;
 
 CREATE VIEW round_overview AS
 SELECT g.id,
