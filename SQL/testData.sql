@@ -1,14 +1,8 @@
 -- =============================================
--- TESTDATEN FÜR SCHACHTURNIER-DATENBANK
--- 100 Spieler, 5 Turniere, realistische Daten
--- =============================================
-
--- =============================================
--- SPIELER (100 echte Schachspieler)
+-- PLAYERS
 -- =============================================
 
 INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birthdate) VALUES
--- Top Grandmasters
 ('Magnus', 'Carlsen', 2830, 'GM', 'M', '1990-11-30'),
 ('Fabiano', 'Caruana', 2805, 'GM', 'M', '1992-07-30'),
 ('Ding', 'Liren', 2780, 'GM', 'M', '1992-10-24'),
@@ -19,8 +13,6 @@ INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birth
 ('Levon', 'Aronian', 2765, 'GM', 'M', '1982-10-06'),
 ('Wesley', 'So', 2770, 'GM', 'M', '1993-10-09'),
 ('Shakhriyar', 'Mamedyarov', 2758, 'GM', 'M', '1985-04-12'),
-
--- More Grandmasters
 ('Maxime', 'Vachier-Lagrave', 2762, 'GM', 'M', '1990-10-21'),
 ('Sergey', 'Karjakin', 2750, 'GM', 'M', '1990-01-12'),
 ('Alexander', 'Grischuk', 2745, 'GM', 'M', '1983-10-31'),
@@ -31,20 +23,16 @@ INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birth
 ('Vidit', 'Gujrathi', 2720, 'GM', 'M', '1994-10-24'),
 ('Pentala', 'Harikrishna', 2715, 'GM', 'M', '1986-05-10'),
 ('Wang', 'Hao', 2710, 'GM', 'M', '1989-09-04'),
-
--- International Masters and strong GMs
 ('Jorden', 'Van Foreest', 2702, 'GM', 'M', '1999-04-30'),
 ('Vincent', 'Keymer', 2695, 'GM', 'M', '2004-11-15'),
 ('Nodirbek', 'Abdusattorov', 2765, 'GM', 'M', '2004-09-18'),
 ('Rameshbabu', 'Praggnanandhaa', 2747, 'GM', 'M', '2005-08-10'),
-('Dommaraju', 'Gukesh', 2758, 'GM', 'M', '2006-05-29'),
-('Arjun', 'Erigaisi', 2712, 'GM', 'M', '2003-09-03'),
+('Dommaraju', 'Gukesh', 2758, 'IM', 'M', '2006-05-29'),
+('Arjun', 'Erigaisi', 2712, 'IM', 'M', '2003-09-03'),
 ('Nihal', 'Sarin', 2688, 'GM', 'M', '2004-07-13'),
 ('Vladislav', 'Artemiev', 2698, 'GM', 'M', '1998-03-13'),
-('Daniil', 'Dubov', 2702, 'GM', 'M', '1996-04-18'),
-('Andrey', 'Esipenko', 2690, 'GM', 'M', '2002-03-22'),
-
--- More GMs
+('Daniil', 'Dubov', 2702, 'IM', 'M', '1996-04-18'),
+('Andrey', 'Esipenko', 2690, 'NONE', 'M', '2002-03-22'),
 ('Sam', 'Shankland', 2680, 'GM', 'M', '1991-10-01'),
 ('Leinier', 'Dominguez', 2685, 'GM', 'M', '1983-09-23'),
 ('David', 'Navara', 2678, 'GM', 'M', '1985-03-27'),
@@ -55,22 +43,20 @@ INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birth
 ('Boris', 'Gelfand', 2665, 'GM', 'M', '1968-06-24'),
 ('Michael', 'Adams', 2670, 'GM', 'M', '1971-11-17'),
 ('Vassily', 'Ivanchuk', 2678, 'GM', 'M', '1969-03-18'),
-
--- International Masters
-('Hans', 'Niemann', 2650, 'GM', 'M', '2003-06-20'),
-('Christopher', 'Yoo', 2585, 'GM', 'M', '2006-09-25'),
-('Awonder', 'Liang', 2592, 'GM', 'M', '2003-09-09'),
-('Jeffery', 'Xiong', 2680, 'GM', 'M', '2000-10-30'),
-('Daniel', 'Naroditsky', 2620, 'GM', 'M', '1995-11-09'),
-('Eric', 'Hansen', 2605, 'GM', 'M', '1992-05-24'),
+('Hans', 'Niemann', 2650, 'IM', 'M', '2003-06-20'),
+('Christopher', 'Yoo', 2585, 'IM', 'M', '2006-09-25'),
+('Awonder', 'Liang', 2592, 'IM', 'M', '2003-09-09'),
+('Jeffery', 'Xiong', 2680, 'IM', 'M', '2000-10-30'),
+('Daniel', 'Naroditsky', 2620, 'IM', 'M', '1995-11-09'),
+('Eric', 'Hansen', 2605, 'IM', 'M', '1992-05-24'),
 ('Andrew', 'Tang', 2550, 'IM', 'M', '1999-11-29'),
-('Raunak', 'Sadhwani', 2618, 'GM', 'M', '2005-12-14'),
-('Leon', 'Mendonca', 2605, 'GM', 'M', '2006-08-30'),
-('Volodar', 'Murzin', 2600, 'GM', 'M', '2006-01-07'),
+('Raunak', 'Sadhwani', 2618, 'IM', 'M', '2005-12-14'),
+('Leon', 'Mendonca', 2605, 'IM', 'M', '2006-08-30'),
+('Volodar', 'Murzin', 2600, 'IM', 'M', '2006-01-07'),
 
 -- Women Grandmasters
-('Hou', 'Yifan', 2658, 'GM', 'F', '1994-02-27'),
-('Ju', 'Wenjun', 2560, 'GM', 'F', '1991-01-31'),
+('Hou', 'Yifan', 2658, 'WGM', 'F', '1994-02-27'),
+('Ju', 'Wenjun', 2560, 'WGM', 'F', '1991-01-31'),
 ('Aleksandra', 'Goryachkina', 2580, 'GM', 'F', '1998-09-28'),
 ('Kateryna', 'Lagno', 2545, 'GM', 'F', '1989-12-27'),
 ('Mariya', 'Muzychuk', 2530, 'GM', 'F', '1992-09-21'),
@@ -81,30 +67,26 @@ INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birth
 ('Nana', 'Dzagnidze', 2510, 'GM', 'F', '1987-01-01'),
 
 -- More IMs and FMs
-('Elisabeth', 'Paehtz', 2480, 'WGM', 'F', '1985-01-08'),
-('Valentina', 'Gunina', 2490, 'WGM', 'F', '1989-05-03'),
+('Elisabeth', 'Paehtz', 2480, 'WFM', 'F', '1985-01-08'),
+('Valentina', 'Gunina', 2490, 'WFM', 'F', '1989-05-03'),
 ('Bibisara', 'Assaubayeva', 2505, 'GM', 'F', '2004-09-07'),
 ('Zhansaya', 'Abdumalik', 2495, 'WGM', 'F', '2000-01-03'),
 ('Dinara', 'Saduakassova', 2485, 'WGM', 'F', '1996-12-22'),
 ('Polina', 'Shuvalova', 2470, 'WGM', 'F', '2001-09-21'),
 ('Harika', 'Dronavalli', 2505, 'GM', 'F', '1991-01-12'),
-('Antoaneta', 'Stefanova', 2475, 'GM', 'F', '1979-04-19'),
-('Marie', 'Sebag', 2460, 'WGM', 'F', '1986-10-15'),
+('Antoaneta', 'Stefanova', 2475, 'FM', 'F', '1979-04-19'),
+('Marie', 'Sebag', 2460, 'WIM', 'F', '1986-10-15'),
 ('Alina', 'Kashlinskaya', 2455, 'WGM', 'F', '1993-08-15'),
-
--- Strong IMs
-('Matthias', 'Blübaum', 2650, 'GM', 'M', '1997-05-10'),
+('Matthias', 'Blübaum', 2650, 'IM', 'M', '1997-05-10'),
 ('Rasmus', 'Svane', 2615, 'GM', 'M', '1997-06-14'),
 ('Nils', 'Grandelius', 2630, 'GM', 'M', '1993-06-03'),
 ('Tiger', 'Hillarp Persson', 2505, 'GM', 'M', '1970-08-28'),
-('Evgeny', 'Tomashevsky', 2620, 'GM', 'M', '1987-03-01'),
-('Alexander', 'Morozevich', 2625, 'GM', 'M', '1977-07-18'),
-('Peter', 'Leko', 2640, 'GM', 'M', '1979-09-08'),
+('Evgeny', 'Tomashevsky', 2620, 'FM', 'M', '1987-03-01'),
+('Alexander', 'Morozevich', 2625, 'FM', 'M', '1977-07-18'),
+('Peter', 'Leko', 2640, 'FM', 'M', '1979-09-08'),
 ('Etienne', 'Bacrot', 2630, 'GM', 'M', '1983-01-22'),
 ('Laurent', 'Fressinet', 2605, 'GM', 'M', '1981-11-01'),
 ('Baadur', 'Jobava', 2595, 'GM', 'M', '1983-11-26'),
-
--- More International Masters
 ('Georg', 'Meier', 2580, 'GM', 'M', '1987-12-25'),
 ('Dennis', 'Wagner', 2520, 'IM', 'M', '1994-04-12'),
 ('Rainer', 'Buhmann', 2515, 'IM', 'M', '1982-01-25'),
@@ -115,21 +97,19 @@ INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birth
 ('Daniel', 'Fridman', 2575, 'GM', 'M', '1976-10-19'),
 ('Dimitri', 'Reinderman', 2530, 'GM', 'M', '1972-04-15'),
 ('Erwin', 'L\'Ami', 2605, 'GM', 'M', '1985-05-01'),
-
--- FMs and CMs
-('Max', 'Warmerdam', 2580, 'GM', 'M', '1999-07-22'),
-('Lucas', 'Van Foreest', 2565, 'GM', 'M', '2001-03-03'),
-('Benjamin', 'Bok', 2555, 'GM', 'M', '1995-09-14'),
-('Roeland', 'Pruijssers', 2505, 'IM', 'M', '1989-12-05'),
-('Thomas', 'Beerdsen', 2480, 'IM', 'M', '2000-01-01'),
+('Max', 'Warmerdam', 2580, 'NONE', 'M', '1999-07-22'),
+('Lucas', 'Van Foreest', 2565, 'NONE', 'M', '2001-03-03'),
+('Benjamin', 'Bok', 2555, 'NONE', 'M', '1995-09-14'),
+('Roeland', 'Pruijssers', 2505, 'NONE', 'M', '1989-12-05'),
+('Thomas', 'Beerdsen', 2480, 'NONE', 'M', '2000-01-01'),
 ('Machteld', 'Van Foreest', 2355, 'WIM', 'F', '2003-07-25'),
-('Anne', 'Haast', 2380, 'WGM', 'F', '1993-12-15'),
+('Anne', 'Haast', 2380, 'NONE', 'F', '1993-12-15'),
 ('Lisa', 'Schut', 2280, 'WFM', 'F', '2000-05-20'),
 ('Stefan', 'Kuipers', 2465, 'IM', 'M', '1990-08-10'),
-('Robin', 'Van Kampen', 2575, 'GM', 'M', '1994-02-15');
+('Robin', 'Van Kampen', 2575, 'NONE', 'M', '1994-02-15');
 
 -- =============================================
--- TURNIERE (5 Turniere)
+-- TOURNAMENTS
 -- =============================================
 
 INSERT INTO tournaments (name, date, city, base_consider_time, move_consider_time, status) VALUES
@@ -140,10 +120,10 @@ INSERT INTO tournaments (name, date, city, base_consider_time, move_consider_tim
 ('Grand Chess Tour Finals', '2024-11-10', 'London', 90, 30, 'PLANNED');
 
 -- =============================================
--- SPIELER-TURNIER-REGISTRIERUNGEN
+-- PLAYER TOURNAMENT INFOS
 -- =============================================
 
--- Tata Steel (Tournament 1) - 16 Spieler
+-- Tata Steel (Tournament 1) - 16 Players
 INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES
 (1, 'FINISHED', 1, 9.5),   -- Carlsen
 (1, 'FINISHED', 2, 8.5),   -- Caruana
@@ -162,7 +142,7 @@ INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id,
 (1, 'FINISHED', 21, 3.5),  -- Van Foreest
 (1, 'FINISHED', 22, 3.0);  -- Keymer
 
--- Grenke Chess Classic (Tournament 2) - 10 Spieler
+-- Grenke Chess Classic (Tournament 2) - 10 Players
 INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES
 (2, 'FINISHED', 1, 6.5),   -- Carlsen
 (2, 'FINISHED', 11, 6.0),  -- Vachier-Lagrave
@@ -175,7 +155,7 @@ INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id,
 (2, 'FINISHED', 81, 3.0),  -- Meier
 (2, 'FINISHED', 88, 2.5);  -- Prusikin
 
--- Norway Chess (Tournament 3) - 10 Spieler
+-- Norway Chess (Tournament 3) - 10 Players
 INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES
 (3, 'FINISHED', 1, 7.5),   -- Carlsen
 (3, 'FINISHED', 2, 6.5),   -- Caruana
@@ -188,7 +168,7 @@ INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id,
 (3, 'FINISHED', 16, 3.0),  -- Duda
 (3, 'FINISHED', 15, 2.5);  -- Rapport
 
--- Sinquefield Cup (Tournament 4) - 10 Spieler (aktiv)
+-- Sinquefield Cup (Tournament 4) - 10 Players
 INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES
 (4, 'PLAYING', 1, 3.5),    -- Carlsen
 (4, 'PLAYING', 2, 3.0),    -- Caruana
@@ -201,7 +181,7 @@ INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id,
 (4, 'PLAYING', 43, 1.0),   -- Liang
 (4, 'PLAYING', 42, 1.0);   -- Yoo
 
--- Grand Chess Tour Finals (Tournament 5) - 8 Spieler (geplant)
+-- Grand Chess Tour Finals (Tournament 5) - 8 Players
 INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES
 (5, 'APPLIED', 1, 0.0),    -- Carlsen
 (5, 'APPLIED', 2, 0.0),    -- Caruana
@@ -213,10 +193,10 @@ INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id,
 (5, 'APPLIED', 4, 0.0);    -- Nepomniachtchi
 
 -- =============================================
--- RUNDEN
+-- ROUNDS
 -- =============================================
 
--- Tata Steel - 8 Runden (alle completed)
+-- Tata Steel - 8 Rounds
 INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (1, 1, 'COMPLETED', '2024-01-13 14:00:00'),
 (1, 2, 'COMPLETED', '2024-01-14 14:00:00'),
@@ -227,7 +207,7 @@ INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (1, 7, 'COMPLETED', '2024-01-19 14:00:00'),
 (1, 8, 'COMPLETED', '2024-01-20 14:00:00');
 
--- Grenke Chess Classic - 6 Runden
+-- Grenke Chess Classic - 6 Rounds
 INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (2, 1, 'COMPLETED', '2024-04-06 15:00:00'),
 (2, 2, 'COMPLETED', '2024-04-07 15:00:00'),
@@ -236,7 +216,7 @@ INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (2, 5, 'COMPLETED', '2024-04-10 15:00:00'),
 (2, 6, 'COMPLETED', '2024-04-11 15:00:00');
 
--- Norway Chess - 6 Runden
+-- Norway Chess - 6 Rounds
 INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (3, 1, 'COMPLETED', '2024-05-27 17:00:00'),
 (3, 2, 'COMPLETED', '2024-05-28 17:00:00'),
@@ -245,7 +225,7 @@ INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (3, 5, 'COMPLETED', '2024-05-31 17:00:00'),
 (3, 6, 'COMPLETED', '2024-06-01 17:00:00');
 
--- Sinquefield Cup - 5 Runden (3 completed, 1 running, 1 planned)
+-- Sinquefield Cup - 5 Rounds
 INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (4, 1, 'COMPLETED', '2024-08-15 13:00:00'),
 (4, 2, 'COMPLETED', '2024-08-16 13:00:00'),
@@ -253,7 +233,7 @@ INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (4, 4, 'RUNNING', '2024-08-18 13:00:00'),
 (4, 5, 'PLANNED', '2024-08-19 13:00:00');
 
--- Grand Chess Tour Finals - 4 Runden (alle geplant)
+-- Grand Chess Tour Finals - 4 Rounds
 INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (5, 1, 'PLANNED', '2024-11-10 14:00:00'),
 (5, 2, 'PLANNED', '2024-11-11 14:00:00'),
@@ -261,12 +241,12 @@ INSERT INTO rounds (tournament_id, round_number, status, begin) VALUES
 (5, 4, 'PLANNED', '2024-11-13 14:00:00');
 
 -- =============================================
--- SPIELE
+-- GAMES
 -- =============================================
 
 -- =============== TATA STEEL (Tournament 1) ===============
 
--- Runde 1 (8 Spiele)
+-- Round 1 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-01-13 14:00:00', 1, 1, 1, 12, 1),    -- Carlsen - Karjakin: 1-0
 (0, '2024-01-13 14:00:00', 2, 1, 2, 11, 1),    -- Caruana - MVL: ½-½
@@ -277,7 +257,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-01-13 14:00:00', 7, 1, 7, 23, 1),    -- Anand - Abdusattorov: ½-½
 (1, '2024-01-13 14:00:00', 8, 1, 8, 25, 1);    -- Aronian - Gukesh: 1-0
 
--- Runde 2 (8 Spiele)
+-- Round 2 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-01-14 14:00:00', 1, 2, 12, 1, 1),    -- Karjakin - Carlsen: 0-1 (Weiß verliert)
 (-1, '2024-01-14 14:00:00', 2, 2, 11, 2, 1),   -- MVL - Caruana: 0-1
@@ -288,7 +268,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (1, '2024-01-14 14:00:00', 7, 2, 23, 7, 1),    -- Abdusattorov - Anand: 1-0
 (-1, '2024-01-14 14:00:00', 8, 2, 25, 8, 1);   -- Gukesh - Aronian: 0-1
 
--- Runde 3 (8 Spiele)
+-- Round 3 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-01-15 14:00:00', 1, 3, 1, 17, 1),    -- Carlsen - Firouzja: 1-0
 (0, '2024-01-15 14:00:00', 2, 3, 2, 23, 1),    -- Caruana - Abdusattorov: ½-½
@@ -299,7 +279,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (1, '2024-01-15 14:00:00', 7, 3, 24, 21, 1),   -- Pragg - Van Foreest: 1-0
 (-1, '2024-01-15 14:00:00', 8, 3, 25, 22, 1);  -- Gukesh - Keymer: 0-1
 
--- Runde 4 (8 Spiele)
+-- Round 4 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (0, '2024-01-16 14:00:00', 1, 4, 17, 1, 1),    -- Firouzja - Carlsen: ½-½
 (1, '2024-01-16 14:00:00', 2, 4, 23, 2, 1),    -- Abdusattorov - Caruana: 0-1 (Schwarz gewinnt)
@@ -310,7 +290,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (-1, '2024-01-16 14:00:00', 7, 4, 21, 24, 1),  -- Van Foreest - Pragg: 0-1
 (0, '2024-01-16 14:00:00', 8, 4, 22, 25, 1);   -- Keymer - Gukesh: ½-½
 
--- Runde 5 (8 Spiele)
+-- Round 5 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-01-17 14:00:00', 1, 5, 1, 2, 1),     -- Carlsen - Caruana: 1-0
 (0, '2024-01-17 14:00:00', 2, 5, 3, 8, 1),     -- Ding - Aronian: ½-½
@@ -321,7 +301,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (1, '2024-01-17 14:00:00', 7, 5, 24, 22, 1),   -- Pragg - Keymer: 1-0
 (0, '2024-01-17 14:00:00', 8, 5, 25, 21, 1);   -- Gukesh - Van Foreest: ½-½
 
--- Runde 6 (8 Spiele)
+-- Round 6 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (0, '2024-01-18 14:00:00', 1, 6, 2, 1, 1),     -- Caruana - Carlsen: ½-½
 (1, '2024-01-18 14:00:00', 2, 6, 8, 3, 1),     -- Aronian - Ding: 0-1 (Schwarz gewinnt)
@@ -332,7 +312,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (-1, '2024-01-18 14:00:00', 7, 6, 22, 24, 1),  -- Keymer - Pragg: 0-1
 (0, '2024-01-18 14:00:00', 8, 6, 21, 25, 1);   -- Van Foreest - Gukesh: ½-½
 
--- Runde 7 (8 Spiele)
+-- Round 7 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-01-19 14:00:00', 1, 7, 1, 3, 1),     -- Carlsen - Ding: 1-0
 (1, '2024-01-19 14:00:00', 2, 7, 2, 5, 1),     -- Caruana - Nakamura: 1-0
@@ -343,7 +323,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-01-19 14:00:00', 7, 7, 24, 25, 1),   -- Pragg - Gukesh: ½-½
 (1, '2024-01-19 14:00:00', 8, 7, 21, 22, 1);   -- Van Foreest - Keymer: 1-0
 
--- Runde 8 (8 Spiele)
+-- Round 8 (8 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-01-20 14:00:00', 1, 8, 3, 1, 1),     -- Ding - Carlsen: 0-1 (Schwarz gewinnt)
 (0, '2024-01-20 14:00:00', 2, 8, 5, 2, 1),     -- Nakamura - Caruana: ½-½
@@ -356,7 +336,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 
 -- =============== GRENKE CHESS CLASSIC (Tournament 2) ===============
 
--- Runde 1 (5 Spiele)
+-- Round 1 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-04-06 15:00:00', 1, 9, 1, 88, 2),    -- Carlsen - Prusikin: 1-0
 (0, '2024-04-06 15:00:00', 2, 9, 11, 81, 2),   -- MVL - Meier: ½-½
@@ -364,7 +344,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-04-06 15:00:00', 4, 9, 86, 78, 2),   -- Naiditsch - Bacrot: ½-½
 (1, '2024-04-06 15:00:00', 5, 9, 84, 79, 2);   -- Nisipeanu - Fressinet: 1-0
 
--- Runde 2 (5 Spiele)
+-- Round 2 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (-1, '2024-04-07 15:00:00', 1, 10, 88, 1, 2),  -- Prusikin - Carlsen: 0-1
 (1, '2024-04-07 15:00:00', 2, 10, 81, 11, 2),  -- Meier - MVL: 0-1 (Schwarz gewinnt)
@@ -372,7 +352,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (1, '2024-04-07 15:00:00', 4, 10, 78, 86, 2),  -- Bacrot - Naiditsch: 1-0
 (0, '2024-04-07 15:00:00', 5, 10, 79, 84, 2);  -- Fressinet - Nisipeanu: ½-½
 
--- Runde 3 (5 Spiele)
+-- Round 3 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-04-08 15:00:00', 1, 11, 1, 11, 2),   -- Carlsen - MVL: 1-0
 (0, '2024-04-08 15:00:00', 2, 11, 71, 84, 2),  -- Blübaum - Nisipeanu: ½-½
@@ -380,7 +360,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-04-08 15:00:00', 4, 11, 78, 79, 2),  -- Bacrot - Fressinet: ½-½
 (0, '2024-04-08 15:00:00', 5, 11, 81, 88, 2);  -- Meier - Prusikin: ½-½
 
--- Runde 4 (5 Spiele)
+-- Round 4 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (0, '2024-04-09 15:00:00', 1, 12, 11, 1, 2),   -- MVL - Carlsen: ½-½
 (1, '2024-04-09 15:00:00', 2, 12, 84, 71, 2),  -- Nisipeanu - Blübaum: 0-1 (Schwarz gewinnt)
@@ -388,7 +368,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (1, '2024-04-09 15:00:00', 4, 12, 79, 78, 2),  -- Fressinet - Bacrot: 1-0
 (-1, '2024-04-09 15:00:00', 5, 12, 88, 81, 2); -- Prusikin - Meier: 0-1
 
--- Runde 5 (5 Spiele)
+-- Round 5 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-04-10 15:00:00', 1, 13, 1, 71, 2),   -- Carlsen - Blübaum: 1-0
 (0, '2024-04-10 15:00:00', 2, 13, 11, 86, 2),  -- MVL - Naiditsch: ½-½
@@ -396,7 +376,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-04-10 15:00:00', 4, 13, 72, 81, 2),  -- Svane - Meier: ½-½
 (1, '2024-04-10 15:00:00', 5, 13, 78, 88, 2);  -- Bacrot - Prusikin: 1-0
 
--- Runde 6 (5 Spiele)
+-- Round 6 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (0, '2024-04-11 15:00:00', 1, 14, 71, 1, 2),   -- Blübaum - Carlsen: ½-½
 (1, '2024-04-11 15:00:00', 2, 14, 86, 11, 2),  -- Naiditsch - MVL: 0-1 (Schwarz gewinnt)
@@ -406,7 +386,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 
 -- =============== NORWAY CHESS (Tournament 3) ===============
 
--- Runde 1 (5 Spiele)
+-- Round 1 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-05-27 17:00:00', 1, 15, 1, 15, 3),   -- Carlsen - Rapport: 1-0
 (0, '2024-05-27 17:00:00', 2, 15, 2, 16, 3),   -- Caruana - Duda: ½-½
@@ -414,7 +394,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-05-27 17:00:00', 4, 15, 17, 3, 3),   -- Firouzja - Ding: ½-½
 (1, '2024-05-27 17:00:00', 5, 15, 9, 4, 3);    -- Wesley So - Nepo: 1-0
 
--- Runde 2 (5 Spiele)
+-- Round 2 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (0, '2024-05-28 17:00:00', 1, 16, 15, 1, 3),   -- Rapport - Carlsen: ½-½
 (1, '2024-05-28 17:00:00', 2, 16, 16, 2, 3),   -- Duda - Caruana: 0-1 (Schwarz gewinnt)
@@ -422,7 +402,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (1, '2024-05-28 17:00:00', 4, 16, 3, 17, 3),   -- Ding - Firouzja: 1-0
 (-1, '2024-05-28 17:00:00', 5, 16, 4, 9, 3);   -- Nepo - Wesley So: 0-1
 
--- Runde 3 (5 Spiele)
+-- Round 3 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-05-29 17:00:00', 1, 17, 1, 2, 3),    -- Carlsen - Caruana: 1-0
 (0, '2024-05-29 17:00:00', 2, 17, 5, 9, 3),    -- Nakamura - Wesley So: ½-½
@@ -430,7 +410,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-05-29 17:00:00', 4, 17, 3, 6, 3),    -- Ding - Giri: ½-½
 (0, '2024-05-29 17:00:00', 5, 17, 15, 16, 3);  -- Rapport - Duda: ½-½
 
--- Runde 4 (5 Spiele)
+-- Round 4 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (0, '2024-05-30 17:00:00', 1, 18, 2, 1, 3),    -- Caruana - Carlsen: ½-½
 (1, '2024-05-30 17:00:00', 2, 18, 9, 5, 3),    -- Wesley So - Nakamura: 0-1 (Schwarz gewinnt)
@@ -438,7 +418,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-05-30 17:00:00', 4, 18, 6, 3, 3),    -- Giri - Ding: ½-½
 (-1, '2024-05-30 17:00:00', 5, 18, 16, 15, 3); -- Duda - Rapport: 0-1
 
--- Runde 5 (5 Spiele)
+-- Round 5 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-05-31 17:00:00', 1, 19, 1, 5, 3),    -- Carlsen - Nakamura: 1-0
 (1, '2024-05-31 17:00:00', 2, 19, 2, 17, 3),   -- Caruana - Firouzja: 1-0
@@ -446,7 +426,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-05-31 17:00:00', 4, 19, 4, 6, 3),    -- Nepo - Giri: ½-½
 (0, '2024-05-31 17:00:00', 5, 19, 15, 16, 3);  -- Rapport - Duda: ½-½
 
--- Runde 6 (5 Spiele)
+-- Round 6 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-06-01 17:00:00', 1, 20, 5, 1, 3),    -- Nakamura - Carlsen: 0-1 (Schwarz gewinnt)
 (0, '2024-06-01 17:00:00', 2, 20, 17, 2, 3),   -- Firouzja - Caruana: ½-½
@@ -456,7 +436,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 
 -- =============== SINQUEFIELD CUP (Tournament 4) - aktives Turnier ===============
 
--- Runde 1 (5 Spiele)
+-- Round 1 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-08-15 13:00:00', 1, 21, 1, 42, 4),   -- Carlsen - Yoo: 1-0
 (0, '2024-08-15 13:00:00', 2, 21, 2, 43, 4),   -- Caruana - Liang: ½-½
@@ -464,7 +444,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-08-15 13:00:00', 4, 21, 31, 41, 4),  -- Shankland - Niemann: ½-½
 (1, '2024-08-15 13:00:00', 5, 21, 32, 44, 4);  -- Dominguez - Xiong: 1-0
 
--- Runde 2 (5 Spiele)
+-- Round 2 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (0, '2024-08-16 13:00:00', 1, 22, 42, 1, 4),   -- Yoo - Carlsen: ½-½
 (1, '2024-08-16 13:00:00', 2, 22, 43, 2, 4),   -- Liang - Caruana: 0-1 (Schwarz gewinnt)
@@ -472,7 +452,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (1, '2024-08-16 13:00:00', 4, 22, 41, 31, 4),  -- Niemann - Shankland: 1-0
 (0, '2024-08-16 13:00:00', 5, 22, 44, 32, 4);  -- Xiong - Dominguez: ½-½
 
--- Runde 3 (5 Spiele)
+-- Round 3 (5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (1, '2024-08-17 13:00:00', 1, 23, 1, 2, 4),    -- Carlsen - Caruana: 1-0
 (0, '2024-08-17 13:00:00', 2, 23, 5, 41, 4),   -- Nakamura - Niemann: ½-½
@@ -480,7 +460,7 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 (0, '2024-08-17 13:00:00', 4, 23, 44, 43, 4),  -- Xiong - Liang: ½-½
 (0, '2024-08-17 13:00:00', 5, 23, 45, 42, 4);  -- Naroditsky - Yoo: ½-½
 
--- Runde 4 (laufend - keine Ergebnisse, 5 Spiele)
+-- Round 4 (laufend - keine Ergebnisse, 5 Games)
 INSERT INTO games (result, start, board_number, round_id, player_white, player_black, tournament_id) VALUES
 (NULL, '2024-08-18 13:00:00', 1, 24, 2, 1, 4),    -- Caruana - Carlsen
 (NULL, '2024-08-18 13:00:00', 2, 24, 41, 5, 4),   -- Niemann - Nakamura
@@ -492,8 +472,8 @@ INSERT INTO games (result, start, board_number, round_id, player_white, player_b
 -- ZÜGE FÜR AUSGEWÄHLTE PARTIEN
 -- =============================================
 
--- Carlsen vs Caruana, Runde 5 Tata Steel (Game ID wird ~37 sein basierend auf Einfügereihenfolge)
--- Berechnung: Tata Steel R1-R4 = 32 Spiele, R5 Game 1 = ID 33
+-- Carlsen vs Caruana, Round 5 Tata Steel (Game ID wird ~37 sein basierend auf Einfügereihenfolge)
+-- Berechnung: Tata Steel R1-R4 = 32 Games, R5 Game 1 = ID 33
 INSERT INTO games_moves (move_number, move, games_id) VALUES
 (1, 'e4', 33), (2, 'e5', 33), (3, 'Nf3', 33), (4, 'Nc6', 33),
 (5, 'Bb5', 33), (6, 'a6', 33), (7, 'Ba4', 33), (8, 'Nf6', 33),
@@ -517,7 +497,7 @@ INSERT INTO games_moves (move_number, move, games_id) VALUES
 (77, 'Kg3', 33), (78, 'Bd3', 33), (79, 'Rc7', 33), (80, 'Bf8', 33),
 (81, 'Rd7', 33);
 
--- Carlsen vs Firouzja, Runde 3 Tata Steel (Game ID ~17)
+-- Carlsen vs Firouzja, Round 3 Tata Steel (Game ID ~17)
 INSERT INTO games_moves (move_number, move, games_id) VALUES
 (1, 'd4', 17), (2, 'Nf6', 17), (3, 'c4', 17), (4, 'e6', 17),
 (5, 'Nf3', 17), (6, 'd5', 17), (7, 'Nc3', 17), (8, 'Be7', 17),
@@ -532,7 +512,7 @@ INSERT INTO games_moves (move_number, move, games_id) VALUES
 (41, 'Rc5', 17), (42, 'b6', 17), (43, 'Ra5', 17), (44, 'a6', 17),
 (45, 'Qc2', 17), (46, 'Qc4', 17), (47, 'Qxc4', 17);
 
--- Nakamura vs Giri, Norway Chess Runde 1 (Game ID ~59, first game of tournament 3)
+-- Nakamura vs Giri, Norway Chess Round 1 (Game ID ~59, first game of tournament 3)
 INSERT INTO games_moves (move_number, move, games_id) VALUES
 (1, 'e4', 59), (2, 'c5', 59), (3, 'Nf3', 59), (4, 'd6', 59),
 (5, 'd4', 59), (6, 'cxd4', 59), (7, 'Nxd4', 59), (8, 'Nf6', 59),
@@ -550,7 +530,7 @@ INSERT INTO games_moves (move_number, move, games_id) VALUES
 (53, 'Rf1', 59), (54, 'Qd8', 59), (55, 'Qxd8', 59), (56, 'Rxd8', 59),
 (57, 'Rxf7', 59);
 
--- Carlsen vs MVL, Grenke Runde 3 (Game ID ~41)
+-- Carlsen vs MVL, Grenke Round 3 (Game ID ~41)
 INSERT INTO games_moves (move_number, move, games_id) VALUES
 (1, 'c4', 41), (2, 'e6', 41), (3, 'Nc3', 41), (4, 'd5', 41),
 (5, 'd4', 41), (6, 'Be7', 41), (7, 'cxd5', 41), (8, 'exd5', 41),
@@ -565,7 +545,7 @@ INSERT INTO games_moves (move_number, move, games_id) VALUES
 (41, 'Nxd5', 41), (42, 'cxd5', 41), (43, 'Rxc8', 41), (44, 'Rxc8', 41),
 (45, 'Nxd5', 41);
 
--- Carlsen vs Niemann, Sinquefield Cup Runde 1 (ID ~74)
+-- Carlsen vs Niemann, Sinquefield Cup Round 1 (ID ~74)
 INSERT INTO games_moves (move_number, move, games_id) VALUES
 (1, 'd4', 74), (2, 'Nf6', 74), (3, 'c4', 74), (4, 'e6', 74),
 (5, 'Nc3', 74), (6, 'Bb4', 74), (7, 'e3', 74), (8, 'O-O', 74),
@@ -582,7 +562,7 @@ INSERT INTO games_moves (move_number, move, games_id) VALUES
 (49, 'Rb1', 74), (50, 'Bc6', 74), (51, 'Rb8+', 74), (52, 'Kh7', 74),
 (53, 'Nxe4', 74), (54, 'Nxe4', 74), (55, 'Bf3', 74);
 
--- Noch eine Partie: Ding Liren vs Keymer, Tata Steel Runde 1 (Game ID 3)
+-- Noch eine Partie: Ding Liren vs Keymer, Tata Steel Round 1 (Game ID 3)
 INSERT INTO games_moves (move_number, move, games_id) VALUES
 (1, 'd4', 3), (2, 'd5', 3), (3, 'c4', 3), (4, 'e6', 3),
 (5, 'Nc3', 3), (6, 'Nf6', 3), (7, 'cxd5', 3), (8, 'exd5', 3),
@@ -596,7 +576,7 @@ INSERT INTO games_moves (move_number, move, games_id) VALUES
 (37, 'd5', 3), (38, 'cxd5', 3), (39, 'Nxd5', 3), (40, 'Nc5', 3),
 (41, 'Bxg6', 3), (42, 'fxg6', 3), (43, 'Qxg6', 3);
 
--- Praggnanandhaa vs Van Foreest, Tata Steel Runde 3 (Game ID ~23)
+-- Praggnanandhaa vs Van Foreest, Tata Steel Round 3 (Game ID ~23)
 INSERT INTO games_moves (move_number, move, games_id) VALUES
 (1, 'e4', 23), (2, 'c5', 23), (3, 'Nf3', 23), (4, 'd6', 23),
 (5, 'd4', 23), (6, 'cxd4', 23), (7, 'Nxd4', 23), (8, 'Nf6', 23),
