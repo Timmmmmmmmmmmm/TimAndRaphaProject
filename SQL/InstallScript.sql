@@ -7,11 +7,9 @@ DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS tournaments;
 -- VIEWS
 DROP VIEW IF EXISTS leaderboard;
-DROP VIEW IF EXISTS round_overview;
-DROP VIEW IF EXISTS player_statistics;
+DROP VIEW IF EXISTS opponent_info;
+DROP VIEW IF EXISTS player_analysis;
 -- TRIGGER
-DROP TRIGGER IF EXISTS new_round;
-DROP TRIGGER IF EXISTS create_fist_round;
 DROP TRIGGER IF EXISTS update_player_points_after_round;
 
 CREATE TABLE tournaments
@@ -113,41 +111,53 @@ CREATE TABLE games_moves
 );
 
 CREATE VIEW leaderboard AS
-SELECT p.firstname, p.lastname, p.fide_rating, pti.score, sum(oti.score) AS buchholz
+SELECT p.id AS player_id, p.firstname, p.lastname, p.fide_rating, pti.score, sum(oti.score) AS buchholz
 FROM players p
 INNER JOIN player_tournament_info pti
-ON p.id = pti.player_id
+    ON p.id = pti.player_id
 INNER JOIN games g
-ON (g.player_white = p.id OR g.player_black = p.id)
+    ON (g.player_white = p.id OR g.player_black = p.id)
 INNER JOIN player_tournament_info oti
-ON oti.player_id =
-    CASE
-        WHEN g.player_white = p.id
-        THEN g.player_black
-        ELSE g.player_white
-    END
-AND oti.tournament_id = 1
-WHERE tournament_id = 1
+    ON oti.player_id =
+        CASE
+            WHEN g.player_white = p.id
+            THEN g.player_black
+            ELSE g.player_white
+        END
+WHERE pti.tournament_id = 1
+AND oti.tournament_id = pti.tournament_id
 GROUP BY p.id, p.firstname, p.lastname, p.fide_rating, pti.score
 ORDER BY pti.score DESC, buchholz DESC, p.fide_rating DESC;
 
-CREATE VIEW player_statistics AS
-SELECT COUNT(*) AS Partien, concat(p.lastname, ', ', p.firstname) AS Spieler
-FROM player_tournament_info pti
-INNER JOIN players p
-    ON pti.player_id = p.id
+CREATE VIEW opponent_info AS
+SELECT p.id AS player_id, p.firstname, p.lastname, p.fide_rating, MIN(op.fide_rating) AS min_opponent_rating, MAX(op.fide_rating) AS max_opponent_rating, AVG(op.fide_rating) AS avg_opponent_rating, COUNT(*) AS games_count
+FROM players p
 INNER JOIN games g
-    ON g.player_white = p.id OR g.player_black = p.id
-GROUP BY pti.player_id, p.lastname, p.firstname;
+    ON g.player_white = p.id
+    OR g.player_black = p.id
+INNER JOIN players op
+    ON op.id =
+        CASE
+            WHEN g.player_white = p.id
+            THEN g.player_black
+            ELSE g.player_white
+        END
+WHERE g.tournament_id = 1
+GROUP BY p.id, p.firstname, p.lastname, p.fide_rating;
 
-CREATE VIEW round_overview AS
-SELECT g.id,
-       concat(pw.lastname, ", ", pw.firstname) AS player_white,
-       concat(pb.lastname, ", ", pb.firstname) AS player_black
-FROM games g
-         INNER JOIN players pw ON g.player_white = pw.id
-         INNER JOIN players pb ON g.player_black = pb.id
-WHERE g.round_id = 1;
+CREATE VIEW player_analysis AS
+SELECT
+    oi.player_id,
+    oi.firstname,
+    oi.lastname,
+    (oi.avg_opponent_rating - oi.fide_rating) AS avg_rating_diff,
+    (lb.score / NULLIF(oi.games_count, 0)) AS avg_score_per_game,
+    lb.score,
+    ROUND((lb.score * (oi.avg_opponent_rating / oi.fide_rating)) / oi.games_count * 10, 2) AS adjusted_score,
+    ROUND((lb.score / NULLIF(oi.games_count, 0)) / (1 / (1 + POW(10, (oi.avg_opponent_rating - oi.fide_rating) / 400))) * 100, 2) AS performance
+FROM opponent_info oi
+INNER JOIN leaderboard lb
+    ON oi.player_id = lb.player_id;
 
 CREATE TRIGGER update_player_points_after_round
 AFTER UPDATE
@@ -180,6 +190,5 @@ BEGIN
             END
         WHERE g.round_id = NEW.id
           AND pti.tournament_id = NEW.tournament_id;
-
     END IF;
 END;
