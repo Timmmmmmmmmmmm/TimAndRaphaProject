@@ -96,7 +96,7 @@ INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birth
 ('Klaus', 'Bischoff', 2495, 'GM', 'M', '1961-01-01'),
 ('Daniel', 'Fridman', 2575, 'GM', 'M', '1976-10-19'),
 ('Dimitri', 'Reinderman', 2530, 'GM', 'M', '1972-04-15'),
-('Erwin', 'L\'Ami', 2605, 'GM', 'M', '1985-05-01'),
+('Erwin', "L'Ami", 2605, 'GM', 'M', '1985-05-01'),
 ('Max', 'Warmerdam', 2580, 'NONE', 'M', '1999-07-22'),
 ('Lucas', 'Van Foreest', 2565, 'NONE', 'M', '2001-03-03'),
 ('Benjamin', 'Bok', 2555, 'NONE', 'M', '1995-09-14'),
