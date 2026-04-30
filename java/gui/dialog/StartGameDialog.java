@@ -1,13 +1,16 @@
 package gui.dialog;
 
 import gui.BaseWindow;
+import gui.dto.GameInitDto;
 import gui.panel.BoardPanel;
+import gui.server.ServerBoardPanel;
 import gui.util.Game;
 import gui.DatabaseConnection;
 import gui.dto.GameDto;
 import gui.dto.GameRoundPlayerDto;
 import gui.dto.TournamentDto;
 import gui.util.Move;
+import gui.server.ServerNetworkManager;
 import gui.util.PGNReader;
 
 import javax.swing.*;
@@ -57,15 +60,18 @@ public class StartGameDialog {
 
         JButton startButton = new JButton("Start game");
         JButton importButton = new JButton("Import game");
+        JButton multiplayerButton = new JButton("Play Multiplayer");
         JButton cancelButton = new JButton("Cancel");
 
         startButton.setEnabled(false);
+        multiplayerButton.setEnabled(false);
         importButton.setEnabled(false);
 
         boardField.getDocument().addDocumentListener(new DocumentListener() {
             private void update() {
                 boolean valid = boardField.getText().matches("\\d+");
                 startButton.setEnabled(valid);
+                multiplayerButton.setEnabled(valid);
                 importButton.setEnabled(valid);
             }
 
@@ -93,6 +99,72 @@ public class StartGameDialog {
             BaseWindow.getInstance().revalidate();
             BaseWindow.getInstance().repaint();
             dialog.dispose();
+        });
+
+        multiplayerButton.addActionListener(_ -> {
+
+            JTextField portField = new JTextField("5000");
+
+            int result = JOptionPane.showConfirmDialog(
+                    BaseWindow.getInstance(),
+                    new Object[]{"Port:", portField},
+                    "Host Game",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (result != JOptionPane.OK_OPTION) return;
+
+            JDialog waitingDialog = new JDialog((Frame) null, "IP: " + getLocalIp(), true);
+            waitingDialog.setLayout(new BorderLayout());
+            waitingDialog.add(new JLabel("Waiting for client...", SwingConstants.CENTER), BorderLayout.CENTER);
+            waitingDialog.setSize(250, 120);
+            waitingDialog.setLocationRelativeTo(BaseWindow.getInstance());
+
+            try {
+                ServerNetworkManager network = new ServerNetworkManager();
+
+                network.setOnConnected(() -> SwingUtilities.invokeLater(() -> {
+                    waitingDialog.dispose();
+                    dialog.dispose();
+
+                    Game game = new Game(
+                            tournamentDto,
+                            selectedGame.roundDto(),
+                            selectedGame.gameDto(),
+                            selectedGame.whitePlayer(),
+                            selectedGame.blackPlayer()
+                    );
+
+                    BaseWindow.getInstance().setContentPane(new ServerBoardPanel(network, game));
+                    BaseWindow.getInstance().revalidate();
+                    BaseWindow.getInstance().repaint();
+                }));
+
+                new Thread(() -> {
+                    try {
+                        network.startServer(Integer.parseInt(portField.getText()));
+                        network.sendInit(new GameInitDto(
+                                tournamentDto.base_consider_time(),
+                                tournamentDto.move_consider_time(),
+                                selectedGame.whitePlayer().firstname,
+                                selectedGame.whitePlayer().lastname,
+                                selectedGame.whitePlayer().fide_rating,
+                                selectedGame.whitePlayer().fide_title,
+                                selectedGame.blackPlayer().firstname,
+                                selectedGame.blackPlayer().lastname,
+                                selectedGame.blackPlayer().fide_rating,
+                                selectedGame.blackPlayer().fide_title
+                        ));
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(dialog, "Start fehlgeschlagen");
+                    }
+                }).start();
+
+                waitingDialog.setVisible(true);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(dialog, "Start fehlgeschlagen");
+            }
         });
 
         importButton.addActionListener(_ -> {
@@ -140,6 +212,7 @@ public class StartGameDialog {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(startButton);
+        buttonPanel.add(multiplayerButton);
         buttonPanel.add(importButton);
         buttonPanel.add(cancelButton);
 
@@ -147,7 +220,31 @@ public class StartGameDialog {
 
         dialog.setContentPane(panel);
         dialog.pack();
-        dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(BaseWindow.getInstance());
         dialog.setVisible(true);
+    }
+
+    public static String getLocalIp() {
+        try {
+            java.util.Enumeration<java.net.NetworkInterface> nets = java.net.NetworkInterface.getNetworkInterfaces();
+
+            while (nets.hasMoreElements()) {
+                java.net.NetworkInterface netIf = nets.nextElement();
+
+                if (!netIf.isUp() || netIf.isLoopback()) continue;
+
+                java.util.Enumeration<java.net.InetAddress> addresses = netIf.getInetAddresses();
+
+                while (addresses.hasMoreElements()) {
+                    java.net.InetAddress address = addresses.nextElement();
+
+                    if (address instanceof java.net.Inet4Address && !address.isLoopbackAddress()) {
+                        return address.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return "127.0.0.1";
     }
 }

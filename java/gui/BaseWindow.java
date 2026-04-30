@@ -1,11 +1,18 @@
 package gui;
 
-import gui.panel.StartPanel;
+import gui.client.ClientBoardPanel;
+import gui.client.ClientNetworkManager;
+import gui.client.ClientStartPanel;
+import gui.server.ServerBoardPanel;
+import gui.server.ServerNetworkManager;
+import gui.server.ServerStartPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Objects;
 import java.util.Random;
 
@@ -13,17 +20,47 @@ public class BaseWindow extends JFrame {
 
     private static BaseWindow instance;
 
-    public BaseWindow() {
+    public BaseWindow(boolean isServer) {
         instance = this;
-        applyChessTheme(this);
-
-        setTitle("Schach-Turnierverwaltung");
-        setContentPane(new StartPanel());
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {}
+        SwingUtilities.updateComponentTreeUI(this);
+        if (isServer) {
+            setContentPane(new ServerStartPanel());
+            setTitle("ChessManager - Server");
+        } else {
+            setContentPane(new ClientStartPanel());
+            setTitle("ChessManager - Client");
+        }
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize((int) (screenSize.width * 0.65), (int) (screenSize.height * 0.65));
         setMinimumSize(new Dimension(screenSize.width / 4, screenSize.height / 4));
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+
+                if (isServer) {
+                    Container contentPane = getContentPane();
+
+                    if (contentPane instanceof ServerBoardPanel) {
+                        ServerNetworkManager network = ((ServerBoardPanel) contentPane).network;
+                        network.disconnect(true);
+                    }
+                } else {
+                    Container contentPane = getContentPane();
+
+                    if (contentPane instanceof ClientBoardPanel) {
+                        ClientNetworkManager network = ((ClientBoardPanel) contentPane).network;
+                        network.disconnect(true);
+                    }
+                }
+
+                System.exit(0);
+            }
+        });
         setResizable(true);
         setVisible(true);
         revalidate();
@@ -32,8 +69,13 @@ public class BaseWindow extends JFrame {
         ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/gui/assets/analysis/brilliant.png")));
         setIconImage(icon.getImage());
 
+        Timer timer = getIconTimer();
+        timer.start();
+    }
+
+    private Timer getIconTimer() {
         Random random = new Random();
-        Timer timer = new Timer(10000, new ActionListener() {
+        return new Timer(10000, new ActionListener() {
             String lastAnalysis = "brilliant";
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -53,21 +95,9 @@ public class BaseWindow extends JFrame {
                 setIconImage(icon.getImage());
             }
         });
-        timer.start();
     }
 
     public static BaseWindow getInstance() {
         return instance;
-    }
-
-    static void main() {
-        SwingUtilities.invokeLater(BaseWindow::new);
-    }
-
-    public void applyChessTheme(JFrame frame) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
-        SwingUtilities.updateComponentTreeUI(frame);
     }
 }

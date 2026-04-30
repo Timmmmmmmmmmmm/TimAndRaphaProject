@@ -1,5 +1,6 @@
 package gui.dialog;
 
+import gui.BaseWindow;
 import gui.DatabaseConnection;
 import gui.util.FideTitle;
 
@@ -170,7 +171,7 @@ public class NewPlayerDialog {
 
         dialog.setContentPane(panel);
         dialog.pack();
-        dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(BaseWindow.getInstance());
         dialog.setVisible(true);
     }
 }

@@ -15,7 +15,7 @@ public class OpenTournamentDialog {
         JDialog dialog = new JDialog();
         dialog.setTitle("Open Tournament");
         dialog.setSize(400, 200);
-        dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(BaseWindow.getInstance());
         dialog.setModal(true);
         dialog.setLayout(new BorderLayout());
         JPanel panel = new JPanel(new GridBagLayout());

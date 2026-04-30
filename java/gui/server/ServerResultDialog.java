@@ -1,7 +1,7 @@
-package gui.dialog;
+package gui.server;
 
 import gui.BaseWindow;
-import gui.panel.StartPanel;
+import gui.dialog.PromotionDialog;
 import gui.util.Game;
 import gui.util.GameResult;
 import gui.util.PGNWriter;
@@ -12,13 +12,13 @@ import gui.util.SimpleGame;
 import javax.swing.*;
 import java.util.Objects;
 
-public class ResultDialog {
+public class ServerResultDialog {
 
     public static void show(SimpleGame game, GameResult result, boolean whiteWins) {
 
         String[] options = {
-                "PGN herunterladen",
-                "Schließen"
+                "Download PGN",
+                "Close"
         };
 
         JOptionPane pane = new JOptionPane(
@@ -31,7 +31,7 @@ public class ResultDialog {
                 options[0]
         );
 
-        JDialog dialog = pane.createDialog("Game result");
+        JDialog dialog = pane.createDialog(BaseWindow.getInstance(), "Game result");
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         dialog.setVisible(true);
         dialog.setIconImage(null);
@@ -68,7 +68,7 @@ public class ResultDialog {
                     DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + blackScore + " WHERE player_id = " + ((Game) game).blackPlayerDto.id);
                     BaseWindow.getInstance().setContentPane(new TournamentPanel(((Game) game).tournamentDto));
                 } else {
-                    BaseWindow.getInstance().setContentPane(new StartPanel());
+                    BaseWindow.getInstance().setContentPane(new ServerStartPanel());
                 }
 
                 BaseWindow.getInstance().revalidate();

@@ -1,5 +1,6 @@
 package gui.dialog;
 
+import gui.BaseWindow;
 import gui.DatabaseConnection;
 import gui.dto.PlayerDto;
 
@@ -206,7 +207,7 @@ public class NewTournamentDialog {
         dialog.add(bottom, BorderLayout.SOUTH);
 
         dialog.pack();
-        dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(BaseWindow.getInstance());
         dialog.setVisible(true);
     }
 

@@ -1,5 +1,6 @@
 package gui.panel;
 
+import gui.server.ServerStartPanel;
 import gui.BaseWindow;
 import gui.DatabaseConnection;
 import gui.dialog.NewPlayerDialog;
@@ -32,7 +33,7 @@ public class StartTournamentPanel extends JPanel {
     public JPanel createMenuPanel() {
         JButton backButton = new JButton("Exit Tournament Menu");
         backButton.addActionListener(_ -> {
-            BaseWindow.getInstance().setContentPane(new StartPanel());
+            BaseWindow.getInstance().setContentPane(new ServerStartPanel());
             BaseWindow.getInstance().revalidate();
             BaseWindow.getInstance().repaint();
         });

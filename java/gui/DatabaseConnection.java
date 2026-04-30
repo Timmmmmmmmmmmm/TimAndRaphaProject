@@ -15,12 +15,12 @@ public class DatabaseConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            System.out.println("JDBC Connection failed to connect.");
+            System.out.println("[DATABASE] JDBC Connection failed to connect");
         }
     }
 
     public static List<HashMap<String, String>> executeSql(String sql) {
-        System.out.println("Executing SQL: " + sql);
+        System.out.println("[DATABASE] Executing SQL (" + sql + ")");
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement statement = connection.createStatement()) {
 
@@ -34,13 +34,13 @@ public class DatabaseConnection {
             }
 
         } catch (SQLException e) {
-            System.out.println("Failed to execute SQL statement: " + e.getMessage() + " (" + e.getSQLState() + ")");
+            System.out.println("[DATABASE] Failed to execute SQL statement (" + e.getMessage() + " ~ " + e.getSQLState() + ")");
             return null;
         }
     }
 
     public static String insertAndReturnPrimaryKey(String sql) {
-        System.out.println("Executing SQL and return primary key: " + sql);
+        System.out.println("[DATABASE] Executing SQL and return primary key (" + sql + ")");
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -54,7 +54,7 @@ public class DatabaseConnection {
             }
 
         } catch (SQLException e) {
-            System.out.println("Failed to execute SQL statement: " + e.getMessage() + " (" + e.getSQLState() + ")");
+            System.out.println("[DATABASE] Failed to execute SQL statement (" + e.getMessage() + " ~ " + e.getSQLState() + ")");
             return null;
         }
     }
