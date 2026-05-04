@@ -122,7 +122,7 @@ public class SimpleGame {
 
             if (!copy) {
                 Piece.Type type = PromotionDialog.show(piece.white);
-                board[move.toRow][move.toColumn] = new Piece(type,piece.white);
+                board[move.toRow][move.toColumn] = new Piece(type, piece.white);
                 promotionType = type;
             } else {
                 board[move.toRow][move.toColumn] = new Piece(Piece.Type.QUEEN, piece.white);

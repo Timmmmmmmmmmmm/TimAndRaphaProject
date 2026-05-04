@@ -1,25 +1,26 @@
-package gui.client;
+package gui.guest;
 
 import gui.BaseWindow;
 import gui.panel.BoardPanel;
+import gui.panel.StartPanel;
 import gui.util.Game;
 import gui.util.GameResult;
 import gui.util.Move;
 
 import javax.swing.*;
 
-public class ClientBoardPanel extends BoardPanel {
+public class GuestBoardPanel extends BoardPanel {
 
-    public final ClientNetworkManager network;
+    public final GuestNetworkManager network;
 
-    public ClientBoardPanel(ClientNetworkManager network, int base_consider_time, int move_consider_time) {
-        super(base_consider_time, move_consider_time);
+    public GuestBoardPanel(GuestNetworkManager network, int base_consider_time, int move_consider_time) {
+        super(base_consider_time, move_consider_time, false);
         this.network = network;
         initNetwork();
     }
 
-    public ClientBoardPanel(ClientNetworkManager network, Game game) {
-        super(game);
+    public GuestBoardPanel(GuestNetworkManager network, Game game) {
+        super(game, false);
         this.network = network;
         initNetwork();
     }
@@ -30,6 +31,7 @@ public class ClientBoardPanel extends BoardPanel {
             makeMove(move);
             refresh();
         }));
+        network.onQuit = () -> timer.stop();
     }
 
     @Override
@@ -70,7 +72,7 @@ public class ClientBoardPanel extends BoardPanel {
         btn.addActionListener(_ -> {
             if (timer != null) timer.stop();
             network.disconnect(true);
-            BaseWindow.getInstance().setContentPane(new ClientStartPanel());
+            BaseWindow.getInstance().setContentPane(new StartPanel());
 
             BaseWindow.getInstance().revalidate();
             BaseWindow.getInstance().repaint();
@@ -84,7 +86,7 @@ public class ClientBoardPanel extends BoardPanel {
             network.sendEnd(result, whiteWins);
             if (timer != null) timer.stop();
 
-            ClientResultDialog.show(result, whiteWins);
+            GuestResultDialog.show(result, whiteWins);
         } else {
             System.out.println("[NETWORK] End (" + result.name() + ") is invalid. Game is maybe out of sync");
         }

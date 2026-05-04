@@ -1,5 +1,6 @@
 package gui.dialog;
 
+import gui.BaseWindow;
 import gui.util.Piece;
 
 import javax.swing.*;
@@ -15,7 +16,7 @@ public class PromotionDialog {
                 "Knight"
         };
         int res = JOptionPane.showOptionDialog(
-                null,
+                BaseWindow.getInstance(),
                 "Choose promotion piece",
                 "Pawn Promotion",
                 JOptionPane.DEFAULT_OPTION,

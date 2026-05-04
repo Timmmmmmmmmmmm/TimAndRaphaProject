@@ -1,9 +1,14 @@
-package gui.server;
+package gui.panel;
 
 import gui.BaseWindow;
+import gui.guest.GuestBoardPanel;
+import gui.guest.GuestNetworkManager;
 import gui.dto.GameInitDto;
-import gui.panel.BoardPanel;
-import gui.panel.StartTournamentPanel;
+import gui.dto.PlayerDto;
+import gui.dto.TournamentDto;
+import gui.host.HostBoardPanel;
+import gui.host.HostNetworkManager;
+import gui.util.Game;
 import gui.util.Move;
 import gui.util.PGNReader;
 
@@ -14,14 +19,14 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Objects;
 
-public class ServerStartPanel extends JPanel {
+public class StartPanel extends JPanel {
 
     private BufferedImage backgroundImage;
 
     private static final int DEFAULT_BASE_CONSIDER_TIME = 600;
     private static final int DEFAULT_MOVE_CONSIDER_TIME = 10;
 
-    public ServerStartPanel() {
+    public StartPanel() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -32,7 +37,7 @@ public class ServerStartPanel extends JPanel {
 
         add(createMenuPanel(), BorderLayout.NORTH);
 
-        JLabel titleLabel = new JLabel("ChessManager - Server");
+        JLabel titleLabel = new JLabel("ChessManager");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
@@ -52,19 +57,23 @@ public class ServerStartPanel extends JPanel {
 
         JButton quickGameButton = new JButton("Quick game");
         quickGameButton.addActionListener(_ -> {
-            BaseWindow.getInstance().setContentPane(new BoardPanel(60, 10));
+            BaseWindow.getInstance().setContentPane(new BoardPanel(60, 10, true));
             BaseWindow.getInstance().revalidate();
             BaseWindow.getInstance().repaint();
         });
 
-        JButton multiplayerButton = new JButton("Online game");
+        JButton multiplayerButton = new JButton("Host online game");
         multiplayerButton.addActionListener(_ -> hostSimpleGame());
+
+        JButton joinButton = new JButton("Join online game");
+        joinButton.addActionListener(_ -> joinGame());
 
         JButton importGameButton = getImportGameButton();
 
         menuPanel.add(tournamentButton);
         menuPanel.add(quickGameButton);
         menuPanel.add(multiplayerButton);
+        menuPanel.add(joinButton);
         menuPanel.add(importGameButton);
 
         return menuPanel;
@@ -102,12 +111,12 @@ public class ServerStartPanel extends JPanel {
         waitingDialog.setLocationRelativeTo(BaseWindow.getInstance());
 
         try {
-            ServerNetworkManager network = new ServerNetworkManager();
+            HostNetworkManager network = new HostNetworkManager();
 
             network.setOnConnected(() -> SwingUtilities.invokeLater(() -> {
                 waitingDialog.dispose();
 
-                BaseWindow.getInstance().setContentPane(new ServerBoardPanel(network, DEFAULT_BASE_CONSIDER_TIME, DEFAULT_MOVE_CONSIDER_TIME));
+                BaseWindow.getInstance().setContentPane(new HostBoardPanel(network, DEFAULT_BASE_CONSIDER_TIME, DEFAULT_MOVE_CONSIDER_TIME));
                 BaseWindow.getInstance().revalidate();
                 BaseWindow.getInstance().repaint();
             }));
@@ -126,6 +135,68 @@ public class ServerStartPanel extends JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Start fehlgeschlagen");
         }
+    }
+
+    private void joinGame() {
+
+        JTextField ipField = new JTextField("localhost");
+        JTextField portField = new JTextField("5000");
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                new Object[]{"IP:", ipField, "Port:", portField},
+                "Connect to Server",
+                JOptionPane.OK_CANCEL_OPTION
+        );
+
+        if (result != JOptionPane.OK_OPTION) return;
+
+        try {
+            GuestNetworkManager net = getClientNetworkManager();
+
+            new Thread(() -> {
+                try {
+                    net.connect(ipField.getText(), Integer.parseInt(portField.getText()));
+                } catch (Exception e) {
+                    SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(this, "Verbindung fehlgeschlagen")
+                    );
+                }
+            }).start();
+
+        } catch (Exception e) {
+            SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(this, "Verbindung fehlgeschlagen")
+            );
+        }
+    }
+
+    private static GuestNetworkManager getClientNetworkManager() {
+        GuestNetworkManager net = new GuestNetworkManager();
+
+        net.setOnGameInit(dto -> SwingUtilities.invokeLater(() -> {
+
+            if (dto.isSimple) {
+                BaseWindow.getInstance().setContentPane(
+                        new GuestBoardPanel(net, dto.base_consider_time, dto.move_consider_time)
+                );
+            } else {
+                Game game = new Game(
+                        new TournamentDto(0, null, null, null, dto.base_consider_time, dto.move_consider_time, null),
+                        null,
+                        null,
+                        new PlayerDto(0, dto.whiteFirstname, dto.whiteLastname, dto.whiteRating, dto.whiteTitle, ' ', null),
+                        new PlayerDto(0, dto.blackFirstname, dto.blackLastname, dto.blackRating, dto.blackTitle, ' ', null));
+
+                BaseWindow.getInstance().setContentPane(
+                        new GuestBoardPanel(net, game)
+                );
+            }
+
+            BaseWindow.getInstance().revalidate();
+            BaseWindow.getInstance().repaint();
+        }));
+        return net;
     }
 
     @Override

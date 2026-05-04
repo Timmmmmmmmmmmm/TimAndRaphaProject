@@ -3,14 +3,14 @@ package gui.dialog;
 import gui.BaseWindow;
 import gui.dto.GameInitDto;
 import gui.panel.BoardPanel;
-import gui.server.ServerBoardPanel;
+import gui.host.HostBoardPanel;
 import gui.util.Game;
 import gui.DatabaseConnection;
 import gui.dto.GameDto;
 import gui.dto.GameRoundPlayerDto;
 import gui.dto.TournamentDto;
 import gui.util.Move;
-import gui.server.ServerNetworkManager;
+import gui.host.HostNetworkManager;
 import gui.util.PGNReader;
 
 import javax.swing.*;
@@ -94,7 +94,7 @@ public class StartGameDialog {
                             gameDto,
                             selectedGame.whitePlayer(),
                             selectedGame.blackPlayer()
-                    ))
+                    ), true)
             );
             BaseWindow.getInstance().revalidate();
             BaseWindow.getInstance().repaint();
@@ -121,7 +121,7 @@ public class StartGameDialog {
             waitingDialog.setLocationRelativeTo(BaseWindow.getInstance());
 
             try {
-                ServerNetworkManager network = new ServerNetworkManager();
+                HostNetworkManager network = new HostNetworkManager();
 
                 network.setOnConnected(() -> SwingUtilities.invokeLater(() -> {
                     waitingDialog.dispose();
@@ -135,7 +135,7 @@ public class StartGameDialog {
                             selectedGame.blackPlayer()
                     );
 
-                    BaseWindow.getInstance().setContentPane(new ServerBoardPanel(network, game));
+                    BaseWindow.getInstance().setContentPane(new HostBoardPanel(network, game));
                     BaseWindow.getInstance().revalidate();
                     BaseWindow.getInstance().repaint();
                 }));

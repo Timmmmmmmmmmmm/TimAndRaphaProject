@@ -1,11 +1,10 @@
 package gui;
 
-import gui.client.ClientBoardPanel;
-import gui.client.ClientNetworkManager;
-import gui.client.ClientStartPanel;
-import gui.server.ServerBoardPanel;
-import gui.server.ServerNetworkManager;
-import gui.server.ServerStartPanel;
+import gui.guest.GuestBoardPanel;
+import gui.guest.GuestNetworkManager;
+import gui.host.HostBoardPanel;
+import gui.host.HostNetworkManager;
+import gui.panel.StartPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,11 +26,8 @@ public class BaseWindow extends JFrame {
         } catch (Exception ignored) {}
         SwingUtilities.updateComponentTreeUI(this);
         if (isServer) {
-            setContentPane(new ServerStartPanel());
-            setTitle("ChessManager - Server");
-        } else {
-            setContentPane(new ClientStartPanel());
-            setTitle("ChessManager - Client");
+            setContentPane(new StartPanel());
+            setTitle("ChessManager");
         }
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize((int) (screenSize.width * 0.65), (int) (screenSize.height * 0.65));
@@ -45,15 +41,15 @@ public class BaseWindow extends JFrame {
                 if (isServer) {
                     Container contentPane = getContentPane();
 
-                    if (contentPane instanceof ServerBoardPanel) {
-                        ServerNetworkManager network = ((ServerBoardPanel) contentPane).network;
+                    if (contentPane instanceof HostBoardPanel) {
+                        HostNetworkManager network = ((HostBoardPanel) contentPane).network;
                         network.disconnect(true);
                     }
                 } else {
                     Container contentPane = getContentPane();
 
-                    if (contentPane instanceof ClientBoardPanel) {
-                        ClientNetworkManager network = ((ClientBoardPanel) contentPane).network;
+                    if (contentPane instanceof GuestBoardPanel) {
+                        GuestNetworkManager network = ((GuestBoardPanel) contentPane).network;
                         network.disconnect(true);
                     }
                 }
@@ -95,6 +91,10 @@ public class BaseWindow extends JFrame {
                 setIconImage(icon.getImage());
             }
         });
+    }
+
+    static void main() {
+        SwingUtilities.invokeLater(() -> new BaseWindow(true));
     }
 
     public static BaseWindow getInstance() {

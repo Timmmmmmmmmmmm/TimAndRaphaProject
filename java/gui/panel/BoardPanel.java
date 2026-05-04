@@ -1,9 +1,8 @@
 package gui.panel;
 
 import gui.BaseWindow;
-import gui.server.ServerResultDialog;
+import gui.host.HostResultDialog;
 import gui.dto.PlayerDto;
-import gui.server.ServerStartPanel;
 import gui.util.*;
 
 import javax.imageio.ImageIO;
@@ -11,6 +10,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,19 +35,22 @@ public class BoardPanel extends JPanel {
     PlayerDisplay blackPlayerDisplay;
     PlayerDisplay whitePlayerDisplay;
 
-    final JButton[][] board = new JButton[8][8];
+    JButton[][] board = new JButton[8][8];
 
     boolean inCheck = false;
 
     public Timer timer;
+
+    public boolean playingAsWhite = true;
 
     public int selectedRow = -1, selectedColumn = -1;
     public List<Move> legalMoves = new ArrayList<>();
 
     private final Map<String, Image> pieceImages = new HashMap<>();
 
-    public BoardPanel(int base_consider_time, int move_consider_time) {
+    public BoardPanel(int base_consider_time, int move_consider_time, boolean playingAsWhite) {
         game = new SimpleGame();
+        this.playingAsWhite = playingAsWhite;
         isReplay = false;
         this.base_consider_time = base_consider_time;
         this.move_consider_time = move_consider_time;
@@ -59,13 +62,14 @@ public class BoardPanel extends JPanel {
         game = new SimpleGame();
         isReplay = true;
         this.replayMoves = replayMoves;
-        base_consider_time = 600;
+        base_consider_time = -1;
         setupUI();
         setupPlayerDisplays();
     }
 
-    public BoardPanel(Game game) {
+    public BoardPanel(Game game, boolean playingAsWhite) {
         this.game = game;
+        this.playingAsWhite = playingAsWhite;
         isReplay = false;
         base_consider_time = game.tournamentDto.base_consider_time();
         move_consider_time = game.tournamentDto.move_consider_time();
@@ -77,7 +81,7 @@ public class BoardPanel extends JPanel {
         this.game = game;
         isReplay = true;
         this.replayMoves = replayMoves;
-        base_consider_time = 600;
+        base_consider_time = -1;
         setupUI();
         setupPlayerDisplays(game.whitePlayerDto, game.blackPlayerDto);
     }
@@ -105,11 +109,15 @@ public class BoardPanel extends JPanel {
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
                 JButton button = new JButton();
-                final int r = row;
-                final int c = column;
+                final int r = playingAsWhite ? row : 7 - row;
+                final int c = playingAsWhite ? column : 7 - column;
                 button.addActionListener(_ -> click(r, c));
                 button.setUI(new BasicButtonUI());
-                board[row][column] = button;
+                if (playingAsWhite) {
+                    board[row][column] = button;
+                } else {
+                    board[7 - row][7 - column] = button;
+                }
                 boardPanel.add(button);
             }
         }
@@ -191,7 +199,7 @@ public class BoardPanel extends JPanel {
             if (game instanceof Game) {
                 BaseWindow.getInstance().setContentPane(new TournamentPanel(((Game) game).tournamentDto));
             } else {
-                BaseWindow.getInstance().setContentPane(new ServerStartPanel());
+                BaseWindow.getInstance().setContentPane(new StartPanel());
             }
 
             BaseWindow.getInstance().revalidate();
@@ -279,8 +287,13 @@ public class BoardPanel extends JPanel {
 
         boardPanel.setBounds((mainPanel.getWidth()-size)/2,(mainPanel.getHeight()-size)/2,size,size);
 
-        blackPlayerDisplay.setBounds((mainPanel.getWidth()-size)/2,0,size,h);
-        whitePlayerDisplay.setBounds((mainPanel.getWidth()-size)/2,mainPanel.getHeight()-h,size,h);
+        if (playingAsWhite) {
+            blackPlayerDisplay.setBounds((mainPanel.getWidth() - size) / 2,0,size,h);
+            whitePlayerDisplay.setBounds((mainPanel.getWidth() -size) / 2,mainPanel.getHeight() - h,size,h);
+        } else {
+            blackPlayerDisplay.setBounds((mainPanel.getWidth() - size) / 2,mainPanel.getHeight() - h,size,h);
+            whitePlayerDisplay.setBounds((mainPanel.getWidth() - size) / 2,0,size,h);
+        }
 
         blackPlayerDisplay.update(blackTime);
         whitePlayerDisplay.update(whiteTime);
@@ -289,7 +302,6 @@ public class BoardPanel extends JPanel {
 
         for (int r=0;r<8;r++){
             for (int c=0;c<8;c++){
-
                 JButton b = board[r][c];
 
                 if (r==selectedRow && c==selectedColumn) {
@@ -315,6 +327,14 @@ public class BoardPanel extends JPanel {
                     b.setIcon(new ImageIcon(img.getScaledInstance(cell, cell, Image.SCALE_SMOOTH)));
                 }
             }
+        }
+
+        if (game.whiteTurn) {
+            whitePlayerDisplay.setBorder(new LineBorder(Color.BLACK, 3));
+            blackPlayerDisplay.setBorder(new EmptyBorder(3, 3,3, 3));
+        } else {
+            whitePlayerDisplay.setBorder(new EmptyBorder(3, 3, 3, 3));
+            blackPlayerDisplay.setBorder(new LineBorder(Color.BLACK, 3));
         }
 
         highlight();
@@ -347,7 +367,7 @@ public class BoardPanel extends JPanel {
             PGNWriter.saveMovesInDatabase((Game) game);
         }
 
-        ServerResultDialog.show(game, result, whiteWins);
+        HostResultDialog.show(game, result, whiteWins);
     }
 
     @Override

@@ -1,7 +1,9 @@
-package gui.server;
+package gui.guest;
 
 import gui.BaseWindow;
 import gui.dto.GameInitDto;
+import gui.panel.StartPanel;
+import gui.util.FideTitle;
 import gui.util.GameResult;
 import gui.util.Move;
 
@@ -9,50 +11,46 @@ import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Consumer;
 
-public class ServerNetworkManager {
+public class GuestNetworkManager {
 
     private BufferedReader in;
     private PrintWriter out;
     private Socket socket;
 
-    private Consumer<Move> onMoveRequest;
-    private Runnable onConnected;
+    private Consumer<GameInitDto> onGameInit;
+    private Consumer<Move> onMove;
 
     private boolean connected = false;
     private volatile boolean selfDisconnect = false;
 
-    public void setOnMoveRequest(Consumer<Move> onMoveRequest) {
-        this.onMoveRequest = onMoveRequest;
+    public Runnable onQuit;
+
+    public void setOnMove(Consumer<Move> onMove) {
+        this.onMove = onMove;
     }
 
-    public void setOnConnected(Runnable onConnected) {
-        this.onConnected = onConnected;
+    public void setOnGameInit(Consumer<GameInitDto> onGameInit) {
+        this.onGameInit = onGameInit;
     }
 
-    public boolean isMyTurn(boolean whiteTurn) {
-        return whiteTurn;
-    }
-
-    public void startServer(int port) throws Exception {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            socket = serverSocket.accept();
-        }
+    public void connect(String host, int port) throws Exception {
+        socket = new Socket(host, port);
         setup(socket);
-
         connected = true;
-        System.out.println("[NETWORK] Client connected");
-
-        if (onConnected != null) onConnected.run();
+        System.out.println("[NETWORK] Connected to host");
     }
 
     private void setup(Socket socket) throws Exception {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
         new Thread(this::listen).start();
+    }
+
+    public boolean isMyTurn(boolean whiteTurn) {
+        return !whiteTurn;
     }
 
     // ----- INPUT -----
@@ -63,9 +61,18 @@ public class ServerNetworkManager {
 
             while ((msg = in.readLine()) != null && connected) {
 
+                if (msg.startsWith("INIT:")) {
+                    System.out.println("[NETWORK] Received INIT");
+                    GameInitDto dto = parseInit(msg.substring(5));
+                    if (onGameInit != null) {
+                        onGameInit.accept(dto);
+                    }
+                    continue;
+                }
+
                 if (msg.equals("QUIT")) {
                     if (!selfDisconnect) {
-                        System.out.println("[NETWORK] Client disconnected");
+                        System.out.println("[NETWORK] Host disconnected");
                         quit();
                     }
                     return;
@@ -77,12 +84,12 @@ public class ServerNetworkManager {
                     return;
                 }
 
-                if (msg.startsWith("REQUEST:")) {
-                    Move move = parseMove(msg.substring(8));
-                    System.out.println("[NETWORK] Received move request (" + msg + ")");
+                if (msg.startsWith("MOVE:")) {
+                    Move move = parseMove(msg.substring(5));
+                    System.out.println("[NETWORK] Received move (" + msg + ")");
 
-                    if (onMoveRequest != null) {
-                        onMoveRequest.accept(move);
+                    if (onMove != null) {
+                        onMove.accept(move);
                     }
                 }
             }
@@ -102,18 +109,46 @@ public class ServerNetworkManager {
         );
     }
 
+    private GameInitDto parseInit(String s) {
+        if (s.isBlank()) {
+            return null;
+        }
+        String[] p = s.split(";");
+
+        if (Boolean.parseBoolean(p[0])) {
+            return new GameInitDto(
+                    Integer.parseInt(p[1]),
+                    Integer.parseInt(p[2]));
+        } else {
+            return new GameInitDto(
+                    Integer.parseInt(p[1]),
+                    Integer.parseInt(p[2]),
+                    p[3],
+                    p[4],
+                    Integer.parseInt(p[5]),
+                    FideTitle.valueOf(p[6]),
+                    p[7],
+                    p[8],
+                    Integer.parseInt(p[9]),
+                    FideTitle.valueOf(p[10])
+            );
+        }
+    }
+
     private void quit() {
         connected = false;
         try { if (socket != null) socket.close();
         } catch (Exception ignored) {}
 
+        onQuit.run();
+
         JOptionPane.showMessageDialog(
-                null,
+                BaseWindow.getInstance(),
                 "Opponent disconnected",
                 "Disconnect",
                 JOptionPane.WARNING_MESSAGE
         );
-        BaseWindow.getInstance().setContentPane(new ServerStartPanel());
+        BaseWindow.getInstance().setContentPane(new StartPanel());
         BaseWindow.getInstance().revalidate();
         BaseWindow.getInstance().repaint();
     }
@@ -123,9 +158,9 @@ public class ServerNetworkManager {
         try { if (socket != null) socket.close();
         } catch (Exception ignored) {}
 
-        ServerBoardPanel panel = (ServerBoardPanel) BaseWindow.getInstance().getContentPane();
+        GuestBoardPanel panel = (GuestBoardPanel) BaseWindow.getInstance().getContentPane();
         panel.timer.stop();
-        ServerResultDialog.show(null, result, whiteWins);
+        GuestResultDialog.show(result, whiteWins);
     }
 
     public void disconnect(boolean sendQuit) {
@@ -136,49 +171,22 @@ public class ServerNetworkManager {
         try { if (socket != null) socket.close();
         } catch (Exception ignored) {}
 
-        BaseWindow.getInstance().setContentPane(new ServerStartPanel());
+        BaseWindow.getInstance().setContentPane(new StartPanel());
         BaseWindow.getInstance().revalidate();
         BaseWindow.getInstance().repaint();
     }
 
     // ----- OUTPUT -----
 
-    public void sendMove(Move move) {
+    public void sendMoveRequest(Move move) {
         if (out != null) {
-            System.out.println("[NETWORK] Sending move (" + serializeMove(move) + ")");
-            out.println("MOVE:" + serializeMove(move));
+            System.out.println("[NETWORK] Sending move request (" + serializeMoveRequest(move) + ")");
+            out.println("REQUEST:" + serializeMoveRequest(move));
         }
     }
 
-    private String serializeMove(Move m) {
+    private String serializeMoveRequest(Move m) {
         return m.fromRow + "," + m.fromColumn + "," + m.toRow + "," + m.toColumn;
-    }
-
-    public void sendInit(GameInitDto dto) {
-        if (out != null) {
-            out.println("INIT:" + serializeInit(dto));
-            System.out.println("[NETWORK] Sending INIT");
-        }
-    }
-
-    private String serializeInit(GameInitDto dto) {
-        if (dto.isSimple) {
-            return "true;" +
-                    dto.base_consider_time + ";" +
-                    dto.move_consider_time;
-        } else {
-            return "false;" +
-                    dto.base_consider_time + ";" +
-                    dto.move_consider_time + ";" +
-                    dto.whiteFirstname + ";" +
-                    dto.whiteLastname + ";" +
-                    dto.whiteRating + ";" +
-                    dto.whiteTitle.name() + ";" +
-                    dto.blackFirstname + ";" +
-                    dto.blackLastname + ";" +
-                    dto.blackRating + ";" +
-                    dto.blackTitle.name();
-        }
     }
 
     public void sendEnd(GameResult result, boolean whiteWins) {

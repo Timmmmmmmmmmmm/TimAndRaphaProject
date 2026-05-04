@@ -1,7 +1,8 @@
-package gui.server;
+package gui.host;
 
 import gui.BaseWindow;
 import gui.panel.BoardPanel;
+import gui.panel.StartPanel;
 import gui.panel.TournamentPanel;
 import gui.util.Game;
 import gui.util.GameResult;
@@ -10,20 +11,20 @@ import gui.util.PGNWriter;
 
 import javax.swing.*;
 
-public class ServerBoardPanel extends BoardPanel {
+public class HostBoardPanel extends BoardPanel {
 
-    public final ServerNetworkManager network;
+    public final HostNetworkManager network;
 
-    public ServerBoardPanel(ServerNetworkManager network, Game game) {
-        super(game);
+    public HostBoardPanel(HostNetworkManager network, Game game) {
+        super(game, true);
         this.game = game;
         this.network = network;
 
         initNetwork();
     }
 
-    public ServerBoardPanel(ServerNetworkManager network, int base_consider_time, int move_consider_time) {
-        super(base_consider_time, move_consider_time);
+    public HostBoardPanel(HostNetworkManager network, int base_consider_time, int move_consider_time) {
+        super(base_consider_time, move_consider_time, true);
         this.network = network;
         initNetwork();
     }
@@ -35,6 +36,7 @@ public class ServerBoardPanel extends BoardPanel {
             network.sendMove(move);
             refresh();
         }));
+        network.onQuit = () -> timer.stop();
     }
 
     @Override
@@ -80,7 +82,7 @@ public class ServerBoardPanel extends BoardPanel {
             if (game instanceof Game) {
                 BaseWindow.getInstance().setContentPane(new TournamentPanel(((Game) game).tournamentDto));
             } else {
-                BaseWindow.getInstance().setContentPane(new ServerStartPanel());
+                BaseWindow.getInstance().setContentPane(new StartPanel());
             }
 
             BaseWindow.getInstance().revalidate();
@@ -98,6 +100,6 @@ public class ServerBoardPanel extends BoardPanel {
             PGNWriter.saveMovesInDatabase((Game) game);
         }
 
-        ServerResultDialog.show(game, result, whiteWins);
+        HostResultDialog.show(game, result, whiteWins);
     }
 }
