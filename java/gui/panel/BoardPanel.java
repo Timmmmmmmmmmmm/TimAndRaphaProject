@@ -1,7 +1,7 @@
 package gui.panel;
 
 import gui.BaseWindow;
-import gui.host.HostResultDialog;
+import gui.dialog.ResultDialog;
 import gui.dto.PlayerDto;
 import gui.util.*;
 
@@ -367,7 +367,7 @@ public class BoardPanel extends JPanel {
             PGNWriter.saveMovesInDatabase((Game) game);
         }
 
-        HostResultDialog.show(game, result, whiteWins);
+        ResultDialog.showHostDialog(game, result, whiteWins);
     }
 
     @Override

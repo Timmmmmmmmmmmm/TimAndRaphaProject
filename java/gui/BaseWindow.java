@@ -1,10 +1,8 @@
 package gui;
 
-import gui.guest.GuestBoardPanel;
-import gui.guest.GuestNetworkManager;
-import gui.host.HostBoardPanel;
-import gui.host.HostNetworkManager;
+import gui.panel.OnlineBoardPanel;
 import gui.panel.StartPanel;
+import gui.util.NetworkManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,20 +36,10 @@ public class BaseWindow extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
 
-                if (isServer) {
-                    Container contentPane = getContentPane();
-
-                    if (contentPane instanceof HostBoardPanel) {
-                        HostNetworkManager network = ((HostBoardPanel) contentPane).network;
-                        network.disconnect(true);
-                    }
-                } else {
-                    Container contentPane = getContentPane();
-
-                    if (contentPane instanceof GuestBoardPanel) {
-                        GuestNetworkManager network = ((GuestBoardPanel) contentPane).network;
-                        network.disconnect(true);
-                    }
+                Container contentPane = getContentPane();
+                if (contentPane instanceof OnlineBoardPanel) {
+                    NetworkManager network = ((OnlineBoardPanel) contentPane).network;
+                    network.disconnect(true);
                 }
 
                 System.exit(0);

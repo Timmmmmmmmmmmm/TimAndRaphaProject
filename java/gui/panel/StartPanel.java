@@ -1,13 +1,11 @@
 package gui.panel;
 
 import gui.BaseWindow;
-import gui.guest.GuestBoardPanel;
-import gui.guest.GuestNetworkManager;
+import gui.util.ClientNetworkManager;
 import gui.dto.GameInitDto;
 import gui.dto.PlayerDto;
 import gui.dto.TournamentDto;
-import gui.host.HostBoardPanel;
-import gui.host.HostNetworkManager;
+import gui.util.HostNetworkManager;
 import gui.util.Game;
 import gui.util.Move;
 import gui.util.PGNReader;
@@ -21,6 +19,7 @@ import java.util.Objects;
 
 public class StartPanel extends JPanel {
 
+    JLabel titleLabel;
     private BufferedImage backgroundImage;
 
     private static final int DEFAULT_BASE_CONSIDER_TIME = 600;
@@ -37,10 +36,14 @@ public class StartPanel extends JPanel {
 
         add(createMenuPanel(), BorderLayout.NORTH);
 
-        JLabel titleLabel = new JLabel("ChessManager");
+        titleLabel = new JLabel("ChessManager");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        try {
+            titleLabel.setFont(Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(StartPanel.class.getResourceAsStream("/gui/assets/cinzel.ttf"))));
+        } catch (Exception e) {
+            System.out.println("Schriftart Cinzel could not be loaded!");
+        }
         add(titleLabel, BorderLayout.CENTER);
     }
 
@@ -116,7 +119,7 @@ public class StartPanel extends JPanel {
             network.setOnConnected(() -> SwingUtilities.invokeLater(() -> {
                 waitingDialog.dispose();
 
-                BaseWindow.getInstance().setContentPane(new HostBoardPanel(network, DEFAULT_BASE_CONSIDER_TIME, DEFAULT_MOVE_CONSIDER_TIME));
+                BaseWindow.getInstance().setContentPane(new OnlineBoardPanel(network, DEFAULT_BASE_CONSIDER_TIME, DEFAULT_MOVE_CONSIDER_TIME));
                 BaseWindow.getInstance().revalidate();
                 BaseWindow.getInstance().repaint();
             }));
@@ -152,7 +155,7 @@ public class StartPanel extends JPanel {
         if (result != JOptionPane.OK_OPTION) return;
 
         try {
-            GuestNetworkManager net = getClientNetworkManager();
+            ClientNetworkManager net = getClientNetworkManager();
 
             new Thread(() -> {
                 try {
@@ -171,14 +174,14 @@ public class StartPanel extends JPanel {
         }
     }
 
-    private static GuestNetworkManager getClientNetworkManager() {
-        GuestNetworkManager net = new GuestNetworkManager();
+    private static ClientNetworkManager getClientNetworkManager() {
+        ClientNetworkManager net = new ClientNetworkManager();
 
         net.setOnGameInit(dto -> SwingUtilities.invokeLater(() -> {
 
             if (dto.isSimple) {
                 BaseWindow.getInstance().setContentPane(
-                        new GuestBoardPanel(net, dto.base_consider_time, dto.move_consider_time)
+                        new OnlineBoardPanel(net, dto.base_consider_time, dto.move_consider_time)
                 );
             } else {
                 Game game = new Game(
@@ -189,7 +192,7 @@ public class StartPanel extends JPanel {
                         new PlayerDto(0, dto.blackFirstname, dto.blackLastname, dto.blackRating, dto.blackTitle, ' ', null));
 
                 BaseWindow.getInstance().setContentPane(
-                        new GuestBoardPanel(net, game)
+                        new OnlineBoardPanel(net, game)
                 );
             }
 
@@ -202,10 +205,30 @@ public class StartPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (backgroundImage != null) {
-            int w = getWidth();
-            int h = getHeight();
 
+        int w = getWidth();
+        int h = getHeight();
+
+        float fontSize = Math.max(18f, w / 15f);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(fontSize));
+        Dimension d = titleLabel.getPreferredSize();
+        int labelWidth = d.width;
+        int labelHeight = d.height;
+
+        if (labelWidth > w * 0.9) {
+            float scale = (float)(w * 0.9 / labelWidth);
+            fontSize *= scale;
+            titleLabel.setFont(titleLabel.getFont().deriveFont(fontSize));
+            d = titleLabel.getPreferredSize();
+            labelWidth = d.width;
+            labelHeight = d.height;
+        }
+
+        int x = (w - labelWidth) / 2;
+        int y = (h - labelHeight) / 2;
+        titleLabel.setBounds(x, y, labelWidth, labelHeight);
+
+        if (backgroundImage != null) {
             int iw = backgroundImage.getWidth(this);
             int ih = backgroundImage.getHeight(this);
 

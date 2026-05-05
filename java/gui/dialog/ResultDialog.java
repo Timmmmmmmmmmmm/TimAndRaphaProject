@@ -1,7 +1,6 @@
-package gui.host;
+package gui.dialog;
 
 import gui.BaseWindow;
-import gui.guest.GuestResultDialog;
 import gui.panel.StartPanel;
 import gui.util.Game;
 import gui.util.GameResult;
@@ -14,9 +13,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-public class HostResultDialog {
+public class ResultDialog {
 
-    public static void show(SimpleGame game, GameResult result, boolean whiteWins) {
+    public static void showHostDialog(SimpleGame game, GameResult result, boolean whiteWins) {
 
         String[] options = {
                 "Download PGN",
@@ -24,10 +23,10 @@ public class HostResultDialog {
         };
 
         JOptionPane pane = new JOptionPane(
-                HostResultDialog.getMessage(result, whiteWins),
+                ResultDialog.getMessage(result, whiteWins),
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.DEFAULT_OPTION,
-                HostResultDialog.getIcon(result, whiteWins),
+                ResultDialog.getIcon(result, whiteWins),
                 options,
                 options[0]
         );
@@ -51,7 +50,7 @@ public class HostResultDialog {
         switch (res) {
             case 0:
                 PGNWriter.exportPGN(game);
-                show(game, result, whiteWins);
+                showHostDialog(game, result, whiteWins);
                 break;
             case 1:
                 if (game instanceof Game) {
@@ -78,6 +77,31 @@ public class HostResultDialog {
         }
     }
 
+    public static void showGuestDialog(GameResult result, boolean whiteWins) {
+
+        String[] options = {
+                "Close"
+        };
+
+        JOptionPane pane = new JOptionPane(
+                ResultDialog.getMessage(result, whiteWins),
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.DEFAULT_OPTION,
+                ResultDialog.getIcon(result, whiteWins),
+                options,
+                options[0]
+        );
+
+        JDialog dialog = pane.createDialog(BaseWindow.getInstance(), "Game result");
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.setVisible(true);
+        dialog.setIconImage(null);
+
+        BaseWindow.getInstance().setContentPane(new StartPanel());
+        BaseWindow.getInstance().revalidate();
+        BaseWindow.getInstance().repaint();
+    }
+
     private static ImageIcon getIcon(GameResult result, boolean whiteWins) {
         String name = "";
         switch (result) {
@@ -94,7 +118,7 @@ public class HostResultDialog {
         }
         ImageIcon icon = new ImageIcon(
                 Objects.requireNonNull(
-                        GuestResultDialog.class.getResource("/gui/assets/result/" + name + ".png")
+                        ResultDialog.class.getResource("/gui/assets/result/" + name + ".png")
                 )
         );
 

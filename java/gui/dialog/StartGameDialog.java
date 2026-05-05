@@ -3,14 +3,14 @@ package gui.dialog;
 import gui.BaseWindow;
 import gui.dto.GameInitDto;
 import gui.panel.BoardPanel;
-import gui.host.HostBoardPanel;
+import gui.panel.OnlineBoardPanel;
 import gui.util.Game;
 import gui.DatabaseConnection;
 import gui.dto.GameDto;
 import gui.dto.GameRoundPlayerDto;
 import gui.dto.TournamentDto;
 import gui.util.Move;
-import gui.host.HostNetworkManager;
+import gui.util.HostNetworkManager;
 import gui.util.PGNReader;
 
 import javax.swing.*;
@@ -135,7 +135,7 @@ public class StartGameDialog {
                             selectedGame.blackPlayer()
                     );
 
-                    BaseWindow.getInstance().setContentPane(new HostBoardPanel(network, game));
+                    BaseWindow.getInstance().setContentPane(new OnlineBoardPanel(network, game));
                     BaseWindow.getInstance().revalidate();
                     BaseWindow.getInstance().repaint();
                 }));

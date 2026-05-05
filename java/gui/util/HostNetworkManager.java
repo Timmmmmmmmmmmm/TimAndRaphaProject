@@ -1,32 +1,15 @@
-package gui.host;
+package gui.util;
 
-import gui.BaseWindow;
+import gui.dialog.ResultDialog;
 import gui.dto.GameInitDto;
-import gui.panel.StartPanel;
-import gui.util.GameResult;
-import gui.util.Move;
 
-import javax.swing.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.function.Consumer;
 
-public class HostNetworkManager {
-
-    private BufferedReader in;
-    private PrintWriter out;
-    private Socket socket;
+public class HostNetworkManager extends NetworkManager {
 
     private Consumer<Move> onMoveRequest;
     private Runnable onConnected;
-
-    public Runnable onQuit;
-
-    private boolean connected = false;
-    private volatile boolean selfDisconnect = false;
 
     public void setOnMoveRequest(Consumer<Move> onMoveRequest) {
         this.onMoveRequest = onMoveRequest;
@@ -37,7 +20,7 @@ public class HostNetworkManager {
     }
 
     public boolean isMyTurn(boolean whiteTurn) {
-        return whiteTurn;
+        return !whiteTurn;
     }
 
     public void startServer(int port) throws Exception {
@@ -52,15 +35,7 @@ public class HostNetworkManager {
         if (onConnected != null) onConnected.run();
     }
 
-    private void setup(Socket socket) throws Exception {
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(), true);
-        new Thread(this::listen).start();
-    }
-
-    // ----- INPUT -----
-
-    private void listen() {
+    public void listen() {
         try {
             String msg;
 
@@ -83,10 +58,7 @@ public class HostNetworkManager {
                 if (msg.startsWith("REQUEST:")) {
                     Move move = parseMove(msg.substring(8));
                     System.out.println("[NETWORK] Received move request (" + msg + ")");
-
-                    if (onMoveRequest != null) {
-                        onMoveRequest.accept(move);
-                    }
+                    if (onMoveRequest != null) onMoveRequest.accept(move);
                 }
             }
 
@@ -95,56 +67,11 @@ public class HostNetworkManager {
         }
     }
 
-    private Move parseMove(String s) {
-        String[] p = s.split(",");
-        return new Move(
-                Integer.parseInt(p[0]),
-                Integer.parseInt(p[1]),
-                Integer.parseInt(p[2]),
-                Integer.parseInt(p[3])
-        );
-    }
-
-    private void quit() {
-        connected = false;
-        try { if (socket != null) socket.close();
-        } catch (Exception ignored) {}
+    protected void endGame(GameResult result, boolean whiteWins) {
+        super.endGame(result, whiteWins);
         onQuit.run();
-
-        JOptionPane.showMessageDialog(
-                BaseWindow.getInstance(),
-                "Opponent disconnected",
-                "Disconnect",
-                JOptionPane.WARNING_MESSAGE
-        );
-        BaseWindow.getInstance().setContentPane(new StartPanel());
-        BaseWindow.getInstance().revalidate();
-        BaseWindow.getInstance().repaint();
+        ResultDialog.showHostDialog(null, result, whiteWins);
     }
-
-    private void endGame(GameResult result, boolean whiteWins) {
-        connected = false;
-        try { if (socket != null) socket.close();
-        } catch (Exception ignored) {}
-
-        onQuit.run();
-        HostResultDialog.show(null, result, whiteWins);
-    }
-
-    public void disconnect(boolean sendQuit) {
-        selfDisconnect = true;
-        if (sendQuit) out.println("QUIT");
-
-        connected = false;
-        try { if (socket != null) socket.close();
-        } catch (Exception ignored) {}
-
-        BaseWindow.getInstance().setContentPane(new StartPanel());
-        BaseWindow.getInstance().revalidate();
-        BaseWindow.getInstance().repaint();
-    }
-
-    // ----- OUTPUT -----
 
     public void sendMove(Move move) {
         if (out != null) {
@@ -181,16 +108,6 @@ public class HostNetworkManager {
                     dto.blackLastname + ";" +
                     dto.blackRating + ";" +
                     dto.blackTitle.name();
-        }
-    }
-
-    public void sendEnd(GameResult result, boolean whiteWins) {
-        if (out != null) {
-            String winner = whiteWins ? "W" : "B";
-            String reason = result.name();
-
-            System.out.println("[NETWORK] Sending END: " + reason + ":" + winner);
-            out.println("END:" + winner + ":" + reason);
         }
     }
 }
