@@ -1,0 +1,54 @@
+-- 1. Turnier anlegen
+INSERT INTO tournaments (name, date, city)
+VALUES ('Test Open', '2026-05-08', 'Münster');
+
+-- 2. Spieler anlegen
+INSERT INTO players (firstname, lastname, fide_rating)
+VALUES
+  ('Magnus', 'Carlsen', 2830),
+('Hikaru', 'Nakamura', 2780);
+
+-- 3. Spieler im Turnier registrieren
+INSERT INTO player_tournament_info (tournament_id, player_id)
+VALUES
+(1, 1),
+(1, 2);
+
+-- 4. Runde anlegen
+INSERT INTO rounds (tournament_id, round_number, status, begin)
+VALUES
+(1, 1, 'RUNNING', NOW());
+
+-- 5. Partie anlegen
+INSERT INTO games (
+    result,
+    start,
+    board_number,
+    round_id,
+    player_white,
+    player_black,
+    tournament_id
+)
+VALUES
+(1, NOW(), 1, 1, 1, 2, 1);
+
+-- 6. Punkte vor dem Trigger
+SELECT *
+FROM player_tournament_info;
+
+-- 7. Trigger auslösen
+UPDATE rounds
+SET status = 'COMPLETED'
+WHERE id = 1;
+
+-- 8. Punkte nach dem Trigger
+SELECT *
+FROM player_tournament_info;
+
+-- RESET
+DELETE FROM games_moves;
+DELETE FROM games;
+DELETE FROM rounds;
+DELETE FROM player_tournament_info;
+DELETE FROM players;
+DELETE FROM tournaments;
