@@ -151,10 +151,10 @@ SELECT
     oi.firstname,
     oi.lastname,
     (oi.avg_opponent_rating - oi.fide_rating) AS avg_rating_diff,
-    (lb.score / NULLIF(oi.games_count, 0)) AS avg_score_per_game,
     lb.score,
-    ROUND((lb.score * (oi.avg_opponent_rating / oi.fide_rating)) / oi.games_count * 10, 2) AS adjusted_score,
-    ROUND((lb.score / NULLIF(oi.games_count, 0)) / (1 / (1 + POW(10, (oi.avg_opponent_rating - oi.fide_rating) / 400))) * 100, 2) AS performance
+    (lb.score / NULLIF(oi.games_count, 0)) AS avg_score_per_game,
+    lb.fide_rating,
+    ROUND(oi.avg_opponent_rating + (800 * (lb.score / NULLIF(oi.games_count, 0)) - 400), 0) AS linear_performance_rating
 FROM opponent_info oi
 INNER JOIN leaderboard lb
     ON oi.player_id = lb.player_id;
