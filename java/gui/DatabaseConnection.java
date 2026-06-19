@@ -19,42 +19,57 @@ public class DatabaseConnection {
         }
     }
 
-    public static List<HashMap<String, String>> executeSql(String sql) {
-        System.out.println("[DATABASE] Executing SQL (" + sql + ")");
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()) {
+    public static List<HashMap<String, String>> executeSql(String sql, Object... params) {
+        System.out.println("[DATABASE] Executing SQL");
 
-            boolean hasResultSet = statement.execute(sql);
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) {
+                statement.setObject(i + 1, params[i]);
+            }
+
+            boolean hasResultSet = statement.execute();
 
             if (hasResultSet) {
                 List<HashMap<String, String>> result = getHashMaps(statement);
                 return result.isEmpty() ? null : result;
-            } else {
-                return null;
             }
 
+            return null;
+
         } catch (SQLException e) {
-            System.out.println("[DATABASE] Failed to execute SQL statement (" + e.getMessage() + " ~ " + e.getSQLState() + ")");
+            System.out.println("[DATABASE] Failed to execute SQL statement ("
+                    + e.getMessage() + " ~ " + e.getSQLState() + ")");
             return null;
         }
     }
 
-    public static String insertAndReturnPrimaryKey(String sql) {
-        System.out.println("[DATABASE] Executing SQL and return primary key (" + sql + ")");
+    public static String insertAndReturnPrimaryKey(String sql, Object... params) {
+        System.out.println("[DATABASE] Executing SQL and return primary key");
+
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(
+                     sql,
+                     Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.executeUpdate();
-            ResultSet resultSet = statement.getGeneratedKeys();
-
-            if (resultSet.next()) {
-                return resultSet.getString(1);
-            } else {
-                return null;
+            for (int i = 0; i < params.length; i++) {
+                statement.setObject(i + 1, params[i]);
             }
 
+            statement.executeUpdate();
+
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    return resultSet.getString(1);
+                }
+            }
+
+            return null;
+
         } catch (SQLException e) {
-            System.out.println("[DATABASE] Failed to execute SQL statement (" + e.getMessage() + " ~ " + e.getSQLState() + ")");
+            System.out.println("[DATABASE] Failed to execute SQL statement ("
+                    + e.getMessage() + " ~ " + e.getSQLState() + ")");
             return null;
         }
     }
