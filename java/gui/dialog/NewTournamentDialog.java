@@ -9,6 +9,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
 import java.awt.*;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -213,19 +214,21 @@ public class NewTournamentDialog {
 
     private static void addTournament(String name, String city, String base, String move) {
         try {
-            String sql = "INSERT INTO tournaments (name, date, city, base_consider_time, move_consider_time, status) VALUES (" +
-                    "'" + name + "'," +
-                    "'" + LocalDate.now() + "'," +
-                    "'" + city + "'," +
-                    base + "," +
-                    move + ",'PLANNED');";
+            String sql = "INSERT INTO tournaments (name, date, city, base_consider_time, move_consider_time, status) VALUES (?, ?, ?, ?, ?, ?)";
 
-            String tournamentId = DatabaseConnection.insertAndReturnPrimaryKey(sql);
+            String tournamentId = DatabaseConnection.insertAndReturnPrimaryKey(
+                    sql,
+                    name,
+                    LocalDate.now(),
+                    city,
+                    base,
+                    move,
+                    "PLANNED"
+            );
 
             for (int i = 0; i < rightModel.size(); i++) {
                 DatabaseConnection.executeSql(
-                        "INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES ('" +
-                                tournamentId + "', 'APPLIED', '" + rightModel.get(i).id + "', 0);"
+                        "INSERT INTO player_tournament_info (tournament_id, tournament_status, player_id, score) VALUES ('?', 'APPLIED', '?', 0);", tournamentId, rightModel.get(i).id
                 );
             }
 
@@ -233,20 +236,16 @@ public class NewTournamentDialog {
 
             for (int r = 1; r <= rounds; r++) {
                 DatabaseConnection.executeSql(
-                        "INSERT INTO rounds (tournament_id, round_number, status) VALUES (" +
-                                tournamentId + ", " + r + ", 'PLANNED');"
+                        "INSERT INTO rounds (tournament_id, round_number, status) VALUES (?, ?, 'PLANNED');", tournamentId, r
                 );
             }
 
             String roundId = Objects.requireNonNull(DatabaseConnection.executeSql(
-                    "SELECT id FROM rounds WHERE tournament_id = " + tournamentId + " AND round_number = 1;"
+                    "SELECT id FROM rounds WHERE tournament_id = ? AND round_number = 1;", tournamentId
             )).getFirst().get("id");
 
             var players = DatabaseConnection.executeSql(
-                    "SELECT p.id, p.fide_rating FROM players p " +
-                            "JOIN player_tournament_info pti ON p.id = pti.player_id " +
-                            "WHERE pti.tournament_id = " + tournamentId + " " +
-                            "ORDER BY p.fide_rating DESC;"
+                    "SELECT p.id, p.fide_rating FROM players p JOIN player_tournament_info pti ON p.id = pti.player_id WHERE pti.tournament_id = ? ORDER BY p.fide_rating DESC;", tournamentId
             );
 
             assert players != null;
@@ -255,8 +254,7 @@ public class NewTournamentDialog {
             if (count % 2 != 0) {
                 String byePlayer = players.get(count - 1).get("id");
                 DatabaseConnection.executeSql(
-                        "UPDATE player_tournament_info SET score = score + 1 WHERE player_id = " +
-                                byePlayer + " AND tournament_id = " + tournamentId
+                        "UPDATE player_tournament_info SET score = score + 1 WHERE player_id = ? AND tournament_id = ?", byePlayer, tournamentId
                 );
                 count--;
             }
@@ -274,13 +272,7 @@ public class NewTournamentDialog {
                 }
 
                 DatabaseConnection.executeSql(
-                        "INSERT INTO games (round_id, tournament_id, player_white, player_black, board_number) VALUES (" +
-                                roundId + ", " +
-                                tournamentId + ", " +
-                                white + ", " +
-                                black + ", " +
-                                (i + 1) +
-                                ");"
+                        "INSERT INTO games (round_id, tournament_id, player_white, player_black, board_number) VALUES (?, ?, ?, ?, ?);", roundId, tournamentId, white, black, (i + 1)
                 );
             }
 

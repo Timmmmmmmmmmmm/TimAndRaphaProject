@@ -131,15 +131,9 @@ public class NewPlayerDialog {
                 date = LocalDate.parse(b);
             }
 
-            String sql = "INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birthdate) VALUES (" +
-                    "'" + first.getText() + "'," +
-                    "'" + last.getText() + "'," +
-                    Integer.parseInt(rating.getText()) + "," +
-                    "'" + ((FideTitle) Objects.requireNonNull(title.getSelectedItem())).getKey() + "'," +
-                    "'" + gender.getText().charAt(0) + "'," +
-                    "'" + date + "')";
+            String sql = "INSERT INTO players (firstname, lastname, fide_rating, fide_title, gender, birthdate) VALUES (?,?,?,?,?,?)";
 
-            DatabaseConnection.executeSql(sql);
+            DatabaseConnection.executeSql(sql, first.getText(), last.getText(), Integer.parseInt(rating.getText()), ((FideTitle) Objects.requireNonNull(title.getSelectedItem())).getKey(), gender.getText().charAt(0), date);
             dialog.dispose();
         });
 

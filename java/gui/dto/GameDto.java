@@ -29,8 +29,8 @@ public class GameDto {
         this.tournament_id = tournament_id;
     }
 
-    public static List<GameDto> getAsList(String sql) {
-        List<HashMap<String, String>> gamesHashMap = DatabaseConnection.executeSql(sql);
+    public static List<GameDto> getAsList(String sql, String... params) {
+        List<HashMap<String, String>> gamesHashMap = DatabaseConnection.executeSql(sql, params);
         if (gamesHashMap == null || gamesHashMap.isEmpty()) {
             return null;
         }

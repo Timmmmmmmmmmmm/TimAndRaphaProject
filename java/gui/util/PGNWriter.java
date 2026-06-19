@@ -34,7 +34,7 @@ public class PGNWriter {
     public static void saveMovesInDatabase(Game game) {
         for (int i = 1; i < game.history.size(); i++) {
             String san = game.history.get(i);
-            DatabaseConnection.executeSql("INSERT INTO games_moves (move_number, move, games_id) VALUES (" + i + ", '" + san + "', " + game.gameDto.id + ");");
+            DatabaseConnection.executeSql("INSERT INTO games_moves (move_number, move, games_id) VALUES (?, '?', ?);", i, san, game.gameDto.id);
         }
     }
 
