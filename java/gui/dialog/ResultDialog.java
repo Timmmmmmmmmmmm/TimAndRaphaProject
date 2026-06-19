@@ -60,12 +60,12 @@ public class ResultDialog {
                     } else {
                         resultInt = whiteWins ? 1 : -1;
                     }
-                    DatabaseConnection.executeSql("UPDATE games SET result = " + resultInt + " WHERE id = " + ((Game) game).gameDto.id);
+                    DatabaseConnection.executeSql("UPDATE games SET result = " + resultInt + " WHERE id = ?;",((Game) game).gameDto.id);
 
                     double whiteScore = (resultInt == 1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
                     double blackScore = (resultInt == -1) ? 1.0 : (resultInt == 0 ? 0.5 : 0.0);
-                    DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + whiteScore + " WHERE player_id = " + ((Game) game).whitePlayerDto.id);
-                    DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + blackScore + " WHERE player_id = " + ((Game) game).blackPlayerDto.id);
+                    DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + whiteScore + " WHERE player_id = ?;",((Game) game).whitePlayerDto.id);
+                    DatabaseConnection.executeSql("UPDATE player_tournament_info SET score = score + " + blackScore + " WHERE player_id = ?;",((Game) game).blackPlayerDto.id);
                     BaseWindow.getInstance().setContentPane(new TournamentPanel(((Game) game).tournamentDto));
                 } else {
                     BaseWindow.getInstance().setContentPane(new StartPanel());

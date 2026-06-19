@@ -18,8 +18,8 @@ public class PlayerTournamentInfoDto {
         this.score = score;
     }
 
-    public static List<PlayerTournamentInfoDto> getAsList(String sql) {
-        List<HashMap<String, String>> playersHashMap = DatabaseConnection.executeSql(sql);
+    public static List<PlayerTournamentInfoDto> getAsList(String sql, String... params) {
+        List<HashMap<String, String>> playersHashMap = DatabaseConnection.executeSql(sql, params);
         if (playersHashMap == null || playersHashMap.isEmpty()) {
             return null;
         }

@@ -53,7 +53,7 @@ public class PlayerTableModel extends AbstractTableModel {
             case 5 -> { p.gender = value.toString().charAt(0); sql = "gender='" + p.gender + "'"; }
             case 6 -> { p.birthdate = DateUtil.parseLocalDate(value.toString()); sql = "birthdate='" + p.birthdate + "'"; }
         }
-        if (sql != null) DatabaseConnection.executeSql("UPDATE players SET " + sql + " WHERE id=" + p.id);
+        if (sql != null) DatabaseConnection.executeSql("UPDATE players SET " + sql + " WHERE id=?;",p.id);
         fireTableRowsUpdated(row, row);
     }
 }

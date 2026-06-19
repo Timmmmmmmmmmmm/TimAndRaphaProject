@@ -28,8 +28,8 @@ public class PlayerDto {
         this.birthdate = birthdate;
     }
 
-    public static List<PlayerDto> getAsList(String sql) {
-        List<HashMap<String, String>> playersHashMap = DatabaseConnection.executeSql(sql);
+    public static List<PlayerDto> getAsList(String sql, String... params) {
+        List<HashMap<String, String>> playersHashMap = DatabaseConnection.executeSql(sql, params);
         if (playersHashMap == null || playersHashMap.isEmpty()) {
             return null;
         }

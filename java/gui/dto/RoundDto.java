@@ -10,8 +10,8 @@ import java.util.List;
 
 public record RoundDto(int id, int round_number, RoundStatus status, LocalDateTime begin) {
 
-    public static List<RoundDto> getAsList(String sql) {
-        List<HashMap<String, String>> roundsHashMap = DatabaseConnection.executeSql(sql);
+    public static List<RoundDto> getAsList(String sql, String... params) {
+        List<HashMap<String, String>> roundsHashMap = DatabaseConnection.executeSql(sql, params);
         if (roundsHashMap == null || roundsHashMap.isEmpty()) {
             return null;
         }
