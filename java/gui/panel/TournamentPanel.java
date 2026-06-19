@@ -186,8 +186,7 @@ public class TournamentPanel extends JPanel {
             }
 
             DatabaseConnection.executeSql(
-                    "UPDATE rounds SET status = 'COMPLETED' WHERE round_number = " + currentRound +
-                            " AND tournament_id = " + tournamentDto.id()
+                    "UPDATE rounds SET status = 'COMPLETED' WHERE round_number = ? AND tournament_id = ?", "" + currentRound, "" + tournamentDto.id()
             );
 
             if (isLastRound(currentRound)) {
@@ -195,8 +194,7 @@ public class TournamentPanel extends JPanel {
             }
         } else {
             var games = DatabaseConnection.executeSql(
-                    "SELECT * FROM games WHERE round_id = (SELECT id FROM rounds WHERE round_number = " +
-                            currentRound + " AND tournament_id = " + tournamentDto.id() + ")"
+                    "SELECT * FROM games WHERE round_id = (SELECT id FROM rounds WHERE round_number = ? AND tournament_id = ?)", currentRound, tournamentDto.id()
             );
 
             if (games == null || games.isEmpty()) {
@@ -204,9 +202,7 @@ public class TournamentPanel extends JPanel {
             }
 
             DatabaseConnection.executeSql(
-                    "UPDATE rounds SET status = 'RUNNING', begin = '" + LocalDateTime.now() + "' " +
-                            "WHERE round_number = " + currentRound +
-                            " AND tournament_id = " + tournamentDto.id()
+                    "UPDATE rounds SET status = 'RUNNING', begin = ? WHERE round_number = ? AND tournament_id = ?", LocalDateTime.now(), "" + currentRound, "" + tournamentDto.id()
             );
 
             roundActive = true;
@@ -234,7 +230,7 @@ public class TournamentPanel extends JPanel {
         rootNode = new DefaultMutableTreeNode(tournamentDto.name());
 
         List<RoundDto> rounds = RoundDto.getAsList(
-                "SELECT * FROM rounds WHERE tournament_id = " + tournamentDto.id() + " ORDER BY round_number;"
+                "SELECT * FROM rounds WHERE tournament_id = ? ORDER BY round_number;", "" + tournamentDto.id()
         );
 
         if (rounds != null) {
@@ -250,14 +246,14 @@ public class TournamentPanel extends JPanel {
                 DefaultMutableTreeNode roundNode = new DefaultMutableTreeNode(round);
 
                 List<GameDto> games = GameDto.getAsList(
-                        "SELECT * FROM games WHERE round_id = " + round.id()
+                        "SELECT * FROM games WHERE round_id = ?", "" + round.id()
                 );
 
                 if (games != null) {
                     for (GameDto game : games) {
                         try {
-                            PlayerDto white = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + game.player_white)).getFirst();
-                            PlayerDto black = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = " + game.player_black)).getFirst();
+                            PlayerDto white = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = ?;", "" + game.player_white)).getFirst();
+                            PlayerDto black = Objects.requireNonNull(PlayerDto.getAsList("SELECT * FROM players WHERE id = ?;", "" + game.player_black)).getFirst();
 
                             roundNode.add(new DefaultMutableTreeNode(
                                     new GameRoundPlayerDto(game, round, white, black)
@@ -295,8 +291,8 @@ public class TournamentPanel extends JPanel {
         var result = DatabaseConnection.executeSql(
                 "SELECT concat(firstname, ' ', lastname) AS name, i.score FROM players p " +
                         "INNER JOIN player_tournament_info i ON p.id = i.player_id " +
-                        "WHERE tournament_id = '" + tournamentDto.id() + "' " +
-                        "ORDER BY i.score DESC LIMIT 10"
+                        "WHERE tournament_id = ? " +
+                        "ORDER BY i.score DESC LIMIT 10;", tournamentDto.id()
         );
 
         int rank = 1;
@@ -315,17 +311,15 @@ public class TournamentPanel extends JPanel {
     private void generatePairings(int roundNumber) {
         try {
             String roundId = Objects.requireNonNull(DatabaseConnection.executeSql(
-                    "SELECT id FROM rounds WHERE tournament_id = " + tournamentDto.id() +
-                            " AND round_number = " + roundNumber
+                    "SELECT id FROM rounds WHERE tournament_id = ? AND round_number = ?", "" + tournamentDto.id(), "" + roundNumber
             )).getFirst().get("id");
 
-            DatabaseConnection.executeSql("DELETE FROM games WHERE round_id = " + roundId);
+            DatabaseConnection.executeSql("DELETE FROM games WHERE round_id = ?",roundId);
 
             var players = DatabaseConnection.executeSql(
                     "SELECT p.id, pti.score, p.fide_rating FROM players p " +
                             "JOIN player_tournament_info pti ON p.id = pti.player_id " +
-                            "WHERE pti.tournament_id = " + tournamentDto.id() +
-                            " ORDER BY pti.score DESC, p.fide_rating DESC"
+                            "WHERE pti.tournament_id = ? ORDER BY pti.score DESC, p.fide_rating DESC", "" + tournamentDto.id()
             );
 
             int count = Objects.requireNonNull(players).size();
@@ -333,8 +327,7 @@ public class TournamentPanel extends JPanel {
             if (count % 2 != 0) {
                 String bye = players.get(count - 1).get("id");
                 DatabaseConnection.executeSql(
-                        "UPDATE player_tournament_info SET score = score + 1 WHERE player_id = " +
-                                bye + " AND tournament_id = " + tournamentDto.id()
+                        "UPDATE player_tournament_info SET score = score + 1 WHERE player_id = ? AND tournament_id = ?;", "" + bye, "" + tournamentDto.id()
                 );
                 count--;
             }
@@ -349,8 +342,7 @@ public class TournamentPanel extends JPanel {
                 String black = white.equals(p1) ? p2 : p1;
 
                 DatabaseConnection.executeSql(
-                        "INSERT INTO games (round_id, tournament_id, player_white, player_black, board_number) VALUES (" +
-                                roundId + "," + tournamentDto.id() + "," + white + "," + black + "," + board++ + ")"
+                        "INSERT INTO games (round_id, tournament_id, player_white, player_black, board_number) VALUES (?,?,?,?,?)", roundId, tournamentDto.id(), white, black, board++
                 );
             }
         } catch (Exception e) {
@@ -362,9 +354,7 @@ public class TournamentPanel extends JPanel {
     private boolean isRoundFinished(int roundNumber) {
         var result = DatabaseConnection.executeSql(
                 "SELECT COUNT(*) as c FROM games g JOIN rounds r ON g.round_id = r.id " +
-                        "WHERE r.tournament_id = " + tournamentDto.id() +
-                        " AND r.round_number = " + roundNumber +
-                        " AND g.result IS NULL"
+                        "WHERE r.tournament_id = ? AND r.round_number = ? AND g.result IS NULL;", tournamentDto.id(), roundNumber
         );
 
         if (result == null) {
@@ -375,7 +365,7 @@ public class TournamentPanel extends JPanel {
 
     private boolean isLastRound(int roundNumber) {
         var result = DatabaseConnection.executeSql(
-                "SELECT COUNT(*) as c FROM rounds WHERE tournament_id = " + tournamentDto.id()
+                "SELECT COUNT(*) as c FROM rounds WHERE tournament_id = ?;", "" + tournamentDto.id()
         );
 
         if (result == null) {
@@ -386,7 +376,7 @@ public class TournamentPanel extends JPanel {
 
     private void finishTournament() {
         DatabaseConnection.executeSql(
-                "UPDATE tournaments SET status = 'COMPLETED' WHERE id = " + tournamentDto.id()
+                "UPDATE tournaments SET status = 'COMPLETED' WHERE id = ?;", "" + tournamentDto.id()
         );
         BaseWindow.getInstance().setContentPane(new TournamentResultPanel(tournamentDto));
         BaseWindow.getInstance().revalidate();

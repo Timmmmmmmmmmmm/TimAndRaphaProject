@@ -14,8 +14,8 @@ public record TournamentDto(int id, String name, LocalDate date, String city, in
         PLANNED, ACTIVE, COMPLETED
     }
 
-    public static List<TournamentDto> getAsList(String sql) {
-        List<HashMap<String, String>> tournamentsHashMap = DatabaseConnection.executeSql(sql);
+    public static List<TournamentDto> getAsList(String sql, String... params) {
+        List<HashMap<String, String>> tournamentsHashMap = DatabaseConnection.executeSql(sql, params);
         if (tournamentsHashMap == null || tournamentsHashMap.isEmpty()) {
             return null;
         }

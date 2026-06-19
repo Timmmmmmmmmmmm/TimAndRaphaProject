@@ -32,8 +32,7 @@ public class TournamentResultPanel extends JPanel {
         this.tournamentDto = tournamentDto;
 
         players = PlayerTournamentInfoDto.getAsList(
-                "SELECT * FROM players p INNER JOIN player_tournament_info pti ON p.id = pti.player_id WHERE pti.tournament_id = "
-                        + tournamentDto.id() + " ORDER BY score DESC");
+                "SELECT * FROM players p INNER JOIN player_tournament_info pti ON p.id = pti.player_id WHERE pti.tournament_id = ? ORDER BY score DESC", "" + tournamentDto.id());
 
         setLayout(new BorderLayout(10, 10));
 
@@ -183,10 +182,10 @@ public class TournamentResultPanel extends JPanel {
         String draws;
 
         try {
-            games_played = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = " + tournamentDto.id() + " AND (g.player_white = " + playerId + " OR g.player_black = " + playerId + ");")).getFirst().get("count");
-            wins = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = " + tournamentDto.id() + " AND ((g.player_white = " + playerId + " AND g.result = 1) OR (g.player_black = " + playerId + " AND g.result = -1));")).getFirst().get("count");
-            losses = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = " + tournamentDto.id() + " AND ((g.player_white = " + playerId + " AND g.result = -1) OR (g.player_black = " + playerId + " AND g.result = 1));")).getFirst().get("count");
-            draws = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = " + tournamentDto.id() + " AND g.result = 0 AND (g.player_white = " + playerId + " OR g.player_black = " + playerId + ");")).getFirst().get("count");
+            games_played = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = ? AND (g.player_white = ? OR g.player_black = ?);", "" + tournamentDto.id(), "" + playerId, playerId)).getFirst().get("count");
+            wins = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = ? AND ((g.player_white = ? AND g.result = 1) OR (g.player_black = ? AND g.result = -1));", "" + tournamentDto.id(), "" + playerId, playerId)).getFirst().get("count");
+            losses = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = ? AND ((g.player_white = ? AND g.result = -1) OR (g.player_black = ? AND g.result = 1));", "" + tournamentDto.id(), "" + playerId, playerId)).getFirst().get("count");
+            draws = Objects.requireNonNull(DatabaseConnection.executeSql("SELECT COUNT(*) AS count FROM games g WHERE g.tournament_id = ? AND g.result = 0 AND (g.player_white = ? OR g.player_black = ?);", "" + tournamentDto.id(), "" + playerId, playerId)).getFirst().get("count");
 
         } catch (Exception e) {
             System.out.println("Error while trying to load details for player with id " + playerId);
@@ -194,10 +193,7 @@ public class TournamentResultPanel extends JPanel {
         }
 
         List<HashMap<String, String>> strongestList = DatabaseConnection.executeSql(
-                "SELECT p.firstname, p.lastname, p.fide_rating FROM games g JOIN players p ON ((g.player_white = "
-                        + playerId + " AND p.id = g.player_black) OR (g.player_black = "
-                        + playerId + " AND p.id = g.player_white)) WHERE g.tournament_id = "
-                        + tournamentDto.id() + " AND p.fide_rating IS NOT NULL ORDER BY p.fide_rating DESC LIMIT 1;"
+                "SELECT p.firstname, p.lastname, p.fide_rating FROM games g JOIN players p ON ((g.player_white = ? AND p.id = g.player_black) OR (g.player_black = ? AND p.id = g.player_white)) WHERE g.tournament_id = ? AND p.fide_rating IS NOT NULL ORDER BY p.fide_rating DESC LIMIT 1;", playerId, playerId, "" + tournamentDto.id()
         );
 
         double winPercent = 0;

@@ -85,7 +85,7 @@ public class StartGameDialog {
             GameDto gameDto = selectedGame.gameDto();
             gameDto.board_number = boardNumber;
 
-            DatabaseConnection.executeSql("UPDATE games SET board_number = " + gameDto.board_number + " , start = '" + LocalDateTime.now() + "' WHERE id = " + gameDto.id);
+            DatabaseConnection.executeSql("UPDATE games SET board_number = ? , start = ? WHERE id = ?;", gameDto.board_number, LocalDateTime.now(), gameDto.id);
 
             BaseWindow.getInstance().setContentPane(
                     new BoardPanel(new Game(

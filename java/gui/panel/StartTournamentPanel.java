@@ -92,7 +92,7 @@ public class StartTournamentPanel extends JPanel {
 
                 if (col == 7 && row >= 0) {
                     PlayerDto p = tableModel.getPlayerAt(row);
-                    DatabaseConnection.executeSql("DELETE FROM players WHERE id = " + p.id);
+                    DatabaseConnection.executeSql("DELETE FROM players WHERE id = ?", p.id);
                     tableModel.reload();
                 }
             }
